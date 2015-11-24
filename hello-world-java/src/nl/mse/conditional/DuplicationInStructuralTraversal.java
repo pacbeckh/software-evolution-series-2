@@ -3,7 +3,7 @@ package nl.mse.conditional;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DuplciationInStructuralTraversal {
+public class DuplicationInStructuralTraversal {
 
 	public List<String> names(List<List<Object>> objects) {
 		List<String> answer = new ArrayList<String>();
