@@ -31,7 +31,7 @@ public void  mainFunction(model) {
 	
 	lrel[Statement,Statement] anonymousRel = [];
 	for ( normStatement <- toSet(range(normalized))) {
-		anonymousRel += anonimizeStatatement(normStatement);
+		anonymousRel += anonimizeStatement(normStatement);
 	}
 }
 
