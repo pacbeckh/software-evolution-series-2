@@ -3,7 +3,7 @@ module AnonymizeStatements
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 
-public lrel[Statement,Statement] anonimizeStatatement(Statement s, lrel[Statement,Statement] result) {
+public lrel[Statement,Statement] anonimizeStatatement(Statement s) {
 	res = visit(s) {
 		case \label(_, b) => \break("label0", b)
 		case \break(_) => \break("label0")
@@ -15,6 +15,5 @@ public lrel[Statement,Statement] anonimizeStatatement(Statement s, lrel[Statemen
 		case \stringLiteral(_) => \stringLiteral("str0")
 		case \characterLiteral(_) => \characterLiteral("c")
 	}
-	result += <s,res>;
-	return result;
+	return res;
 }
