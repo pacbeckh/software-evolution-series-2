@@ -6,6 +6,7 @@ import List;
 import Set;
 import String;
 import ListRelation;
+import Relation;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import Map;
@@ -13,6 +14,8 @@ import util::Maybe;
 
 import AnonymizeStatements;
 import Domain;
+import logic::PairEvolver;
+import transformation::AstNormalizer;
 
 public loc projectLoc = |project://hello-world-java/src/nl/simple|;
 public M3 model;
@@ -28,88 +31,45 @@ public void run(M3 model) {
 	
 	set[AnonymousLink] links = {};
 	
-	for (m <- methods(model)
-		//, m.file == "foo2(int)"
-		//, /\/DuplicationWithOneLineRemoved\// := m.path
-	) {
+	for (m <- methods(model)) {
 		println("Handle method (<i>): <m.file>, <m>");
 		i += 1;
 		
 		Declaration d = getMethodASTEclipse(m, model = model);
-		Declaration normalized = normalizeMethod(d);
+		Declaration normalized = normalizeMethods(d);
 		
 		links += getAnonimizedStatements(d);
 	}
 	
-	map[Statement,set[AnonymousLink]] linkIndex = ();
-	for(link <- links) {
-		if (linkIndex[link.anonymous]?) {
-			linkIndex[link.anonymous] = linkIndex[link.anonymous] + link;
-		} else {
-			linkIndex[link.anonymous] = {link};
-		}
-	}
-	
-	iprintln(size(links));
-	iprintln(size(domain(linkIndex)));
-	set[LinkPair] allPairs = {};
-	for(k <- linkIndex) {
-		println("Key with size: <size(linkIndex[k])>");
-		if (size(linkIndex[k]) > 1) {
-			println("Build pairs for key with size: <size(linkIndex[k])>");
-			set[LinkPair] pairs = setupLinkPairs(linkIndex[k]);
-			println("- Pairs: <size(pairs)>");
-			allPairs += pairs;
-		}
-	}
-	
-	//LinkPair focus = head(toList(allPairs));
-	
+	set[LinkPair] allPairs  = getAllLinkPairs(links);	
 	map[int, set[LinkPair]] levelResults = ();
 	 
 	for (focus <- allPairs) {
-		int level = 0;
-		println("Focus:");
-		println(" - left: <head(focus.leftStack).normal@src>");
-		println(" - right: <head(focus.rightStack).normal@src>");
-		
-		LinkPair subject = focus;
-		while(subject.ltrMappingPossible || subject.rtlMappingPossible) {
-			level+=1;
-			println("\> Level <level>");
-			Maybe[LinkPair] next = evolveLinkPair(subject);
-			if (nothing() == next) {
-				if (levelResults[level]?) {
-					levelResults[level] += subject;
-				} else {
-					levelResults[level] = {subject};
-				}
-				break;
-			} else if (just(p) := next) {
-				if(!p.ltrMappingPossible && !p.rtlMappingPossible) {
-					if (levelResults[level]?) {
-						levelResults[level] += subject;
-					} else {
-						levelResults[level] = {subject};
-					}
-				}
-				subject = p;
-			} 
-			
+		<level, evolved> = evolvePair(focus);
+		if (levelResults[level]?) {
+			levelResults[level] += evolved;
+		} else {
+			levelResults[level] = {evolved};
 		}
 	}
-	iprintln([k | k <- levelResults]);
-	for (k <- levelResults) {
-		println("<k> -\> <size(levelResults[k])>"); 
-	}
-	//iprintln("All pairs <size(allPairs)>");
 	
+	//Remove things we are not interested in. We should use weight here.
+	levelResults = delete(delete(levelResults, 1),2);
+	
+	for (k <- levelResults) {
+		iprintln("Key: <k>");
+		set[LinkPair] levelResult = levelResults[k];
+		rel[tuple[loc, loc],tuple[loc, loc]] rels = {<<last(l.leftStack).normal@src, head(l.leftStack).normal@src>, 
+						      <last(l.rightStack).normal@src, head(l.rightStack).normal@src>> | l <- levelResult};
+		
+		iprintln("- Init: <size(rels)>");
+		rels += {<r,l> | <l,r> <- rels};
+		iprintln("- Invert: <size(rels)>");
+		rels = rels+; 
+		iprintln("- Trans: <size(rels)>");
+		iprintln("- Parts: <size(groupRangeByDomain(rels))>");
+	}
 }
-
-public Declaration normalizeMethod(Declaration d) {
-	return d;
-}
-
 
 public set[AnonymousLink] getAnonimizedStatements(Declaration normalized) {
 	set[AnonymousLink] answer = {};
@@ -130,112 +90,34 @@ public set[AnonymousLink] getAnonimizedStatements(Declaration normalized) {
 	return answer;
 }
 
+
+public set[LinkPair] getAllLinkPairs(set[AnonymousLink] links) {
+	map[Statement,set[AnonymousLink]] linkIndex = ();
+	for(link <- links) {
+		if (linkIndex[link.anonymous]?) {
+			linkIndex[link.anonymous] = linkIndex[link.anonymous] + link;
+		} else {
+			linkIndex[link.anonymous] = {link};
+		}
+	}
+	
+	set[LinkPair] allPairs = {};
+	for(k <- linkIndex, size(linkIndex[k]) > 1) {
+		set[LinkPair] pairs = setupLinkPairs(linkIndex[k]);
+		allPairs += pairs;
+	}
+	return allPairs;
+}
+
 public set[LinkPair] setupLinkPairs(set[AnonymousLink] links) {
 	list[AnonymousLink] linkList = toList(links);
 	set[LinkPair] result = {};
 	
-	for(int i <- [0 .. size(linkList)]) {
-		for(int j <- [i+1 .. size(linkList)]) {
-			//println("<i> -\> <j>");
-			
-			LinkPair linkPair = createParameterizedPair(linkList[i], linkList[j]);
-			if (linkPair.ltrMappingPossible || linkPair.rtlMappingPossible) {
-				//println("- Is Pair");
-				result += linkPair;
-			}
+	for(int i <- [0 .. size(linkList)], int j <- [i+1 .. size(linkList)]) {
+		LinkPair linkPair = linkPairWithNext(linkList[i], linkList[j]);
+		if (linkPair.ltrMappingPossible || linkPair.rtlMappingPossible) {
+			result += linkPair;
 		}
 	}
 	return result;
 }
-
-
-public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
-	NextLink leftNextLink = head(input.leftStack).next;
-	NextLink rightNextLink = head(input.rightStack).next;
-	
-	if (leftNextLink == noLink() || rightNextLink == noLink()) {
-		return nothing();
-	}
-	
-	AnonymousLink leftNext = leftNextLink.val;
-	AnonymousLink rightNext = rightNextLink.val;
-	list[str] leftVars = getVariables(leftNext.normal);
-	list[str] rightVars = getVariables(rightNext.normal);
-	
-	MappingComparison leftComparison = mappingComparison(input.ltrMappingPossible, input.ltrMapping);
-	MappingComparison rightComparison = mappingComparison(input.rtlMappingPossible, input.rtlMapping);
-	
-	if(input.ltrMappingPossible) {
-		leftComparison = compareVariables(leftVars, rightVars, input.ltrMapping);
-	}
-	if(input.rtlMappingPossible) {
-		rightComparison = compareVariables(rightVars, leftVars, input.rtlMapping);
-	}
-	
-	return just(linkPair(
-		leftNext + input.leftStack,
-		rightNext + input.rightStack,
-		leftComparison.success,
-		leftComparison.mapping,
-		rightComparison.success,
-		rightComparison.mapping
-	));
-}
-
-public LinkPair createParameterizedPair(AnonymousLink left, AnonymousLink right) {
-	list[str] leftVars = getVariables(left.normal);
-	list[str] rightVars = getVariables(right.normal);
-	
-	MappingComparison leftResult = compareVariables(leftVars, rightVars, ());
-	MappingComparison rightResult = compareVariables(rightVars, leftVars, ());
-	
-	return linkPair(
-		[left],
-		[right],
-		leftResult.success,
-		leftResult.mapping,
-		rightResult.success,
-		rightResult.mapping
-	);
-}
-
-public MappingComparison compareVariables(list[str] leftVars, list[str] rightVars, map[str, str] mapping) {
-	if (size(leftVars) != size(rightVars)) {
-		return mappingComparison(false, mapping);
-	}
-	int i = 0;
-	m = mapping;
-	while (i < size(leftVars)) {
-		if (m[leftVars[i]]?) {
-			if (m[leftVars[i]] != rightVars[i]) {
-				//println("Problem on \"<leftVars[i]>\" -\> \"<rightVars[i]>\"");
-				return mappingComparison(false, m);
-			} 
-			//else {
-				//println("We are good on \"<leftVars[i]>\" -\> \"<rightVars[i]>\"");
-			//}
-		} else {
-			//println("Assign m on \"<leftVars[i]>\" -\> \"<rightVars[i]>\"");
-			m[leftVars[i]] = rightVars[i];
-		}
-		//iprintln("I <i>");
-		i+=1;
-	}
-	//iprintln(m);
-	return mappingComparison(true, m);
-}
-
-public list[str] getVariables(Statement s) {
-	list[str] result = [];
-	top-down visit(s) {
-		case \variable(x,_): {result += x;}
-		case \variable(x,_,_): {result += x;}
-		case \simpleName(x): {result += x;}
-		case \number(x): {result += x;}
-		case \booleanLiteral(x): {result += x;}
-		case \stringLiteral(x): {result += x;}
-		case \characterLiteral(x): {result += x;} 
-	}
-	
-	return result;
-} 

@@ -5,21 +5,20 @@ import IO;
 import String;
 import List;
 
-public lrel[Statement,Statement] normalizeMethods(Declaration declaration) {
+public Declaration normalizeMethods(Declaration declaration) {
 	lrel[Statement,Statement] result = [];
 	
-	top-down-break visit(declaration) {
-		case \method(Type \return, str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl) :
-			result += <impl, normalize(impl)>;
-		case \constructor(str name, list[Declaration] parameters, list[Expression] exceptions, Statement impl) :
-			result += <impl, normalize(impl)>;  
+	switch(declaration) {
+		case \method(\return, name, parameters, exceptions, impl) :
+			return \method(\return,name,parameters,exceptions, normalize(impl));
+		case \constructor(name, parameters, exceptions, impl) :
+			return \constructor(name, parameters,exceptions, normalize(impl));
 	}
-	
-	return result;
+	return declaration;
 }
 
 public Statement normalize(Statement statement) {
-	return top-down visit(statement) {
+	return visit(statement) {
 		case \if(Expression e, Statement s) => 
 			\if(e, addBlock(s))
 		case \if(Expression e, Statement s1, Statement s2) => 

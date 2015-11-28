@@ -24,3 +24,8 @@ data MappingComparison = mappingComparison(
 	bool success,
 	map[str,str] mapping
 );
+
+data CloneFragment = cloneFragement(
+	Statement startStatement,
+	int length
+);
