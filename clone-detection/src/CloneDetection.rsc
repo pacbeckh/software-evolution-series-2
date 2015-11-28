@@ -11,7 +11,6 @@ import lang::java::jdt::m3::AST;
 import Map;
 
 import AnonymizeStatements;
-import DataFlowFlattener;
 
 public loc projectLoc = |project://hello-world-java/src/nl/simple|;
 public M3 model;
