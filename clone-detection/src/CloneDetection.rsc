@@ -11,6 +11,7 @@ import lang::java::jdt::m3::AST;
 import Map;
 
 import AnonymizeStatements;
+import DataFlowFlattener;
 
 public loc projectLoc = |project://hello-world-java/src/nl/simple|;
 public M3 model;
@@ -27,23 +28,34 @@ public void  mainFunction(model) {
 	
 	lrel[Statement, Statement] normalized = [];
 	int i = 1;
-	for (m <- methods(model), m.file == "foo2(int)", /\/simple\// := m.path) {
+	for (m <- methods(model), m.file == "foo2(int)", /\/DuplicationWithOneLineRemoved\// := m.path) {
 		println("Handle method (<i>): <m.file>, <m>");
 		i += 1;
 		Declaration d = getMethodASTEclipse(m, model = model);
 		normalized += normalizeMethod(d);
 	}
-
+	
 	lrel[Statement,Statement] anonymousRel = [];
 	for ( normStatement <- toSet(range(normalized))) {
 		anonymousRel += anonimizeStatement(normStatement);
 	}
 	
 	lrel[Statement, Statement] whole = invert(anonymousRel) o invert(normalized);
-	map[Statement, set[Statement]] indexWhole = index(whole);
-	//iprintln([<lhs@src,rhs@src> | <lhs, rhs> <- whole]);
-	iprintln([ rhs@src | <_,rhs> <- anonymousRel]);
-	iprintln([ rhs@src | rhs <- range(anonymousRel) ]);
+	iprintln(size(whole));
+	map[Statement,set[Statement]] wholeIndex = index(whole);
+	iprintln((k@src: getOneFrom(wholeIndex[k])@src | k <- wholeIndex));
+	
+	return;
+	invert(anonymousRel);
+	for (rhs <- range(anonymousRel)) {
+		list[StatementNode] l = flatten(rhs);
+		if (size(l) > 1) {
+			//iprintln(l);
+			iprintln(size(l));
+			iprintln(l);
+		}
+		//return;
+	}
 }
 
 

@@ -6,15 +6,13 @@ import IO;
 
 public tuple[Statement,Statement] anonimizeStatement(Statement s) {
 	res = visit(s) {
-		case \label(_, b) => \label("label0", b)
-		case \break(_) => \break("label0")
 		case \variable(_,dim) => \variable("id0",dim)
 		case \variable(_,dim, e) => \variable("id0",dim, e)
 		case \simpleName(_) => \simpleName("id0")
 		case \number(_) => \number("0")
-		case \booleanLiteral(_) => \booleanLiteral(false)
-		case \stringLiteral(_) => \stringLiteral("str0")
-		case \characterLiteral(_) => \characterLiteral("c")
+		case \booleanLiteral(_) => \simpleName("id0")
+		case \stringLiteral(_) => \simpleName("id0")
+		case \characterLiteral(_) => \simpleName("id0")
 	}
 	return <s,res>;
 }
