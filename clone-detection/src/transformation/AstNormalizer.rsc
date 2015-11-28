@@ -33,18 +33,18 @@ public Statement normalize(Statement statement) {
     		\for(initializers, updaters, addBlock(body))
 		case \label(str name, Statement body) => 
     		\label(name, addBlock(body))
-     	case \switch(Expression expression, list[Statement] statements) => 
-     		\switch(expression, addBlocks(statements))
+     	//case \switch(Expression expression, list[Statement] statements) => 
+     		//\switch(expression, addBlocks(statements))
 		case \catch(Declaration exception, Statement body) => 
 			\catch(exception, addBlock(body))
      	case \while(Expression condition, Statement body) => 
      		\while(condition, addBlock(body))
     	case \synchronizedStatement(Expression lock, Statement body) =>
     		\synchronizedStatement(lock, addBlock(body))
-		case \try(Statement body, list[Statement] catchClauses) =>
-     		\try(body, addBlocks(catchClauses))
-     	case \try(Statement body, list[Statement] catchClauses, Statement final) =>
-     		\try(body, addBlocks(catchClauses), addBlock(final))
+		//case \try(Statement body, list[Statement] catchClauses) =>
+     		//\try(body, addBlocks(catchClauses))
+     	//case \try(Statement body, list[Statement] catchClauses, Statement final) =>
+     		//\try(body, addBlocks(catchClauses), addBlock(final))
     	
     	case \infix(Expression lhs, str operator, Expression rhs) => \infix(lhs, "=", \infix( lhs, substring(operator, 0, size(operator) - 1 ), rhs))
     		when operator in ["+=", "*=", "/=", "-=", "%=", "&=", "|=", "^=", "\>\>=", "\<\<=", "\>\>\>="]

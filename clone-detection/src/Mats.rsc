@@ -17,12 +17,15 @@ import Domain;
 import logic::PairEvolver;
 import transformation::AstNormalizer;
 
-public loc projectLoc = |project://hello-world-java/src/nl/simple|;
-public M3 model;
+//public loc projectLoc = |project://hello-world-java/src/nl/simple|;
+public loc projectLoc = |project://smallsql0.21_src|;
 
-public M3 loadModel() {
-	model = createM3FromEclipseProject(projectLoc);
-	return model;
+public void mainFunction() {
+	println("<printDateTime(modelStart)> Obtaining M3 Model");
+	M3 model = createM3FromEclipseProject(projectLoc);
+	
+	println("<printDateTime(now())> Starting clone detection");
+	run(model);
 }
 
 
@@ -31,8 +34,9 @@ public void run(M3 model) {
 	
 	set[AnonymousLink] links = {};
 	
+	println("<printDateTime(now())> Normalize and anonimize statements...");
 	for (m <- methods(model)) {
-		println("Handle method (<i>): <m.file>, <m>");
+		//println("Handle method (<i>): <m.file>, <m>");
 		i += 1;
 		
 		Declaration d = getMethodASTEclipse(m, model = model);
@@ -41,9 +45,11 @@ public void run(M3 model) {
 		links += getAnonimizedStatements(d);
 	}
 	
+	println("<printDateTime(now())> Getting all pairs...");
 	set[LinkPair] allPairs  = getAllLinkPairs(links);	
-	map[int, set[LinkPair]] levelResults = ();
-	 
+	
+	println("<printDateTime(now())> Evolving pairs to maximal expansion...");
+	map[int, set[LinkPair]] levelResults = (); 
 	for (focus <- allPairs) {
 		<level, evolved> = evolvePair(focus);
 		if (levelResults[level]?) {
@@ -56,21 +62,50 @@ public void run(M3 model) {
 	//Remove things we are not interested in. We should use weight here.
 	levelResults = delete(delete(levelResults, 1),2);
 	
+	println("<printDateTime(now())> Transform pairs to start and end locations...");
+	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] levelResultsAbsolute = ();
 	for (k <- levelResults) {
-		iprintln("Key: <k>");
 		set[LinkPair] levelResult = levelResults[k];
 		rel[tuple[loc, loc],tuple[loc, loc]] rels = {<<last(l.leftStack).normal@src, head(l.leftStack).normal@src>, 
 						      <last(l.rightStack).normal@src, head(l.rightStack).normal@src>> | l <- levelResult};
-		
-		iprintln("- Init: <size(rels)>");
-		rels += {<r,l> | <l,r> <- rels};
-		iprintln("- Invert: <size(rels)>");
-		rels = rels+; 
-		iprintln("- Trans: <size(rels)>");
-		iprintln("- Parts: <size(groupRangeByDomain(rels))>");
+		levelResultsAbsolute[k] = rels;
+	}
+	
+	println("<printDateTime(now())> Creating clone classes with equiv rel...");
+	map[int, set[set[tuple[loc,loc]]]] cloneClasses = (k : toEquivalence(levelResultsAbsolute[k]) | k <- levelResultsAbsolute);
+	//for (k <- cloneClasses) {
+	//	iprintln("- <k> \> <size(cloneClasses[k])>");
+	//}
+	
+	println("<printDateTime(now())> Purge overlapping clone classes...");
+	cloneClasses = cleanupCloneClasses(cloneClasses);
+	for (k <- cloneClasses) {
+		println("- <k> \> <size(cloneClasses[k])>");
 	}
 }
 
+public map[int, set[set[tuple[loc,loc]]]] cleanupCloneClasses(map[int, set[set[tuple[loc,loc]]]] input) {
+	list[int] orderedKeys = reverse(sort(toList(domain(input))));
+	set[set[loc]] knownClasses = {};
+		
+	map[int, set[set[tuple[loc,loc]]]] answer = ();
+	
+	for (k <-orderedKeys) {
+		answer[k] = {};
+		for (set[tuple[loc,loc]] clazz <- input[k]) {
+			set[loc] ends = {end | <_,end> <- clazz};
+			if (ends notin knownClasses) {
+				knownClasses += {ends};
+				answer[k] += {clazz};
+			}
+		}
+	}
+	return answer;
+}
+
+public set[set[tuple[loc,loc]]] toEquivalence(rel[tuple[loc,loc],tuple[loc,loc]] rels)
+	= groupRangeByDomain((rels + {<r,l> | <l,r> <- rels})+);
+	
 public set[AnonymousLink] getAnonimizedStatements(Declaration normalized) {
 	set[AnonymousLink] answer = {};
 	visit(normalized) {
@@ -94,6 +129,10 @@ public set[AnonymousLink] getAnonimizedStatements(Declaration normalized) {
 public set[LinkPair] getAllLinkPairs(set[AnonymousLink] links) {
 	map[Statement,set[AnonymousLink]] linkIndex = ();
 	for(link <- links) {
+		if(\expressionStatement(_) := link.normal && link.next ==noLink()) {
+			//Last expression of block. We dont need those.
+			continue;
+		}
 		if (linkIndex[link.anonymous]?) {
 			linkIndex[link.anonymous] = linkIndex[link.anonymous] + link;
 		} else {

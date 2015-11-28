@@ -9,7 +9,7 @@ public list[str] statementToVariables(Statement s) {
 		case \variable(x,_,_): {result += x;}
 		case \simpleName(x): {result += x;}
 		case \number(x): {result += x;}
-		case \booleanLiteral(x): {result += x;}
+		case \booleanLiteral(x): {result += "<x>";}
 		case \stringLiteral(x): {result += x;}
 		case \characterLiteral(x): {result += x;} 
 	}
