@@ -17,7 +17,7 @@ import Domain;
 import logic::PairEvolver;
 import transformation::AstNormalizer;
 
-//public loc projectLoc = |project://hello-world-java/src/nl/simple|;
+//public loc projectLoc = |project://hello-world-java|;
 public loc projectLoc = |project://smallsql0.21_src|;
 
 public void mainFunction() {
@@ -36,7 +36,7 @@ public void run(M3 model) {
 	
 	println("<printDateTime(now())> Normalize and anonimize statements...");
 	for (m <- methods(model)) {
-		//println("Handle method (<i>): <m.file>, <m>");
+		println("Handle method (<i>): <m.file>, <m>");
 		i += 1;
 		
 		Declaration d = getMethodASTEclipse(m, model = model);
@@ -160,3 +160,24 @@ public set[LinkPair] setupLinkPairs(set[AnonymousLink] links) {
 	}
 	return result;
 }
+
+test bool useSetOrListForAnonimizeStatements() {
+	loc modelLoc = |project://hello-world-java|;
+	M3 model = createM3FromEclipseProject(projectLoc);
+	
+	set[AnonymousLink] links = {};
+	for (class <- classes(model), class.file == "DuplicationWithFirstLineDifferent", m <- methods(model, class)) {
+		println("Handle method: <m.file>, <m>");
+				
+		Declaration d = getMethodASTEclipse(m, model = model);
+		Declaration normalized = normalizeMethods(d);
+		
+		//iprintln(getAnonimizedStatements(d));
+		links += getAnonimizedStatements(d);
+	}
+	
+	iprintln("Expected 12 anonimedStatemends, got <size(links)>");
+	
+	return size(links) == 12;
+}
+
