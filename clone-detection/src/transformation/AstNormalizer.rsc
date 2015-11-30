@@ -49,9 +49,27 @@ public Statement normalize(Statement statement) {
     	case \infix(Expression lhs, str operator, Expression rhs) => \infix(lhs, "=", \infix( lhs, substring(operator, 0, size(operator) - 1 ), rhs))
     		when CONFIG_NORMALIZE_STATEMENTS && operator in ["+=", "*=", "/=", "-=", "%=", "&=", "|=", "^=", "\>\>=", "\<\<=", "\>\>\>="] 
     		
-    	//TODO: rewrite < and <=
+		case \infix(Expression lhs, "\<", Expression rhs) => \infix(rhs, "\>", lhs)
+    		when CONFIG_NORMALIZE_STATEMENTS && !couldHaveSideEffects(rhs) && !couldHaveSideEffects(lhs)
+    		
+		case \infix(Expression lhs, "\<=", Expression rhs) => \infix(rhs, "\>=", lhs)
+    		when CONFIG_NORMALIZE_STATEMENTS && !couldHaveSideEffects(rhs) && !couldHaveSideEffects(lhs)
 	}
 }
+
+public bool couldHaveSideEffects(Expression expr) {
+	visit(expr) {
+		case \methodCall(_,_,_) : return true;
+    	case \methodCall(_,_,_,_) : return true;
+    	case \assignment(_,_,_) : return true;
+    	case \postfix(_,_) : return true;
+    	case \prefix(_,_) : return true;
+	}
+	
+	return false;
+}
+
+public default bool hasNoSideEffect(_) = false;
 
 public Statement addBlock(Statement statement) = \block(_) := statement ? statement : \block([statement]);
 public Statement addBlocks(list[Statement] statements) = [addBlock(statement) | statement <- statements]; 
@@ -73,11 +91,25 @@ test bool normalizeIfElseWithExpression() {
 
 test bool normalizeDoWithExpression() {
 	return \do(\block([\expressionStatement(null())]), \null()) 
-		:= normalize(\do(\expressionStatement(\null()), \null()));
+	  	== normalize(\do(\expressionStatement(\null()), \null()));
 }
 
 test bool normalizeInfix() {
 	return \expressionStatement(\infix(\simpleName("a"),"=", \infix(\simpleName("a"), "\>\>", \simpleName("b"))))
-		:= normalize(\expressionStatement(\infix(\simpleName("a"),"\>\>=", \simpleName("b"))));
+		== normalize(\expressionStatement(\infix(\simpleName("a"),"\>\>=", \simpleName("b"))));
 }
 
+test bool normalizeInfixLessThan() {
+	return \expressionStatement(\infix(\simpleName("b"), "\>", \simpleName("a")))
+		== normalize(\expressionStatement(\infix(\simpleName("a"),"\<", \simpleName("b"))));
+}
+
+test bool normalizeInfixLessThanOrEqualTo() {
+	return \expressionStatement(\infix(\simpleName("b"), "\>=", \simpleName("a")))
+		== normalize(\expressionStatement(\infix(\simpleName("a"),"\<=", \simpleName("b"))));
+}
+
+test bool doNotNormalizeInfixLessThanIfThereAreSideEffects() {
+	return \expressionStatement(\infix(\simpleName("a"),"\<=", \arrayAccess(\null(), \methodCall(false, "someMethods", []))))
+		== normalize(\expressionStatement(\infix(\simpleName("a"),"\<=", \arrayAccess(\null(), \methodCall(false, "someMethods", [])))));
+}
