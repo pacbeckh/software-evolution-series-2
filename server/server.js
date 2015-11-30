@@ -11,7 +11,6 @@ app.get('/hello', function (req, res) {
 
 
 var loadFilesInDir = function (path) {
-  console.log("BEFORE");
   var files = fs.readdirSync('./data/files/' + path);
   return files.filter(function (f) {
     return !f.match(/^\./)
@@ -30,19 +29,11 @@ var loadFilesInDir = function (path) {
 };
 
 app.get('/files', function (req, res) {
-  try {
-    var r = loadFilesInDir('.');
-    res.json(r);
-  } catch (e) {
-    console.log(e);
-    //NO CARE
-    res.send('Hello World!');
-  }
+  var r = loadFilesInDir('.');
+  res.json(r);
 });
 
 app.get('/file', function (req, res) {
-  //var content = ;
-  //console.log(content);
   res.send(fs.readFileSync('./data/files/' + req.query.path));
 });
 
@@ -50,6 +41,5 @@ app.get('/file', function (req, res) {
 var server = app.listen(3000, function () {
   var host = server.address().address;
   var port = server.address().port;
-
   console.log('Example app listening at http://%s:%s', host, port);
 });
