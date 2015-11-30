@@ -8,10 +8,6 @@ import List;
 import Config;
 
 public Declaration normalizeMethods(Declaration declaration) {
-	if (!CONFIG_NORMALIZE_STATEMENTS) {
-		return declaration;
-	}
-	
 	switch(declaration) {
 		case \method(\return, name, parameters, exceptions, impl) :
 			return \method(\return,name,parameters,exceptions, normalize(impl));
@@ -51,7 +47,7 @@ public Statement normalize(Statement statement) {
      		//\try(body, addBlocks(catchClauses), addBlock(final))
     	
     	case \infix(Expression lhs, str operator, Expression rhs) => \infix(lhs, "=", \infix( lhs, substring(operator, 0, size(operator) - 1 ), rhs))
-    		when operator in ["+=", "*=", "/=", "-=", "%=", "&=", "|=", "^=", "\>\>=", "\<\<=", "\>\>\>="]
+    		when CONFIG_NORMALIZE_STATEMENTS && operator in ["+=", "*=", "/=", "-=", "%=", "&=", "|=", "^=", "\>\>=", "\<\<=", "\>\>\>="] 
     		
     	//TODO: rewrite < and <=
 	}
