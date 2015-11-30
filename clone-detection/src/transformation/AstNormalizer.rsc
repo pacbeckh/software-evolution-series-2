@@ -5,8 +5,12 @@ import IO;
 import String;
 import List;
 
+import Config;
+
 public Declaration normalizeMethods(Declaration declaration) {
-	lrel[Statement,Statement] result = [];
+	if (!CONFIG_NORMALIZE_STATEMENTS) {
+		return declaration;
+	}
 	
 	switch(declaration) {
 		case \method(\return, name, parameters, exceptions, impl) :

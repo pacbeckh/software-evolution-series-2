@@ -4,15 +4,17 @@ import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import IO;
 
+import Config;
+
 public tuple[Statement,Statement] anonimizeStatement(Statement s) {
 	res = visit(s) {
 		case \variable(_,dim) => \variable("id0",dim)
 		case \variable(_,dim, e) => \variable("id0",dim, e)
 		case \simpleName(_) => \simpleName("id0")
-		case \number(_) => \number("0")
-		case \booleanLiteral(_) => \simpleName("id0")
-		case \stringLiteral(_) => \simpleName("id0")
-		case \characterLiteral(_) => \simpleName("id0")
+		case x:\number(_) => CONFIG_ANONYMOUS_LITERALS ? \simpleName("id0") : x
+		case x:\booleanLiteral(_) => CONFIG_ANONYMOUS_LITERALS ? \simpleName("id0") : x
+		case x:\stringLiteral(_) => CONFIG_ANONYMOUS_LITERALS ? \simpleName("id0") : x
+		case x:\characterLiteral(_) => CONFIG_ANONYMOUS_LITERALS ? \simpleName("id0") : x 
 	}
 	return <s,res>;
 }
