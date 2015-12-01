@@ -160,7 +160,7 @@ public list[LinkPair] setupLinkPairs(list[AnonymousLink] links) {
 	
 	for(int i <- [0 .. size(links)], int j <- [i+1 .. size(links)]) {
 		LinkPair linkPair = linkPairWithNext(links[i], links[j]);
-		if (linkPair.ltrMappingPossible || linkPair.rtlMappingPossible) {
+		if (isMappingPossible(linkPair)) {
 			result += linkPair;
 		}
 	}

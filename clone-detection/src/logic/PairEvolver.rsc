@@ -18,7 +18,7 @@ public tuple[int, LinkPair] evolvePair(LinkPair target) {
 			return <level, subject>;
 			break;
 		} else if (just(p) := next) {
-			if(!p.ltrMappingPossible && !p.rtlMappingPossible) {
+			if(!isMappingPossible(p)) {
 				return <level, subject>;
 			}
 			subject = p;
@@ -26,6 +26,10 @@ public tuple[int, LinkPair] evolvePair(LinkPair target) {
 	}
 }
 
+public bool isMappingPossible(LinkPair p) {
+	return p.ltrMappingPossible && p.rtlMappingPossible;
+}
+ 
 public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
 	NextLink leftNextLink = head(input.leftStack).next;
 	NextLink rightNextLink = head(input.rightStack).next;
