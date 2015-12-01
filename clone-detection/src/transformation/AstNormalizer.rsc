@@ -6,6 +6,7 @@ import String;
 import List;
 
 import Config;
+import Domain;
 
 public Declaration normalizeMethods(Declaration declaration) {
 	return visit (declaration) {
@@ -16,30 +17,28 @@ public Declaration normalizeMethods(Declaration declaration) {
 	}
 }
 
-anno int Statement @ weight;
-
 public Statement normalize(Statement statement) {
 	return visit(statement) {
-		case \if(Expression e, Statement s) => 
-			withWeight(\if(e, addBlock(s)), [s])
-		case \if(Expression e, Statement s1, Statement s2) =>
-			withWeight(\if(e, addBlock(s1), addBlock(s2)), [s1,s2])
-		case \do(Statement s, Expression e) =>  
-			withWeight(\do(addBlock(s), e), [s])
-		case \foreach(Declaration d, Expression e, Statement s) =>
-			withWeight(\foreach(d, e, addBlock(s)), [s])
-    	case \for(list[Expression] initializers, Expression condition, list[Expression] updaters, Statement body) => 
-    		withWeight(\for(initializers, condition, updaters, addBlock(body)), [body])
-    	case \for(list[Expression] initializers, list[Expression] updaters, Statement body) => 
-    		withWeight(\for(initializers, updaters, addBlock(body)), [body])
-		case \label(str name, Statement body) => 
-    		withWeight(\label(name, addBlock(body)), [body])
-		case \catch(Declaration exception, Statement body) => 
-			withWeight(\catch(exception, addBlock(body)), [body])
-     	case \while(Expression condition, Statement body) => 
-     		withWeight(\while(condition, addBlock(body)), [body])
-    	case \synchronizedStatement(Expression lock, Statement body) =>
-    		withWeight(\synchronizedStatement(lock, addBlock(body)), [body])
+		case z:\if(Expression e, Statement s) => 
+			copySrc(z, withWeight(\if(e, addBlock(s)), [s]))
+		case z:\if(Expression e, Statement s1, Statement s2) =>
+			copySrc(z, withWeight(\if(e, addBlock(s1), addBlock(s2)), [s1,s2]))
+		case z:\do(Statement s, Expression e) =>  
+			copySrc(z, withWeight(\do(addBlock(s), e), [s]))
+		case z:\foreach(Declaration d, Expression e, Statement s) =>
+			copySrc(z, withWeight(\foreach(d, e, addBlock(s)), [s]))
+    	case z:\for(list[Expression] initializers, Expression condition, list[Expression] updaters, Statement body) => 
+    		copySrc(z, withWeight(\for(initializers, condition, updaters, addBlock(body)), [body]))
+    	case z:\for(list[Expression] initializers, list[Expression] updaters, Statement body) => 
+    		copySrc(z, withWeight(\for(initializers, updaters, addBlock(body)), [body]))
+		case z:\label(str name, Statement body) => 
+    		copySrc(z, withWeight(\label(name, addBlock(body)), [body]))
+		case z:\catch(Declaration exception, Statement body) => 
+			copySrc(z, withWeight(\catch(exception, addBlock(body)), [body]))
+     	case z:\while(Expression condition, Statement body) => 
+     		copySrc(z, withWeight(\while(condition, addBlock(body)), [body]))
+    	case z:\synchronizedStatement(Expression lock, Statement body) =>
+    		copySrc(z, withWeight(\synchronizedStatement(lock, addBlock(body)), [body]))
     		
 		case s:\try(Statement body, list[Statement] catchClauses) =>
      		withWeight(s, catchClauses)
@@ -48,10 +47,7 @@ public Statement normalize(Statement statement) {
  		case s:\switch(Expression expression, list[Statement] statements) => 
      		withWeight(s, statements)
      		
-     	case b:\block(list[Statement] statements) =>
-     		withWeight(b)
-
-		case Statement s => withWeight(s)    	
+     	case Statement s => withWeight(s)    	
     	
     	//Normalize operands, but only if we are absolutely sure the method has no side effects.
     	case \infix(Expression lhs, str operator, Expression rhs) => 
@@ -64,6 +60,11 @@ public Statement normalize(Statement statement) {
 		case \infix(Expression lhs, "\<=", Expression rhs) => \infix(rhs, "\>=", lhs)
     			when CONFIG_NORMALIZE_STATEMENTS && !couldHaveSideEffects(rhs) && !couldHaveSideEffects(lhs)
 	}
+}
+
+private Statement copySrc(Statement source, Statement target) {
+	target@src = source@src; 
+	return target;
 }
 
 private Statement withWeight(b:\block(list[Statement] statements)) {

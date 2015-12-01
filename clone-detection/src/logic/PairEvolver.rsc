@@ -2,24 +2,31 @@ module logic::PairEvolver
 
 import List;
 import util::Maybe;
+import IO;
 
 import Domain;
 import logic::VariableMapping;
 import transformation::StatementVariables;
 
 
-public tuple[int, LinkPair] evolvePair(LinkPair target) {
-	int level = 0;	
+public LinkPair evolvePair(LinkPair target) {
+	int maxWeight = head(target.leftStack)@maxWeight;
 	LinkPair subject = target;
 	while(true) {
-		level+=1;
 		Maybe[LinkPair] next = evolveLinkPair(subject);
+		
 		if (nothing() == next) {
-			return <level, subject>;
+
+			subject@weight = noLink() := head(subject.leftStack).next ? maxWeight :  maxWeight - head(subject.leftStack).next.val@maxWeight;			
+			
+			return subject;
+			
 			break;
 		} else if (just(p) := next) {
 			if(!isMappingPossible(p)) {
-				return <level, subject>;
+				subject@weight = maxWeight - head(subject.leftStack).next.val@maxWeight;
+				
+				return subject;
 			}
 			subject = p;
 		} 		

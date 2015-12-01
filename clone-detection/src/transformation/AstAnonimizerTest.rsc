@@ -1,28 +1,49 @@
-module AnonymizeStatements
+module transformation::AstAnonimizerTest
 
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import IO;
 
+import transformation::AstAnonimizer;
+import transformation::AstNormalizer;
+
 import Config;
+import Domain;
 
-public tuple[Statement,Statement] anonimizeStatement(Statement s) {
-	res = visit(s) {
-		case \variable(_,dim) => \variable("id0",dim)
-		case \variable(_,dim, e) => \variable("id0",dim, e)
-		case \simpleName(_) => \simpleName("id0")
-		case x:\number(_) => CONFIG_ANONYMOUS_LITERALS ? \simpleName("id0") : x
-		case x:\booleanLiteral(_) => CONFIG_ANONYMOUS_LITERALS ? \simpleName("id0") : x
-		case x:\stringLiteral(_) => CONFIG_ANONYMOUS_LITERALS ? \simpleName("id0") : x
-		case x:\characterLiteral(_) => CONFIG_ANONYMOUS_LITERALS ? \simpleName("id0") : x 
-	}
-	return <s,res>;
-}
+public test bool shouldAddCorrectMaxWeight(){
+	Declaration d = \method(\void(), "a", [], [], \block([
+		\expressionStatement(\simpleName("s1")),
+		\if(\simpleName("s2"), 
+			\block([
+				\expressionStatement(\simpleName("s3")),
+				\expressionStatement(\simpleName("s4"))
+			])
+		),
+		\expressionStatement(\simpleName("s5"))		
+	]));
+	
+	normalized = normalizeMethods(d);
+	
+	list[AnonymousLink] result = getAnonimizedStatements(normalized);
+	
+	return
+		//s4 
+		result[0]@maxWeight == 1 &&
+		//s3
+		result[1]@maxWeight == 2 &&
+		//s5
+		result[2]@maxWeight == 1 &&
+		//if 
+		result[3]@maxWeight == 4 &&
+		//s1
+		result[4]@maxWeight == 5;
+		
+} 
 
 
-//Test Code
-public bool anonimizeEqual(Expression l, Expression r) = anonimizeEqual(expressionStatement(l), expressionStatement(r));
-public bool anonimizeEqual(Statement l, Statement r) {
+
+private bool anonimizeEqual(Expression l, Expression r) = anonimizeEqual(expressionStatement(l), expressionStatement(r));
+private bool anonimizeEqual(Statement l, Statement r) {
 	<_,resultL> = anonimizeStatement(l);
 	<_,resultR> = anonimizeStatement(r);
 	return resultL == resultR;

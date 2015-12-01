@@ -12,14 +12,15 @@ import lang::java::jdt::m3::AST;
 import Map;
 import util::Maybe;
 
-import AnonymizeStatements;
 import Domain;
+import Config;
 import logic::PairEvolver;
+import PairCreator;
 import transformation::AstNormalizer;
-import AnonymizeStatements;
+import transformation::AstAnonimizer;
 
-public loc projectLoc = |project://hello-world-java/|;
-//public loc projectLoc = |project://smallsql0.21_src|;
+//public loc projectLoc = |project://hello-world-java/|;
+public loc projectLoc = |project://smallsql0.21_src|;
 
 public M3 model;
 
@@ -29,49 +30,52 @@ public M3 loadModel() {
 }
 
 public void mainFunction() {
+
+	println("<printTime(now())> Loading model");
 	M3 model = loadModel();
 	
-	println("<printDateTime(now())> Starting clone detection");
+	println("<printTime(now())> Starting clone detection");
 	run(model);
 }
 
 
 public void run(M3 model) {
-	int i = 1;
-	
 	list[AnonymousLink] links = [];
 	
-	println("<printDateTime(now())> Normalize and anonimize statements...");
+	println("<printTime(now())> Normalize and anonimize statements...");
+	int methodIndex = 1;
+	
 	for (m <- methods(model)) {
-		println("Handle method (<i>): <m.file>, <m>");
-		i += 1;
+		//println("Handle method (<methodIndex>): <m.file>, <m>");
+		methodIndex += 1;
 
 		Declaration d = getMethodASTEclipse(m, model = model);
+		//Declaration d = createAstFromFile(|file://C:/Users/Paco/UVA/software-evolution/software-evolution-series-2/hello-world-java/src/nl/mse/simple/DuplicationWithLastLineDifferent.java|, false, javaVersion="1.6");
 		Declaration normalized = normalizeMethods(d);
-		
-		links += getAnonimizedStatements(d);
+		links += getAnonimizedStatements(normalized);
 	}
-	iprintln("<size(links)> links found"); 
 	
-	println("<printDateTime(now())> Getting all pairs...");
+	iprintln("<size(links)> links found");
+	
+	println("<printTime(now())> Getting all pairs...");
 	list[LinkPair] allPairs  = getAllLinkPairs(links);
 	iprintln("<size(allPairs)> linkpairs found");
 	
-	println("<printDateTime(now())> Evolving pairs to maximal expansion...");
+	println("<printTime(now())> Evolving pairs to maximal expansion...");
 	map[int, list[LinkPair]] levelResults = (); 
 	for (focus <- allPairs) {
-		<level, evolved> = evolvePair(focus);
-		if (levelResults[level]?) {
-			levelResults[level] += evolved;
+		evolved = evolvePair(focus);
+		if (levelResults[evolved@weight]?) {
+			levelResults[evolved@weight] += evolved;
 		} else {
-			levelResults[level] = [evolved];
+			levelResults[evolved@weight] = [evolved];
 		}
 	}
 	
-	//Remove things we are not interested in. We should use weight here.
-	levelResults = delete(delete(levelResults, 1),2);
+	//Remove things we are not interested in, stuff below the threshold.
+	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_THRESHOLD + 1]);
 	
-	println("<printDateTime(now())> Transform pairs to start and end locations...");
+	println("<printTime(now())> Transform pairs to start and end locations...");
 	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] levelResultsAbsolute = ();
 	for (k <- levelResults) {
 		list[LinkPair] levelResult = levelResults[k];
@@ -80,10 +84,10 @@ public void run(M3 model) {
 		levelResultsAbsolute[k] = rels;
 	}
 	
-	println("<printDateTime(now())> Creating clone classes with equiv rel...");
+	println("<printTime(now())> Creating clone classes with equiv rel...");
 	map[int, set[set[tuple[loc,loc]]]] cloneClasses = (k : toEquivalence(levelResultsAbsolute[k]) | k <- levelResultsAbsolute);
 
-	println("<printDateTime(now())> Purge overlapping clone classes...");
+	println("<printTime(now())> Purge overlapping clone classes...");
 	cloneClasses = cleanupCloneClasses(cloneClasses);
 	for (k <- cloneClasses) {
 		println("- <k> \> <size(cloneClasses[k])>");
@@ -113,56 +117,3 @@ public map[int, set[set[tuple[loc,loc]]]] cleanupCloneClasses(map[int, set[set[t
 public set[set[tuple[loc,loc]]] toEquivalence(rel[tuple[loc,loc],tuple[loc,loc]] rels)
 	= groupRangeByDomain((rels + {<r,l> | <l,r> <- rels})+);
 	
-public list[AnonymousLink] getAnonimizedStatements(Declaration normalized) {
-	list[AnonymousLink] answer = [];
-	visit(normalized) {
-		case \block(list[Statement] sts): {
-			int i = size(sts);
-			NextLink next = noLink();
-			while (i > 0) {
-				i-=1;
-				Statement anon = anonimizeStatement(sts[i])[1];
-				AnonymousLink link = anonymousLink(anon, sts[i], next);
-				answer += link;
-				next = aLink(link);
-			}
-			
-		}
-	}
-	return answer;
-}
-
-
-public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
-	map[Statement,list[AnonymousLink]] linkIndex = ();
-	for(link <- links) {
-		if(\expressionStatement(_) := link.normal && link.next == noLink()) {
-			//Last expression of block. We dont need those.
-			continue;
-		}
-		if (linkIndex[link.anonymous]?) {
-			linkIndex[link.anonymous] = linkIndex[link.anonymous] + link;
-		} else {
-			linkIndex[link.anonymous] = [link];
-		}
-	}
-	
-	list[LinkPair] allPairs = [];
-	for(k <- linkIndex, size(linkIndex[k]) > 1) {
-		list[LinkPair] pairs = setupLinkPairs(linkIndex[k]);
-		allPairs += pairs;
-	}
-	return allPairs;
-}
-
-public list[LinkPair] setupLinkPairs(list[AnonymousLink] links) {
-	list[LinkPair] result = [];
-	
-	for(int i <- [0 .. size(links)], int j <- [i+1 .. size(links)]) {
-		LinkPair linkPair = linkPairWithNext(links[i], links[j]);
-		if (isMappingPossible(linkPair)) {
-			result += linkPair;
-		}
-	}
-	return result;
-}
