@@ -18,6 +18,7 @@ import logic::PairEvolver;
 import PairCreator;
 import transformation::AstNormalizer;
 import transformation::AstAnonimizer;
+import output::Store;
 
 //public loc projectLoc = |project://hello-world-java/|;
 public loc projectLoc = |project://smallsql0.21_src|;
@@ -36,6 +37,9 @@ public void mainFunction() {
 	
 	println("<printTime(now())> Starting clone detection");
 	run(model);
+	
+	println("<printTime(now())> Store files to server");
+	storeInServer(projectLoc);
 }
 
 
