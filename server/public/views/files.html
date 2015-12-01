@@ -1,0 +1,25 @@
+<div ng-controller="FilesCtrl">
+
+    <div class="row">
+        <div class="col s2" style="overflow: scroll; padding-bottom:50px;">
+            <div>
+                <button>Expand</button>
+            </div>
+            <treecontrol class="tree-classic"
+                         tree-model="dataForTheTree"
+                         options="treeOptions"
+                         on-selection="showSelected(node)"
+                         selected-node="node1">
+                {{node.name}}
+            </treecontrol>
+        </div>
+        <div class="col s10" style="background: #c6c6c6;">
+            <div ng-if="selectedFileContent">
+                <ui-codemirror ng-model="selectedFileContent"
+                               ui-codemirror-opts="editorOptions"></ui-codemirror>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>

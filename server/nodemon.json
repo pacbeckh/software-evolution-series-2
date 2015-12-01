@@ -1,0 +1,5 @@
+{
+  "verbose": true,
+  "ignore": [".idea/*","*.test.js", "fixtures/*", "public/components/*", "./node_modules"]
+}
+

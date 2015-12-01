@@ -1,0 +1,30 @@
+{
+  "name": "server",
+  "main": "index.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/stil4m/software-evolution-series-2",
+  "authors": [
+    "Mats Stijlaart <m.stijlaart@avisi.nl>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.8",
+    "angular-materialize": "*",
+    "angular-tree-control": "~0.2.22",
+    "angular-ui-codemirror": "~0.3.0",
+    "angular-ui-router": "~0.2.15",
+    "ez-file-tree": "~0.5.1",
+    "font-awesome": "~4.5.0",
+    "Materialize": "materialize#~0.97.3"
+  },
+  "resolutions": {
+    "angular": "~1.4.8"
+  }
+}
