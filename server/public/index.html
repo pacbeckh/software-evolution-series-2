@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="./main.css">
 
     <script src="./components/jquery/dist/jquery.js"></script>
+    <script src="./components/d3/d3.js"></script>
     <script src="./components/angular/angular.min.js"></script>
     <script src="./components/angular-ui-router/release/angular-ui-router.js"></script>
     <script type="text/javascript" src="./components/codemirror/lib/codemirror.js"></script>
@@ -23,10 +24,13 @@
     <script type="text/javascript" src="./components/angular-tree-control/angular-tree-control.js"></script>
 
 
-    <script src="./index.js"></script>
+    <script src="./script/index.js"></script>
+    <script src="./script/state.js"></script>
     <script src="./script/controllers/FilesCtrl.js"></script>
-    <script src="./script/directives.js"></script>
-    <script src="./state.js"></script>
+    <script src="./script/controllers/ClonesCtrl.js"></script>
+    <script src="./script/directives/FileSnippetLoader.js"></script>
+    <script src="./script/services/FileService.js"></script>
+    <script src="./script/services/ScatterPlotService.js    "></script>
 
 </head>
 
@@ -36,15 +40,18 @@
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li><a data-ui-sref="app.files">Files</a></li>
+                <li ng-class="{ 'active' : $state.includes('app.files') }"><a data-ui-sref="app.files">Files</a></li>
+                <li ng-class="{ 'active' : $state.includes('app.clones') }"><a data-ui-sref="app.clones">Clones</a></li>
             </ul>
 
         </div>
     </div>
 </nav>
 
-<div ui-view>
-    <p>Foo</p>
+<div>
+    <div ui-view>
+        <p>Foo</p>
+    </div>
 </div>
 </body>
 </html>

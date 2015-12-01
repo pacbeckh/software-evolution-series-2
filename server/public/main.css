@@ -2,6 +2,6 @@
   overflow: visible !important;
 }
 
-.files-page .file-preview .code-mirror-element .CodeMirror {
+.code-mirror-element .CodeMirror {
   height: auto !important;
 }

@@ -1,9 +1,14 @@
 <div ng-controller="FilesCtrl" class="files-page">
 
     <div class="row">
-        <div class="col-xs-4 col-sm-3 col-md-2" style="overflow: scroll; padding-bottom:50px;">
-            <div>
-                <button>Expand</button>
+        <div ng-class="expandedTree ? 'col-xs-6 col-sm-6 col-md-6' : 'col-xs-4 col-sm-3 col-md-2'" style="overflow: scroll; padding-bottom:50px; padding-right: 0">
+            <div style="margin-bottom: 20px">
+                <button data-ng-click="toggleExpand()" data-ng-if="expandedTree"
+                        class="btn btn-block"
+                        style="border-radius: 0">Collapse</button>
+                <button data-ng-click="toggleExpand()" data-ng-if="!expandedTree"
+                        class="btn btn-block"
+                        style="border-radius: 0">Expand</button>
             </div>
             <treecontrol class="tree-classic"
                          tree-model="dataForTheTree"
@@ -13,7 +18,7 @@
                 {{node.name}}
             </treecontrol>
         </div>
-        <div class="col-xs-8 col-sm-9 col-md-10">
+        <div ng-class="expandedTree ? 'col-xs-6 col-sm-6 col-md-6' : 'col-xs-8 col-sm-9 col-md-10'">
             <div ng-if="selectedFileContent" class="file-preview">
                 <ui-codemirror ng-model="selectedFileContent"
                                class="code-mirror-element"
