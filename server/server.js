@@ -17,15 +17,19 @@ var loadFilesInDir = function (path) {
   }).map(function (f) {
     var stat = fs.statSync('./data/files/' + path + "/" + f);
     var children = [];
-    if (stat.isDirectory()) {
+    var isDir = stat.isDirectory();
+    if (isDir) {
       children = loadFilesInDir(path + "/" + f);
     }
     return {
       name: f,
       path: path + "/" + f,
-      children: children
+      children: children,
+      isDir : isDir
     };
-  })
+  }).filter(function(f) {
+    return !f.isDir || f.children.length > 0;
+  });
 };
 
 app.get('/files', function (req, res) {

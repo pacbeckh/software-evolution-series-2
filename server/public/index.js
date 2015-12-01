@@ -1,5 +1,5 @@
 angular
-  .module('CloneDetection', ['ui.codemirror', 'CloneDetection.states', 'CloneDetection.Directives'])
+  .module('CloneDetection', ['ui.codemirror', 'ui.bootstrap', 'CloneDetection.states', 'CloneDetection.Directives'])
   .controller('MainCtrl', function($scope) {
 
   })

@@ -16,13 +16,13 @@
   ],
   "dependencies": {
     "angular": "~1.4.8",
-    "angular-materialize": "*",
+    "angular-bootstrap": "~0.14.3",
     "angular-tree-control": "~0.2.22",
     "angular-ui-codemirror": "~0.3.0",
     "angular-ui-router": "~0.2.15",
+    "bootstrap": "~3.3.6",
     "ez-file-tree": "~0.5.1",
-    "font-awesome": "~4.5.0",
-    "Materialize": "materialize#~0.97.3"
+    "font-awesome": "~4.5.0"
   },
   "resolutions": {
     "angular": "~1.4.8"

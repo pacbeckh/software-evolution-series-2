@@ -1,3 +1,7 @@
 .tree-classic .a1 {
   overflow: visible !important;
 }
+
+.files-page .file-preview .code-mirror-element .CodeMirror {
+  height: auto !important;
+}

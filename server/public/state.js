@@ -12,7 +12,7 @@ angular
         templateUrl: "views/root.html"
       })
       .state('app.files', {
-        url: "files",
+        url: "files?path",
         templateUrl: "views/files.html"
       });
   });

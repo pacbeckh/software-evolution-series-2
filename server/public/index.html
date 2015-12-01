@@ -1,18 +1,22 @@
 <html ng-app="CloneDetection">
 
 <head>
-    <link rel="stylesheet" href="./components/Materialize/dist/css/materialize.css">
     <link rel="stylesheet" href="./components/font-awesome/css/font-awesome.css">
     <link rel="stylesheet" type="text/css" href="./components/angular-tree-control/css/tree-control.css">
     <link rel="stylesheet" type="text/css" href="./components/angular-tree-control/css/tree-control-attribute.css">
     <link rel="stylesheet" type="text/css" href="./components/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" type="text/css" href="./components/bootstrap/dist/css/bootstrap.css">
 
     <link rel="stylesheet" type="text/css" href="./main.css">
 
+    <script src="./components/jquery/dist/jquery.js"></script>
     <script src="./components/angular/angular.min.js"></script>
     <script src="./components/angular-ui-router/release/angular-ui-router.js"></script>
     <script type="text/javascript" src="./components/codemirror/lib/codemirror.js"></script>
     <script type="text/javascript" src="./components/angular/angular.js"></script>
+    <script type="text/javascript" src="./components/angular-bootstrap/ui-bootstrap.js"></script>
+    <script type="text/javascript" src="./components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+
     <script type="text/javascript" src="./components/codemirror/mode/clike/clike.js"></script>
     <script type="text/javascript" src="./components/angular-ui-codemirror/ui-codemirror.js"></script>
 
@@ -26,18 +30,21 @@
 
 </head>
 
-<body ng-controller="MainCtrl">
-<nav>
-    <div class="nav-wrapper">
-        <ul id="nav-mobile" class="right hide-on-small-and-down">
-            <li><a data-ui-sref="app.files">Files</a></li>
-        </ul>
+<body ng-controller="MainCtrl" style="min-width: 1000px;">
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a data-ui-sref="app.files">Files</a></li>
+            </ul>
+
+        </div>
     </div>
 </nav>
+
 <div ui-view>
     <p>Foo</p>
-
-
 </div>
 </body>
 </html>
