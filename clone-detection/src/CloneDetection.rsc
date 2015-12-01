@@ -73,7 +73,7 @@ public void run(M3 model) {
 	}
 	
 	//Remove things we are not interested in, stuff below the threshold.
-	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_THRESHOLD + 1]);
+	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD + 1]);
 	
 	println("<printTime(now())> Transform pairs to start and end locations...");
 	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] levelResultsAbsolute = ();
