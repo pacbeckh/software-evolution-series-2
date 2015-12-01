@@ -21,6 +21,7 @@
     "angular-ui-codemirror": "~0.3.0",
     "angular-ui-router": "~0.2.15",
     "bootstrap": "~3.3.6",
+    "d3": "~3.5.10",
     "ez-file-tree": "~0.5.1",
     "font-awesome": "~4.5.0"
   },

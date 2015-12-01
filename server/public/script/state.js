@@ -13,6 +13,11 @@ angular
       })
       .state('app.files', {
         url: "files?path",
-        templateUrl: "views/files.html"
+        templateUrl: "views/files.html",
+        reloadOnSearch : false
+      })
+      .state('app.clones', {
+        url: "clones/{weight}/{fragments}",
+        templateUrl: "views/clones.html"
       });
   });
