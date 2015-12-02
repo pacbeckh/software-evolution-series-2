@@ -13,6 +13,8 @@ import Map;
 import util::Maybe;
 
 import Domain;
+import maintenance::Maintenance;
+import maintenance::Domain;
 import Config;
 import logic::PairEvolver;
 import PairCreator;
@@ -38,8 +40,11 @@ public void mainFunction() {
 	println("<printTime(now())> Starting clone detection");
 	cloneClasses = run(model);
 	
+	println("<printTime(now())> Starting maintenance");
+	MaintenanceData maintenance = runMaintenance(model);
+	
 	println("<printTime(now())> Store files to server");
-	storeInServer(projectLoc, cloneClasses);
+	storeInServer(projectLoc, cloneClasses, maintenance);
 }
 
 public void runVoid(M3 model) {
