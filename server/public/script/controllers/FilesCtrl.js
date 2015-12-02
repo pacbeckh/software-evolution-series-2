@@ -25,12 +25,6 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     })
   };
 
-  $http.get('/files').success(function (data) {
-    $scope.dataForTheTree = data;
-    registerFilesInNodeMap(data, []);
-    //$scope.selectedNode = data[2];
-  });
-
   $scope.dataForTheTree = [];
   $scope.treeOptions = treeOptions;
   $scope.selectedFileContent = null;
@@ -114,14 +108,19 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
   function init() {
     $scope.expandedTree = false;
 
-    var stop = $scope.$watch('clones', function(clones) {
-      if (clones) {
-        stop();
-        if ($state.params.path) {
-          var path = decodeURIComponent($state.params.path);
-          loadPath(clones, path, true);
+    $http.get('/files').success(function (data) {
+      $scope.dataForTheTree = data;
+      registerFilesInNodeMap(data, []);
+
+      var stop = $scope.$watch('clones', function(clones) {
+        if (clones) {
+          stop();
+          if ($state.params.path) {
+            var path = decodeURIComponent($state.params.path);
+            loadPath(clones, path, true);
+          }
         }
-      }
+      });
     });
   }
 });
