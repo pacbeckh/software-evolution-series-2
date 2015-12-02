@@ -4,7 +4,14 @@ angular.module('CloneDetection').service('FileService', function ($http, $q) {
     getFile : function(path) {
       var deferred = $q.defer();
       $http({method: 'GET', url: '/data/files/' + path})
-        .success(deferred.resolve)
+        .success(function(data) {
+          debugger;
+          if (typeof(data) === "string") {
+            deferred.resolve(data);
+          } else {
+            deferred.resolve(JSON.stringify(data));
+          }
+        })
         .error(deferred.reject);
       return deferred.promise;
     }

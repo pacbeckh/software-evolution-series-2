@@ -6,7 +6,7 @@ angular.module('CloneDetection').service('ScatterPlotService', function ($http, 
 
 
     var xValue = function (d) {
-        return d.weight;
+        return parseInt(d.weight);
       },
       xScale = d3.scale.linear().range([0, width]),
       xMap = function (d) {
@@ -15,7 +15,7 @@ angular.module('CloneDetection').service('ScatterPlotService', function ($http, 
       xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
     var yValue = function (d) {
-        return d.fragments;
+        return parseInt(d.fragments);
       }, // data -> value
       yScale = d3.scale.linear().range([height, 0]), // value -> display
       yMap = function (d) {
@@ -39,8 +39,11 @@ angular.module('CloneDetection').service('ScatterPlotService', function ($http, 
       .style("opacity", 0);
 
     // don't want dots overlapping axis, so add in buffer to data domain
-    xScale.domain([d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]);
-    yScale.domain([d3.min(data, yValue) - 1, d3.max(data, yValue) + 1]);
+    //console.log(d3.max(data, xValue) + 1);
+    //console.log(xValue);
+    //debugger;
+    xScale.domain([0, d3.max(data, xValue) + 1]);
+    yScale.domain([0, d3.max(data, yValue) + 1]);
 
     // x-axis
     svg.append("g")

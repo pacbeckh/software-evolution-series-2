@@ -5,14 +5,19 @@ import String;
 import lang::json::IO;
 
 public str cloneClassesToJSON(loc basePath, map[int, set[set[tuple[loc,loc]]]] cloneClasses) {
-	value json = [ cloneClassToJSON(basePath, weight, x) | weight <- cloneClasses, x <- {getOneFrom(cloneClasses[weight])} ];
+	int  counter = 0;
+	json = for (weight <- cloneClasses, x <- {getOneFrom(cloneClasses[weight])} ) {
+		counter += 1;
+		append cloneClassToJSON(basePath, weight, x, counter);
+	}
 	str output = toJSON(json, true);
 	return output;
 }
 
 
-public map[str,value] cloneClassToJSON(loc basePath, int weight, set[tuple[loc,loc]] fragments) {
+public map[str,value] cloneClassToJSON(loc basePath, int weight, set[tuple[loc,loc]] fragments, int uid) {
 	return (
+		"uid" : "<uid>",
 		"weight" : weight,
 		"fragments" : [fragmentToJSON(basePath, fragment) | fragment <- fragments]
 	);
