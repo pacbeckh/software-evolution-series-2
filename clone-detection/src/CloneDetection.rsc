@@ -48,21 +48,22 @@ public void run(M3 model) {
 	
 	println("<printTime(now())> Normalize and anonimize statements...");
 	int methodIndex = 1;
-	
-	for (m <- methods(model)) {
-		//println("Handle method (<methodIndex>): <m.file>, <m>");
+	for (m <- methods(model), contains(m.path, "DuplicationWithFirstLineDifferent")) {
+		println("Handle method (<methodIndex>): <m.file>, <m>");
 		methodIndex += 1;
 
 		Declaration d = getMethodASTEclipse(m, model = model);
-		//Declaration d = createAstFromFile(|file://C:/Users/Paco/UVA/software-evolution/software-evolution-series-2/hello-world-java/src/nl/mse/simple/DuplicationWithLastLineDifferent.java|, false, javaVersion="1.6");
 		Declaration normalized = normalizeMethods(d);
 		links += getAnonimizedStatements(normalized);
+		
 	}
 	
 	iprintln("<size(links)> links found");
 	
 	println("<printTime(now())> Getting all pairs...");
 	list[LinkPair] allPairs  = getAllLinkPairs(links);
+	//printLinkPairs(allPairs);
+	
 	iprintln("<size(allPairs)> linkpairs found");
 	
 	println("<printTime(now())> Evolving pairs to maximal expansion...");
@@ -121,3 +122,8 @@ public map[int, set[set[tuple[loc,loc]]]] cleanupCloneClasses(map[int, set[set[t
 public set[set[tuple[loc,loc]]] toEquivalence(rel[tuple[loc,loc],tuple[loc,loc]] rels)
 	= groupRangeByDomain((rels + {<r,l> | <l,r> <- rels})+);
 	
+private void printLinkPairs(list[LinkPair] pairs){
+	for(pair <- pairs){
+		println("Pair from <head(pair.leftStack).normal@src> = <head(pair.rightStack).normal@src>");
+	}
+}
