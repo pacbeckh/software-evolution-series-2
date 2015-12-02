@@ -19,5 +19,9 @@ angular
       .state('app.clones', {
         url: "clones/{weight}/{fragments}",
         templateUrl: "views/clones.html"
+      })
+      .state('app.graphs', {
+        url: "graphs/{class}",
+        templateUrl: "views/graphs.html"
       });
   });
