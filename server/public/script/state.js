@@ -14,11 +14,16 @@ angular
       .state('app.files', {
         url: "files?path",
         templateUrl: "views/files.html",
-        reloadOnSearch : false
+        reloadOnSearch : false,
+        skipContainer : true
       })
       .state('app.clones', {
         url: "clones/{weight}/{fragments}",
         templateUrl: "views/clones.html"
+      })
+      .state('app.problems', {
+        url: "problems",
+        templateUrl: "views/problems.html"
       })
       .state('app.graphs', {
         url: "graphs/{class}",

@@ -5,3 +5,35 @@
 .code-mirror-element .CodeMirror {
   height: auto !important;
 }
+
+.files-page {
+  position: relative;
+}
+
+.files-page .file-picker {
+  position: absolute;
+  top : 0;
+  left: 0;
+  width: 200px;
+  min-height: 800px;
+
+  overflow: scroll;
+  padding-bottom: 50px;
+  padding-right: 0
+}
+
+.files-page .file-preview {
+  position: absolute;
+  top: 0;
+  left: 200px;
+  /*margin-left: 20px;*/
+  width: 80%;
+  min-height: 800px;
+}
+
+.files-page.expanded .file-picker {
+  width: 600px;
+}
+.files-page.expanded .file-preview {
+  left: 600px;
+}
