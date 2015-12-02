@@ -42,6 +42,9 @@ public void mainFunction() {
 	storeInServer(projectLoc, cloneClasses);
 }
 
+public void runVoid(M3 model) {
+	run(model);
+}
 
 public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	list[AnonymousLink] links = [];

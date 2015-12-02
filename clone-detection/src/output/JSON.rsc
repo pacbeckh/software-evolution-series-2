@@ -6,7 +6,7 @@ import lang::json::IO;
 
 public str cloneClassesToJSON(loc basePath, map[int, set[set[tuple[loc,loc]]]] cloneClasses) {
 	int  counter = 0;
-	json = for (weight <- cloneClasses, x <- {getOneFrom(cloneClasses[weight])} ) {
+	json = for (weight <- cloneClasses, x <- cloneClasses[weight] ) {
 		counter += 1;
 		append cloneClassToJSON(basePath, weight, x, counter);
 	}
