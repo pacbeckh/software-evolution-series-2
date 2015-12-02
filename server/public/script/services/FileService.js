@@ -5,7 +5,6 @@ angular.module('CloneDetection').service('FileService', function ($http, $q) {
       var deferred = $q.defer();
       $http({method: 'GET', url: '/data/files/' + path})
         .success(function(data) {
-          debugger;
           if (typeof(data) === "string") {
             deferred.resolve(data);
           } else {

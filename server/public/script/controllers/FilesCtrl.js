@@ -16,8 +16,19 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     }
   };
 
+  var nodeMap = {};
+
+  var registerFilesInNodeMap = function(files, parents) {
+    files.forEach(function(node) {
+      nodeMap[node.path] = {target: node, parents: parents};
+      registerFilesInNodeMap(node.children, [node].concat(parents));
+    })
+  };
+
   $http.get('/files').success(function (data) {
     $scope.dataForTheTree = data;
+    registerFilesInNodeMap(data, []);
+    //$scope.selectedNode = data[2];
   });
 
   $scope.dataForTheTree = [];
@@ -34,8 +45,14 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     return answer;
   };
 
-  var loadPath = function (clones, path) {
-    console.log("Load path: ", path);
+  var loadPath = function (clones, path, selectInTree) {
+    if (selectInTree) {
+      var nodeInfo = nodeMap[path];
+      if (nodeInfo) {
+        $scope.selectedNode = nodeInfo.target;
+        $scope.expandedNodes = nodeInfo.parents;
+      }
+    }
 
     if (path.match(/^\.\//)) {
       path = path.substr(2);
@@ -83,7 +100,7 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     $scope.selectedFile = node.path;
     $location.search("path", node.path);
     $scope.selectedFileContent = null;
-    loadPath($scope.clones,node.path);
+    loadPath($scope.clones,node.path, false);
   };
 
   $scope.toggleExpand = function () {
@@ -102,7 +119,7 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
         stop();
         if ($state.params.path) {
           var path = decodeURIComponent($state.params.path);
-          loadPath(clones, path);
+          loadPath(clones, path, true);
         }
       }
     });

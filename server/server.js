@@ -23,7 +23,7 @@ var loadFilesInDir = function (path) {
     }
     return {
       name: f,
-      path: path + "/" + f,
+      path: (path + "/" + f).replace(/^\.\//, ""),
       children: children,
       isDir : isDir
     };

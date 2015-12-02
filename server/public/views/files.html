@@ -14,7 +14,8 @@
                          tree-model="dataForTheTree"
                          options="treeOptions"
                          on-selection="showSelected(node)"
-                         selected-node="node1">
+                         selected-node="selectedNode"
+                         expanded-nodes="expandedNodes">
                 {{node.name}}
             </treecontrol>
         </div>
@@ -26,6 +27,9 @@
             </div>
         </div>
     </div>
+    <pre>
+        {{selectedNode}}
+    </pre>
 </div>
 
 </div>
