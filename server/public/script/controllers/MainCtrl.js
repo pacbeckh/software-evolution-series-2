@@ -14,27 +14,50 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
 
   var getAllLineNumbers = function (problemFile) {
     var answer = [];
-    problemFile.fragments.forEach(function(fragment) {
+    problemFile.target.fragments.forEach(function (fragment) {
       for (var i = fragment.start.line; i <= fragment.end.line; i++) {
-          answer.push(i+1);
+        answer.push(i + 1);
       }
     });
-    answer.sort(function(a,b) {
+    answer.sort(function (a, b) {
       return a - b;
     });
     return _.uniq(answer, true);
   };
 
-  var structureClones = function (clones, maintenance) {
-    var maintenanceFiles = {};
+  var calculateContainingFragments = function(files) {
+    var count = 0;
+    files.forEach(function(file) {
+      var c = calculateContainingFragments(file.children);
+      file.containingFragments = c + file.fragments.length;
+      count += file.containingFragments;
+    });
+    return count;
+  };
+
+  var processFileTree = function (files) {
+    var result = {};
+    var registerFilesInNodeMap = function (files, parents) {
+      files.forEach(function (node) {
+        node.fragments = [];
+        result[node.path] = {target: node, parents: parents};
+        registerFilesInNodeMap(node.children, [node].concat(parents));
+      });
+    };
+
+    registerFilesInNodeMap(files, []);
+    return result;
+  };
+
+  var structureClones = function (clones, maintenance, files) {
+    var maintenanceFiles = processFileTree(files);
     maintenance.project.files.forEach(function (file) {
-      maintenanceFiles[file.file] = file;
-      file.fragments = [];
+      maintenanceFiles[file.file].maintenance = file;
     });
 
     var allFragments = clonesToAllFragments(clones);
     allFragments.forEach(function (fragment) {
-      maintenanceFiles[fragment.file].fragments.push(fragment);
+      maintenanceFiles[fragment.file].target.fragments.push(fragment);
     });
 
 
@@ -42,25 +65,28 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
       .map(function (k) {
         return maintenanceFiles[k]
       }).filter(function (maintenanceFile) {
-        return maintenanceFile.fragments.length > 0;
+        return maintenanceFile.target.fragments.length > 0;
       });
 
     problemFiles.forEach(function (problemFile) {
       var clonedLineNumbers = getAllLineNumbers(problemFile);
 
-      var problemLines = problemFile.lines.filter(function (effectiveLine) {
+      var problemLines = problemFile.maintenance.lines.filter(function (effectiveLine) {
         return clonedLineNumbers.indexOf(effectiveLine.number) !== -1;
       });
 
-      problemFile.percentageDuplicated = Math.round(1000 / problemFile.lines.length * problemLines.length) / 10;
+      problemFile.percentageDuplicated = Math.round(1000 / problemFile.maintenance.lines.length * problemLines.length) / 10;
     });
 
+    calculateContainingFragments(files);
+
     return {
-      clones : clones,
+      clones: clones,
       maintenance: maintenance,
-      problemFiles : problemFiles,
-      maintenanceFiles : maintenanceFiles,
-      allFragments : allFragments
+      problemFiles: problemFiles,
+      maintenanceFiles: maintenanceFiles,
+      allFragments: allFragments,
+      files: files
     }
   };
 
@@ -70,13 +96,17 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
     }, 100)
   }
 
+  var loadFiles = function (data, maintenance) {
+    $http.get('/files').success(function (files) {
+      $scope.cloneData = structureClones(data, maintenance, files);
+      $scope.clones = data;
+      notifySuccess();
+    });
+  };
+
   var loadMaintenance = function (data) {
     $http.get("/data/maintenance.json").success(function (maintenance) {
-      $scope.cloneData = structureClones(data, maintenance);
-
-      $scope.clones = data;
-
-      notifySuccess();
+      loadFiles(data, maintenance);
     }).error(function () {
       Notification.error({message: 'Failed to load maintenance (Status: ' + 500 + ')'})
     });

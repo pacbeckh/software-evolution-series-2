@@ -17,6 +17,7 @@
 
     <script src="./components/jquery/dist/jquery.js"></script>
     <script src="./components/lodash/lodash.js"></script>
+    <script src="./components/bootstrap/dist/js/bootstrap.js"></script>
 
     <script src="./components/d3/d3.js"></script>
     <script src="./components/angular/angular.js"></script>
@@ -39,13 +40,14 @@
     <script src="./script/controllers/FilesCtrl.js"></script>
     <script src="./script/controllers/ClonesCtrl.js"></script>
     <script src="./script/controllers/MainCtrl.js"></script>
-    <script src="./script/controllers/GraphsCtrl.js"></script>
+    <script src="./script/controllers/FileTreeGraphCtrl.js"></script>
     <script src="./script/controllers/ProblemsCtrl.js"></script>
 
     <script src="./script/directives/FileSnippetLoader.js"></script>
     <script src="./script/directives/FileLink.js"></script>
 
     <script src="./script/services/FileService.js"></script>
+    <script src="./script/services/FileTreeService.js"></script>
     <script src="./script/services/ScatterPlotService.js"></script>
 
 </head>
@@ -58,8 +60,15 @@
             <ul class="nav navbar-nav">
                 <li ng-class="{ 'active' : $state.includes('app.files') }"><a data-ui-sref="app.files">Files</a></li>
                 <li ng-class="{ 'active' : $state.includes('app.clones') }"><a data-ui-sref="app.clones">Clones</a></li>
-                <li ng-class="{ 'active' : $state.includes('app.graphs') }"><a data-ui-sref="app.graphs">Graphs</a></li>
                 <li ng-class="{ 'active' : $state.includes('app.problems') }"><a data-ui-sref="app.problems">Problems</a></li>
+
+                <li class="dropdown" ng-class="{ 'active' : $state.includes('app.graphs') }">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">Graphs <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a data-ui-sref="app.graphs.file-tree">File Tree</a></li>
+                    </ul>
+                </li>
+
             </ul>
 
         </div>

@@ -52,10 +52,10 @@ angular.module('CloneDetection').controller('ClonesCtrl', function ($scope, Scat
   init();
 
   function init() {
-    var stop = $scope.$watch('clones', function(newValue) {
-      if (newValue) {
+    var stop = $scope.$watch('cloneData', function(cloneData) {
+      if (cloneData) {
         stop();
-        setupScatterPlot(newValue);
+        setupScatterPlot(cloneData.clones);
       }
     });
 

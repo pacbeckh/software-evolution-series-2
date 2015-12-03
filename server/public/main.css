@@ -26,7 +26,6 @@
   position: absolute;
   top: 0;
   left: 200px;
-  /*margin-left: 20px;*/
   width: 80%;
   min-height: 800px;
 }
@@ -37,3 +36,25 @@
 .files-page.expanded .file-preview {
   left: 600px;
 }
+
+.node {
+  cursor: pointer;
+}
+
+
+#file-tree-graph .node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+#file-tree-graph .node text {
+  font: 10px sans-serif;
+}
+
+#file-tree-graph .link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+

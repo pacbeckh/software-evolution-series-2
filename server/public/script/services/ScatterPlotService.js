@@ -38,10 +38,6 @@ angular.module('CloneDetection').service('ScatterPlotService', function ($http, 
       .attr("class", "tooltip")
       .style("opacity", 0);
 
-    // don't want dots overlapping axis, so add in buffer to data domain
-    //console.log(d3.max(data, xValue) + 1);
-    //console.log(xValue);
-    //debugger;
     xScale.domain([0, d3.max(data, xValue) + 1]);
     yScale.domain([0, d3.max(data, yValue) + 1]);
 

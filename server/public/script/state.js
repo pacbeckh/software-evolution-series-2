@@ -26,7 +26,12 @@ angular
         templateUrl: "views/problems.html"
       })
       .state('app.graphs', {
-        url: "graphs/{class}",
-        templateUrl: "views/graphs.html"
+        url : 'graphs',
+        abstract : true,
+        template : '<div ui-view></div>'
+      })
+      .state('app.graphs.file-tree', {
+        url: "/file-tree",
+        templateUrl: "views/file-tree-graph.html"
       });
   });
