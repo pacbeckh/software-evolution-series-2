@@ -24,7 +24,8 @@
     "bootstrap": "~3.3.6",
     "d3": "~3.5.10",
     "ez-file-tree": "~0.5.1",
-    "font-awesome": "~4.5.0"
+    "font-awesome": "~4.5.0",
+	"lodash": "~3.10.1"
   },
   "resolutions": {
     "angular": "~1.4.8"
