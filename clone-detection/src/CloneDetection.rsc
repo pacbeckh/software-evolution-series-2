@@ -52,19 +52,8 @@ public void runVoid(M3 model) {
 }
 
 public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
-	list[AnonymousLink] links = [];
-	
 	println("<printTime(now())> Normalize and anonimize statements...");
-	int methodIndex = 1;
-	for (m <- methods(model)) {
-		println("Handle method (<methodIndex>): <m.file>, <m>");
-		methodIndex += 1;
-
-		Declaration d = getMethodASTEclipse(m, model = model);
-		Declaration normalized = normalizeMethods(d);
-		links += getAnonimizedStatements(normalized);
-	}
-	
+	list[AnonymousLink] links = anonimizeAndNormalize(model);
 	iprintln("<size(links)> links found");
 	
 	println("<printTime(now())> Getting all pairs...");
@@ -74,15 +63,7 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	iprintln("<size(allPairs)> linkpairs found");
 	
 	println("<printTime(now())> Evolving pairs to maximal expansion...");
-	map[int, list[LinkPair]] levelResults = (); 
-	for (focus <- allPairs) {
-		evolved = evolvePair(focus);
-		if (levelResults[evolved@weight]?) {
-			levelResults[evolved@weight] += evolved;
-		} else {
-			levelResults[evolved@weight] = [evolved];
-		}
-	}
+	map[int, list[LinkPair]] levelResults = evolveLinkPairs(allPairs);
 	
 	//Remove things we are not interested in, stuff below the threshold.
 	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD + 1]);
@@ -106,6 +87,34 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	}
 	
 	return cloneClasses;
+}
+
+public list[AnonymousLink] anonimizeAndNormalize(M3 model){
+	list[AnonymousLink] links = [];
+	int methodIndex = 1;
+	for (m <- methods(model)) {
+		println("Handle method (<methodIndex>): <m.file>, <m>");
+		methodIndex += 1;
+
+		Declaration d = getMethodASTEclipse(m, model = model);
+		Declaration normalized = normalizeMethods(d);
+		links += getAnonimizedStatements(normalized);
+	}
+	
+	return links;
+}
+
+public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
+	map[int, list[LinkPair]] levelResults = (); 
+	for (focus <- allPairs) {
+		evolved = evolvePair(focus);
+		if (levelResults[evolved@weight]?) {
+			levelResults[evolved@weight] += evolved;
+		} else {
+			levelResults[evolved@weight] = [evolved];
+		}
+	}
+	return levelResults;
 }
 
 public map[int, set[set[tuple[loc,loc]]]] cleanupCloneClasses(map[int, set[set[tuple[loc,loc]]]] input) {
