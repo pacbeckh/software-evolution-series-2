@@ -24,7 +24,7 @@ public test bool shouldAddCorrectMaxWeight(){
 	])[@src=|file://foo|]);
 	
 	normalized = normalizeMethods(d);
-	
+	//
 	list[AnonymousLink] result = getAnonimizedStatements(normalized);
 	
 	return
@@ -49,8 +49,7 @@ public test bool maintainTypeInformation(){
 	input = \expressionStatement(\simpleName("i")[@typ=typeSymbolInt]);
 	expected = \expressionStatement(\cast(typeInt,\simpleName("id0")));
 	
-	<_,anonimized> = anonimizeStatement(input);
-	return anonimized == expected;
+	return anonimizeStatement(input, ()) == expected;
 }
 
 
@@ -76,13 +75,12 @@ public test bool maintainTypeInformation2() {
     	)
 	]));
 	
-	<_,anonimized> = anonimizeStatement(input);
-	return anonimized == expected;
+	return anonimizeStatement(input, ()) == expected;	
 }
 
 // Context: Object o;
 // return (List<String>) o => return (List id0) 
-public test bool removedDoubleCast() {
+public test bool preventDoubleCast() {
 	Statement input = \return(
 		\cast(
 			\parameterizedType(
@@ -98,8 +96,7 @@ public test bool removedDoubleCast() {
     		),
 	    	simpleName("id0")));
 	    
-	<_,anonimized> = anonimizeStatement(input);
-	return anonimized == expected;
+	return anonimizeStatement(input, ()) == expected;
 }
 
 //int k = 10 shoud become: < int id0 = (int) id0 > and NOT  < int (int) id0 = (int) id0 >
@@ -118,10 +115,10 @@ public test bool varsShouldNotHaveExtraTypeInformation(){
 		)]
 	));
 	
-	<_,anonimized> = anonimizeStatement(input);
-	return anonimized == expected;
+	return anonimizeStatement(input, ()) == expected;
 }
 
+// java.io.File file; => java.io.File id0
 public test bool shouldHandleQualifiedNames() {
 	Statement input = \declarationStatement(\variables(
 	    \simpleType(
@@ -137,12 +134,81 @@ public test bool shouldHandleQualifiedNames() {
 	));
 	
 	Statement expected = \declarationStatement(\variables(
-	    \simpleType(\simpleName("java.io.File")),
+	    \simpleType(
+			\qualifiedName(
+				\qualifiedName(
+					\simpleName("java")[@typ=\unresolved()],
+					\simpleName("io")[@typ=\unresolved()]
+				)[@typ=\unresolved()],
+				\simpleName("File")[@typ=\class(|java+class:///java/io/File|,[])]
+			)[@typ=\class(|java+class:///java/io/File|,[])]
+		),
 		[\variable("id0", 0)]
 	));
 	
-	<_,anonimized> = anonimizeStatement(input);
-	return anonimized == expected;
+	//Statement expected = \declarationStatement(\variables(
+	//    \simpleType(\simpleName("java.io.File")),
+	//	[\variable("id0", 0)]
+	//));
+	
+	return anonimizeStatement(input, ()) == expected;
+}
+
+// Context: x is of type PreparedStatement
+// x.setInt(1,1);
+public test bool shouldHandleMethodInvocation() {
+	Statement input = \expressionStatement(\methodCall(
+	    false,
+	    \simpleName("x")[
+	      @typ=\interface(|java+interface:///java/sql/PreparedStatement|,[])
+	    ],
+	    "setInt",
+	    [
+	      \number("1")[@typ=\int()],
+	      \number("1")[@typ=\int()]
+	    ]
+    )[@typ=\void()]);
+    
+    Statement expected = \expressionStatement(\methodCall(
+	    false,
+	    \cast(
+	      \simpleType(\simpleName("PreparedStatement")),
+	      \simpleName("id0")),
+	    "setInt",
+	    [
+	      cast(typeInt,simpleName("id0")),
+	      cast(typeInt,simpleName("id0"))
+	    ])
+    );
+    
+	return anonimizeStatement(input, ()) == expected;
+}
+
+// throw SmallSQLException.createFromException( e ); => throw ((SmallSQLException) id0).createFromException((Exception) e)
+public test bool shouldAnonimizeStaticCalls() {
+	Statement input = \throw(\methodCall(
+	    false,
+	    \simpleName("SmallSQLException")[@typ=\class(|java+class:///smallsql/database/SmallSQLException|,[])],
+	    "createFromException",
+	    [
+			\simpleName("e")[@typ=\class(|java+class:///java/lang/Exception|,[])]
+		])[@typ=\class(|java+class:///java/sql/SQLException|,[])]
+	);
+	
+	Statement expected = \throw(\methodCall(
+	    false,
+	    \cast(
+			\simpleType(\simpleName("SmallSQLException")),
+			\simpleName("id0")),
+	    "createFromException",
+	    [
+			\cast(
+				\simpleType(\simpleName("Exception")),
+				\simpleName("id0"))
+		])[@typ=\class(|java+class:///java/sql/SQLException|,[])]
+	);
+	
+	return anonimizeStatement(input, ()) == expected;
 }
 
 //private bool anonimizeEqual(Expression l, Expression r) = anonimizeEqual(expressionStatement(l), expressionStatement(r));
