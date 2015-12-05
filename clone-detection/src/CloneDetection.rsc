@@ -22,8 +22,9 @@ import transformation::AstNormalizer;
 import transformation::AstAnonimizer;
 import output::Store;
 
-public loc projectLoc = |project://hello-world-java/|;
-//public loc projectLoc = |project://smallsql0.21_src|;
+//public loc projectLoc = |project://hello-world-java/|;
+public loc projectLoc = |project://smallsql0.21_src|;
+//public loc projectLoc = |project://hsqldb|;
 
 public M3 model;
 
@@ -57,7 +58,7 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	iprintln("<size(links)> links found");
 	
 	println("<printTime(now())> Getting all pairs...");
-	list[LinkPair] allPairs  = getAllLinkPairs(links);
+	list[LinkPair] allPairs = getAllLinkPairs(links);
 	//printLinkPairs(allPairs);
 	
 	iprintln("<size(allPairs)> linkpairs found");
@@ -89,9 +90,29 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	return cloneClasses;
 }
 
+// Uses compilationUnits in the m3 + fileAST
+//public list[AnonymousLink] anonimizeAndNormalize(M3 model){
+//	list[AnonymousLink] links = [];
+//	int fileIndex = 1;
+//	
+//	for ( <cu,_> <- model@containment, isCompilationUnit(cu)){
+//		//println("Handle file (<fileIndex>): <cu.file>, <cu>"); 
+//		fileIndex += 1;
+//		
+//		Declaration d = createAstFromFile(cu, true, javaVersion="1.7");
+//		Declaration normalized = normalizeMethods(d);
+//		links += getAnonimizedStatements(normalized);
+//	}
+//	
+//	return links;
+//}
+
+
+ //Uses methods in the m3 + MethodAST
 public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 	list[AnonymousLink] links = [];
 	int methodIndex = 1;
+	
 	for (m <- methods(model)) {
 		println("Handle method (<methodIndex>): <m.file>, <m>");
 		methodIndex += 1;
@@ -103,6 +124,7 @@ public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 	
 	return links;
 }
+
 
 public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 	map[int, list[LinkPair]] levelResults = (); 

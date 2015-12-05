@@ -14,6 +14,9 @@ public Declaration normalizeMethods(Declaration declaration) {
 			\method(\return, name, parameters, exceptions, normalize(impl))
 		case \constructor(name, parameters, exceptions, impl) =>
 			\constructor(name, parameters, exceptions, normalize(impl))
+		// The following case is only useful/required when we create the AST from file/project instead of a method.	
+		case \initializer(Statement s) =>
+			\initializer(normalize(s))
 	}
 }
 
