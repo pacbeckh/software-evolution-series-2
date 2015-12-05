@@ -3,6 +3,7 @@ module logic::PairEvolver
 import List;
 import util::Maybe;
 import IO;
+import lang::java::jdt::m3::AST;
 
 import Domain;
 import logic::VariableMapping;
@@ -47,7 +48,7 @@ public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
 	
 	AnonymousLink leftNext = leftNextLink.val;
 	AnonymousLink rightNext = rightNextLink.val;
-	if (leftNext.anonymous != rightNext.anonymous) {
+	if (leftNext.anonymous != rightNext.anonymous || pairsOverlap(input, leftNext, rightNext)) {
 		return nothing();
 	}
 	
@@ -85,3 +86,10 @@ public LinkPair evolveLinkPairWithNext(LinkPair input, AnonymousLink leftNext, A
 		rightComparison.mapping
 	);
 }
+
+public bool pairsOverlap(LinkPair input, AnonymousLink leftNext, AnonymousLink rightNext) {
+	set[loc] locs = { getLoc(x) | x <- input.leftStack + input.rightStack};
+	return (getLoc(leftNext) in locs) || (getLoc(rightNext) in locs); 
+}
+
+private loc getLoc(AnonymousLink link) = link.normal@src;
