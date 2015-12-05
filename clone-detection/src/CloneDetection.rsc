@@ -48,14 +48,13 @@ public void run(M3 model) {
 	
 	println("<printTime(now())> Normalize and anonimize statements...");
 	int methodIndex = 1;
-	for (m <- methods(model), contains(m.path, "DuplicationWithFirstLineDifferent")) {
+	for (m <- methods(model)) {
 		println("Handle method (<methodIndex>): <m.file>, <m>");
 		methodIndex += 1;
 
 		Declaration d = getMethodASTEclipse(m, model = model);
 		Declaration normalized = normalizeMethods(d);
 		links += getAnonimizedStatements(normalized);
-		
 	}
 	
 	iprintln("<size(links)> links found");
