@@ -7,4 +7,5 @@ data FileAnalysis = fileAnalysis(int LOC, list[EffectiveLine] lines, loc locatio
 data ProjectAnalysis = projectAnalysis(int LOC, list[FileAnalysis] files);
 
 alias FileDuplications = map[FileAnalysis,list[int]];
+
 data MaintenanceData = maintenanceData(ProjectAnalysis project, FileDuplications fileDups);
