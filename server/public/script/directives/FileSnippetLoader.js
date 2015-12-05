@@ -10,23 +10,27 @@ angular.module('CloneDetection').directive('fileSnippetLoader', function (FileSe
     link : function($scope) {
       $scope.loading = true;
 
-      //$scope.editorOptions.firstLineNumber = $scope.location.start;
+      var promise;
+      if (promises[$scope.location.file]) {
+        promise = promises[$scope.location.file];
+      } else {
+        promise = FileService.getFile($scope.location.file);
+        promises[$scope.location.file] = promise;
+      }
 
-      var promise = FileService.getFile($scope.location.file);
-      promises[$scope.location.file] = promise;
       promise.then(function(content) {
-        var rows = content.split("\n").slice(($scope.location.start - 1), $scope.location.end);
+        var rows = content.split("\n").slice(($scope.location.start.line - 1), $scope.location.end.line);
         $scope.previewContent = rows.join("\n");
+        $scope.loading = false;
       })
     },
     controller : function($scope) {
-      console.log("OAt");
       $scope.snippetOpts = {
         lineWrapping: true,
         lineNumbers: true,
         readOnly: 'nocursor',
         mode: 'clike',
-        firstLineNumber: $scope.location.start
+        firstLineNumber: $scope.location.start.line
       };
     }
   }

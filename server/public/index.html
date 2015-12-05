@@ -1,17 +1,26 @@
 <html ng-app="CloneDetection">
 
 <head>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
     <link rel="stylesheet" href="./components/font-awesome/css/font-awesome.css">
     <link rel="stylesheet" type="text/css" href="./components/angular-tree-control/css/tree-control.css">
     <link rel="stylesheet" type="text/css" href="./components/angular-tree-control/css/tree-control-attribute.css">
     <link rel="stylesheet" type="text/css" href="./components/codemirror/lib/codemirror.css">
     <link rel="stylesheet" type="text/css" href="./components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="./components/angular-ui-notification/dist/angular-ui-notification.css">
 
     <link rel="stylesheet" type="text/css" href="./main.css">
 
     <script src="./components/jquery/dist/jquery.js"></script>
+    <script src="./components/lodash/lodash.js"></script>
+    <script src="./components/bootstrap/dist/js/bootstrap.js"></script>
+
     <script src="./components/d3/d3.js"></script>
-    <script src="./components/angular/angular.min.js"></script>
+    <script src="./components/angular/angular.js"></script>
     <script src="./components/angular-ui-router/release/angular-ui-router.js"></script>
     <script type="text/javascript" src="./components/codemirror/lib/codemirror.js"></script>
     <script type="text/javascript" src="./components/angular/angular.js"></script>
@@ -20,21 +29,30 @@
 
     <script type="text/javascript" src="./components/codemirror/mode/clike/clike.js"></script>
     <script type="text/javascript" src="./components/angular-ui-codemirror/ui-codemirror.js"></script>
-
+    <script type="text/javascript" src="./components/angular-ui-notification/dist/angular-ui-notification.js"></script>
     <script type="text/javascript" src="./components/angular-tree-control/angular-tree-control.js"></script>
 
 
     <script src="./script/index.js"></script>
     <script src="./script/state.js"></script>
+    <script src="./script/notifications.js"></script>
+
     <script src="./script/controllers/FilesCtrl.js"></script>
     <script src="./script/controllers/ClonesCtrl.js"></script>
+    <script src="./script/controllers/MainCtrl.js"></script>
+    <script src="./script/controllers/FileTreeGraphCtrl.js"></script>
+    <script src="./script/controllers/ProblemsCtrl.js"></script>
+
     <script src="./script/directives/FileSnippetLoader.js"></script>
+    <script src="./script/directives/FileLink.js"></script>
+
     <script src="./script/services/FileService.js"></script>
-    <script src="./script/services/ScatterPlotService.js    "></script>
+    <script src="./script/services/FileTreeService.js"></script>
+    <script src="./script/services/ScatterPlotService.js"></script>
 
 </head>
 
-<body ng-controller="MainCtrl" style="min-width: 1000px;">
+<body ng-controller="MainCtrl">
 
 <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -42,13 +60,22 @@
             <ul class="nav navbar-nav">
                 <li ng-class="{ 'active' : $state.includes('app.files') }"><a data-ui-sref="app.files">Files</a></li>
                 <li ng-class="{ 'active' : $state.includes('app.clones') }"><a data-ui-sref="app.clones">Clones</a></li>
+                <li ng-class="{ 'active' : $state.includes('app.problems') }"><a data-ui-sref="app.problems">Problems</a></li>
+
+                <li class="dropdown" ng-class="{ 'active' : $state.includes('app.graphs') }">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">Graphs <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a data-ui-sref="app.graphs.file-tree">File Tree</a></li>
+                    </ul>
+                </li>
+
             </ul>
 
         </div>
     </div>
 </nav>
 
-<div>
+<div ng-class="!$state.current.skipContainer && 'container'">
     <div ui-view>
         <p>Foo</p>
     </div>

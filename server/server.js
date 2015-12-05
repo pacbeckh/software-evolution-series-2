@@ -3,7 +3,7 @@ var app = express();
 var fs = require('fs');
 
 app.use(express.static('public'));
-app.use('/data/files', express.static('data/files'));
+app.use('/data', express.static('data'));
 
 app.get('/hello', function (req, res) {
   res.send('Hello World!');
@@ -23,7 +23,7 @@ var loadFilesInDir = function (path) {
     }
     return {
       name: f,
-      path: path + "/" + f,
+      path: (path + "/" + f).replace(/^\.\//, ""),
       children: children,
       isDir : isDir
     };

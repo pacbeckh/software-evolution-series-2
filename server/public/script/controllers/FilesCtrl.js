@@ -1,4 +1,4 @@
-angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http, $state, $timeout, $uibModal, $location) {
+angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http, $state, $timeout, $uibModal, $location, FileService, Notification) {
 
   $scope.expandedTree = false;
   var treeOptions = {
@@ -16,21 +16,41 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     }
   };
 
-  $http.get('/files').success(function (data) {
-    $scope.dataForTheTree = data;
-  });
+  var nodeMap = {};
 
   $scope.dataForTheTree = [];
   $scope.treeOptions = treeOptions;
   $scope.selectedFileContent = null;
 
-  var highlightedLines = [
-    1, 4, 21
-  ];
+  var clonesToAllFragments = function(clones) {
+    var answer = [];
+    clones.forEach(function(cloneClass) {
+      cloneClass.fragments.forEach(function(fragment) {
+        answer.push(fragment);
+      })
+    });
+    return answer;
+  };
 
-  var loadPath = function (path) {
-    console.log("Load path: ", path);
-    $http({method: 'GET', url: '/data/files/' + path}).success(function (data) {
+  var loadPath = function (clones, path, selectInTree) {
+    if (selectInTree) {
+      var nodeInfo = nodeMap[path];
+      if (nodeInfo) {
+        $scope.selectedNode = nodeInfo.target;
+        $scope.expandedNodes = nodeInfo.parents;
+      }
+    }
+
+    if (path.match(/^\.\//)) {
+      path = path.substr(2);
+    }
+    var highlightedLines = clonesToAllFragments(clones).filter(function(fragment) {
+      return fragment.file == path;
+    }).map(function(fragment) {
+      return fragment.start.line
+    });
+
+    FileService.getFile(path).then(function (data) {
       $scope.selectedFileContent = data;
 
       $scope.editorOptions = {
@@ -40,13 +60,13 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
         mode: 'clike',
         onLoad: function () {
           $timeout(function () {
-            var refs = $(".CodeMirror-linenumber");
+            var refs = $(".CodeMirror-linenumber[style]");
             highlightedLines.forEach(function (line) {
-              refs.eq(line)
+              refs.eq(line - 1)
                 .css('background', '#BB5252')
                 .css('color', '#fff');
 
-              refs.eq(line).on('click', function (e) {
+              refs.eq(line).on('click', function () {
                 $scope.$apply(function () {
                   $uibModal.open({
                     templateUrl: './templates/clone-classes-modal.html',
@@ -58,6 +78,8 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
           }, 10);
         }
       };
+    }, function() {
+      Notification.error({message : "Failed to load file: " + path});
     });
   };
 
@@ -65,23 +87,34 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     $scope.selectedFile = node.path;
     $location.search("path", node.path);
     $scope.selectedFileContent = null;
-    loadPath(node.path);
+    loadPath($scope.clones,node.path, false);
   };
 
   $scope.toggleExpand = function () {
     $scope.expandedTree = !$scope.expandedTree;
-    debugger;
   };
+
+
   ////////////////////////////////
   init();
 
   function init() {
     $scope.expandedTree = false;
 
-    if ($state.params.path) {
-      var path = decodeURIComponent($state.params.path);
-      loadPath(path);
-    }
+    var stop = $scope.$watch('cloneData', function(cloneData) {
+      if (cloneData) {
+        stop();
 
+        $scope.dataForTheTree = cloneData.files;
+        nodeMap = cloneData.maintenanceFiles;
+        //registerFilesInNodeMap(cloneData.files, []);
+
+        if ($state.params.path) {
+          var path = decodeURIComponent($state.params.path);
+          loadPath(cloneData.clones, path, true);
+        }
+      }
+    });
   }
+
 });

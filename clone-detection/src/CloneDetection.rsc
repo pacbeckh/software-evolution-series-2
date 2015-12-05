@@ -13,6 +13,8 @@ import Map;
 import util::Maybe;
 
 import Domain;
+import maintenance::Maintenance;
+import maintenance::Domain;
 import Config;
 import logic::PairEvolver;
 import PairCreator;
@@ -20,8 +22,8 @@ import transformation::AstNormalizer;
 import transformation::AstAnonimizer;
 import output::Store;
 
-//public loc projectLoc = |project://hello-world-java/|;
-public loc projectLoc = |project://smallsql0.21_src|;
+public loc projectLoc = |project://hello-world-java/|;
+//public loc projectLoc = |project://smallsql0.21_src|;
 
 public M3 model;
 
@@ -36,14 +38,20 @@ public void mainFunction() {
 	M3 model = loadModel();
 	
 	println("<printTime(now())> Starting clone detection");
-	run(model);
+	cloneClasses = run(model);
+	
+	println("<printTime(now())> Starting maintenance");
+	MaintenanceData maintenance = runMaintenance(model);
 	
 	println("<printTime(now())> Store files to server");
-	storeInServer(projectLoc);
+	storeInServer(projectLoc, cloneClasses, maintenance);
 }
 
+public void runVoid(M3 model) {
+	run(model);
+}
 
-public void run(M3 model) {
+public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	list[AnonymousLink] links = [];
 	
 	println("<printTime(now())> Normalize and anonimize statements...");
@@ -97,6 +105,7 @@ public void run(M3 model) {
 		println("- <k> \> <size(cloneClasses[k])>");
 	}
 	
+	return cloneClasses;
 }
 
 public map[int, set[set[tuple[loc,loc]]]] cleanupCloneClasses(map[int, set[set[tuple[loc,loc]]]] input) {

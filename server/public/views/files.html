@@ -1,31 +1,30 @@
-<div ng-controller="FilesCtrl" class="files-page">
+<div ng-controller="FilesCtrl" class="files-page" data-ng-class="expandedTree && 'expanded'">
 
-    <div class="row">
-        <div ng-class="expandedTree ? 'col-xs-6 col-sm-6 col-md-6' : 'col-xs-4 col-sm-3 col-md-2'" style="overflow: scroll; padding-bottom:50px; padding-right: 0">
-            <div style="margin-bottom: 20px">
-                <button data-ng-click="toggleExpand()" data-ng-if="expandedTree"
-                        class="btn btn-block"
-                        style="border-radius: 0">Collapse</button>
-                <button data-ng-click="toggleExpand()" data-ng-if="!expandedTree"
-                        class="btn btn-block"
-                        style="border-radius: 0">Expand</button>
-            </div>
-            <treecontrol class="tree-classic"
-                         tree-model="dataForTheTree"
-                         options="treeOptions"
-                         on-selection="showSelected(node)"
-                         selected-node="node1">
-                {{node.name}}
-            </treecontrol>
+    <div class="file-picker">
+        <div style="margin-bottom: 20px">
+            <button data-ng-click="toggleExpand()"
+                    class="btn btn-primary btn-block"
+                    style="border-radius: 0">
+                <span data-ng-if="!expandedTree"><i class="fa fa-plus-circle"></i> Expand</span>
+                <span data-ng-if="expandedTree"><i class="fa fa-minus-circle"></i> Collapse</span>
+            </button>
         </div>
-        <div ng-class="expandedTree ? 'col-xs-6 col-sm-6 col-md-6' : 'col-xs-8 col-sm-9 col-md-10'">
-            <div ng-if="selectedFileContent" class="file-preview">
+        <treecontrol class="tree-classic"
+                     tree-model="dataForTheTree"
+                     options="treeOptions"
+                     on-selection="showSelected(node)"
+                     selected-node="selectedNode"
+                     expanded-nodes="expandedNodes">
+            {{node.name}}
+        </treecontrol>
+    </div>
+    <div class="file-preview">
+        <div class="position: relative; width: 100%; height: 100%">
+            <div ng-if="selectedFileContent">
                 <ui-codemirror ng-model="selectedFileContent"
                                class="code-mirror-element"
                                ui-codemirror-opts="editorOptions"></ui-codemirror>
             </div>
         </div>
     </div>
-</div>
-
 </div>
