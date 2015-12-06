@@ -1,0 +1,19 @@
+<h4>Information</h4>
+<ul>
+    <li>Weight: <span class="label label-primary">{{cloneClass.weight}}</span></li>
+    <li>Number of files: <span class="label label-primary">{{cloneClass.fragments.length}}</span></li>
+</ul>
+<table class="table" style="margin-top: 20px;">
+    <tbody>
+    <tr ng-repeat="cloneFragment in cloneClass.fragments">
+        <td class="col-md-2 col-sm-3 col-xs-4">
+            <file-link path="cloneFragment.file"></file-link>
+        </td>
+        <td>
+            <file-snippet-loader
+                    location="cloneFragment">
+            </file-snippet-loader>
+        </td>
+    </tr>
+    </tbody>
+</table>

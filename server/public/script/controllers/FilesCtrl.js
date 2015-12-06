@@ -26,6 +26,7 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     var answer = [];
     clones.forEach(function(cloneClass) {
       cloneClass.fragments.forEach(function(fragment) {
+        fragment.cloneClass = cloneClass;
         answer.push(fragment);
       })
     });
@@ -44,11 +45,13 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     if (path.match(/^\.\//)) {
       path = path.substr(2);
     }
+
     var highlightedLines = clonesToAllFragments(clones).filter(function(fragment) {
-      return fragment.file == path;
-    }).map(function(fragment) {
-      return fragment.start.line
-    });
+                              return fragment.file == path;
+                           });
+    var groupedHighLights = _.groupBy( highlightedLines, function(fragment) {
+       return fragment.start.line;
+     });
 
     FileService.getFile(path).then(function (data) {
       $scope.selectedFileContent = data;
@@ -61,19 +64,28 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
         onLoad: function () {
           $timeout(function () {
             var refs = $(".CodeMirror-linenumber[style]");
-            highlightedLines.forEach(function (line) {
-              refs.eq(line - 1)
-                .css('background', '#BB5252')
-                .css('color', '#fff');
-
-              refs.eq(line).on('click', function () {
-                $scope.$apply(function () {
-                  $uibModal.open({
-                    templateUrl: './templates/clone-classes-modal.html',
-                    animation: true
+            _.each(groupedHighLights, function(fragments, lineStart) {
+              refs.eq(lineStart - 1).on('click', function () {
+                      $scope.$apply(function () {
+                        $uibModal.open({
+                          templateUrl: './templates/clone-classes-modal.html',
+                          animation: true,
+                          size:'lg',
+                          controller: 'ModalCtrl',
+                          resolve: {cloneClasses:function(){
+                            return fragments.map(function(fragment){
+                              return fragment.cloneClass;
+                            });
+                          }}
+                        });
                   });
-                });
-              })
+              });
+
+              refs.eq(lineStart - 1)
+                  .css('background', '#BB5252')
+                  .css('color', '#fff')
+                  .css('z-index', lineStart)
+                  .css('cursor', 'pointer')
             })
           }, 10);
         }

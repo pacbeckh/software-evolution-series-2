@@ -1,7 +1,6 @@
 angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state, $http, $timeout, Notification) {
   $scope.$state = $state;
 
-
   var clonesToAllFragments = function (clones) {
     var answer = [];
     clones.forEach(function (cloneClass) {

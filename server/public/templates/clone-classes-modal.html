@@ -1,15 +1,16 @@
 <div class="modal-header">
-    <h3 class="modal-title">I'm a modal!</h3>
+    <h3 class="modal-title">Clone class {{cloneClass.uid}}</h3>
 </div>
 <div class="modal-body">
-    <ul>
-        <li ng-repeat="item in items">
-            <a href="#" ng-click="$event.preventDefault(); selected.item = item">{{ item }}</a>
-        </li>
-    </ul>
-    Selected: <b>{{ selected.item }}</b>
+    <uib-tabset>
+        <uib-tab ng-repeat="cloneClass in cloneClasses" heading="Clone Class {{cloneClass.uid}}" active="cloneClass.active">
+            <div data-ng-if="cloneClass.active">
+                <clone-class-info clone-class="cloneClass">
+                </clone-class-info>
+            </div>
+        </uib-tab>
+    </uib-tabset>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$close()">OK</button>
-    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+    <button class="btn btn-primary" type="button" ng-click="$close()">Close</button>
 </div>
