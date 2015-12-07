@@ -43,9 +43,9 @@ public list[AnonymousLink] getAnonimizedStatements(Statement normalized) {
 }
 
 public Statement anonimizeStatement(Statement statement, map[loc, Statement] anonCache) {
-	iprintln("--------INPUT-------");
-	iprintln(statement);
-	iprintln("-------/INPUT-------");
+	//iprintln("--------INPUT-------");
+	//iprintln(statement);
+	//iprintln("-------/INPUT-------");
 	
 	res = top-down-break visit(statement) {
 		case Statement s => anonCache[s@src] when s@src? && anonCache[s@src]?
@@ -95,6 +95,7 @@ private Type toType(\class(loc decl, list[TypeSymbol] _)) = \simpleType(\simpleN
 private Type toType(\interface(loc decl, list[TypeSymbol] _)) = \simpleType(\simpleName(decl.file));
 private Type toType(\object()) = \simpleType(\simpleName("Object"));
 private Type toType(\enum(loc decl)) = \simpleType(\simpleName(decl.file));
+private Type toType(\typeArgument(loc decl)) = \simpleType(\simpleName(decl.file));
 private Type toType(\int()) = \int();
 private Type toType(\float()) = \float();
 private Type toType(\double()) = \double();
