@@ -11,6 +11,37 @@ import Set;
 import Config;
 import Domain;
 
+
+public list[AnonymousLink] getAnonimizedStatements(Statement normalized) {
+	map[loc, Statement] anonCache = ();
+	
+	list[AnonymousLink] answer = [];
+	visit(normalized) {
+		case b:\block(list[Statement] sts): {
+			int i = size(sts);
+			int weightSum = 0;
+			NextLink next = noLink();
+			while (i > 0) {
+				i -= 1;
+				Statement statement = sts[i];
+				
+				weightSum += statement@weight; 
+				
+				Statement anon = anonimizeStatement(statement, anonCache);
+				anonCache += (statement@src : anon); 
+				
+				AnonymousLink link = anonymousLink(anon, statement, next);
+				link@maxWeight = weightSum;
+				
+				answer += link;
+				next = aLink(link);
+			}
+		}
+	}
+	
+	return answer;
+}
+
 public Statement anonimizeStatement(Statement statement, map[loc, Statement] anonCache) {
 	//iprintln("--------INPUT-------");
 	//iprintln(statement);
@@ -76,34 +107,4 @@ private Type toType(\null()) = \null();
 
 private default Type toType(TypeSymbol t) {
 	throw "unhandled type <t>";
-}
-
-public list[AnonymousLink] getAnonimizedStatements(Declaration normalized) {
-	map[loc, Statement] anonCache = ();
-	
-	list[AnonymousLink] answer = [];
-	visit(normalized) {
-		case \block(list[Statement] sts): {
-			int i = size(sts);
-			int weightSum = 0;
-			NextLink next = noLink();
-			while (i > 0) {
-				i -= 1;
-				Statement statement = sts[i];
-				
-				weightSum += statement@weight; 
-				
-				Statement anon = anonimizeStatement(statement, anonCache);
-				anonCache += (statement@src : anon); 
-				
-				AnonymousLink link = anonymousLink(anon, statement, next);
-				link@maxWeight = weightSum;
-				
-				answer += link;
-				next = aLink(link);
-			}
-		}
-	}
-	
-	return answer;
 }

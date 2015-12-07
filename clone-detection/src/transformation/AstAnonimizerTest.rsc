@@ -53,7 +53,7 @@ public test bool maintainTypeInformation(){
 }
 
 
-// Car car = new Car() -> Car id0 => new Car();
+// Car car = new Car() -> Car id0 = new Car();
 public test bool maintainTypeInformation2() {
 	Statement input = \declarationStatement(\variables(
     \simpleType(simpleName("Car")[@typ=\class(|java+class:///nl/mse/anon/Cast/Car|,[])]),

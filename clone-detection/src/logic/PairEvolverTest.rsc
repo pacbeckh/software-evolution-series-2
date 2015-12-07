@@ -34,10 +34,6 @@ test bool testEvolveWithCorrectWeight() {
 		\expressionStatement(\simpleName("s2")[@typ=tsInt])[@src=|file://x2|],
 		\expressionStatement(\simpleName("s3")[@typ=tsInt])[@src=|file://x3|],
 		\expressionStatement(\simpleName("s4")[@typ=tsInt])[@src=|file://x4|]
-		//\expressionStatement(\simpleName("s5")[@typ=tsInt])[@src=|file://x5|],
-		//\expressionStatement(\simpleName("s6")[@typ=tsInt])[@src=|file://x6|],
-		//\expressionStatement(\simpleName("s7")[@typ=tsInt])[@src=|file://x7|],
-		//\expressionStatement(\simpleName("s8")[@typ=tsInt])[@src=|file://x8|]
 	]));
 	list[AnonymousLink] anonLinks = getAnonimizedStatements(normalizeMethods(d));
 	iprintln(size(anonLinks));

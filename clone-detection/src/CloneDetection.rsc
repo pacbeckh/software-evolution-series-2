@@ -91,30 +91,33 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 }
 
 // Uses compilationUnits in the m3 + fileAST
-//public list[AnonymousLink] anonimizeAndNormalize(M3 model){
-//	list[AnonymousLink] links = [];
-//	int fileIndex = 1;
-//	
-//	for ( <cu,_> <- model@containment, isCompilationUnit(cu)){
-//		//println("Handle file (<fileIndex>): <cu.file>, <cu>"); 
-//		fileIndex += 1;
-//		
-//		Declaration d = createAstFromFile(cu, true, javaVersion="1.7");
-//		Declaration normalized = normalizeMethods(d);
-//		links += getAnonimizedStatements(normalized);
-//	}
-//	
-//	return links;
-//}
+public list[AnonymousLink] anonimizeAndNormalize(M3 model){
+	list[AnonymousLink] links = [];
+	
+	for ( <cu,_> <- model@containment, isCompilationUnit(cu)){
+		Declaration d = createAstFromFile(cu, true, javaVersion="1.7");
+		
+		list[Statement] normalizedStatements = [];
+		top-down-break visit(d){
+			case \method(_,_,_,_,s) : normalizedStatements += normalize(s);
+			case \constructor(_,_,_,s) : normalizedStatements += normalize(s);
+			case \initializer(s) : normalizedStatements += (CONFIG_INCLUDE_INITIALIZER_BLOCK) ? normalize(s) : [];
+		}	
+		
+		links += concat([getAnonimizedStatements(n) | n <- normalizedStatements]);
+	}
+	
+	return links;
+}
 
 
  //Uses methods in the m3 + MethodAST
-public list[AnonymousLink] anonimizeAndNormalize(M3 model){
+public list[AnonymousLink] anonimizeAndNormalize2(M3 model){
 	list[AnonymousLink] links = [];
 	int methodIndex = 1;
 	
 	for (m <- methods(model)) {
-		println("Handle method (<methodIndex>): <m.file>, <m>");
+		//println("Handle method (<methodIndex>): <m.file>, <m>");
 		methodIndex += 1;
 
 		Declaration d = getMethodASTEclipse(m, model = model);

@@ -8,6 +8,7 @@ import List;
 import Config;
 import Domain;
 
+//TODO This method is obsolete and can be removed.
 public Declaration normalizeMethods(Declaration declaration) {
 	return visit (declaration) {
 		case \method(\return, name, parameters, exceptions, impl) =>
