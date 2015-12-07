@@ -58,3 +58,33 @@
   stroke-width: 1.5px;
 }
 
+
+#circle-pack-graph {
+  width: 0;
+}
+
+#circle-pack-graph .node {
+  cursor: pointer;
+}
+
+
+#circle-pack-graph .node:hover {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+#circle-pack-graph .node.node--leaf {
+  fill: white;
+}
+
+#circle-pack-graph .label {
+  font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-anchor: middle;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+}
+
+#circle-pack-graph .label,
+#circle-pack-graph .node--root,
+#circle-pack-graph .node--leaf {
+  pointer-events: none;
+}

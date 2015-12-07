@@ -24,6 +24,11 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
     return _.uniq(answer, true);
   };
 
+  var addFileName = function(fragment)  {
+    var components = fragment.file.split("/");
+    fragment.fileName = components[components.length - 1];
+  };
+
   var calculateContainingFragments = function(files) {
     var count = 0;
     files.forEach(function(file) {
@@ -56,6 +61,7 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
 
     var allFragments = clonesToAllFragments(clones);
     allFragments.forEach(function (fragment) {
+      addFileName(fragment)
       maintenanceFiles[fragment.file].target.fragments.push(fragment);
     });
 

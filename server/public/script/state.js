@@ -33,5 +33,9 @@ angular
       .state('app.graphs.file-tree', {
         url: "/file-tree",
         templateUrl: "views/file-tree-graph.html"
+      })
+      .state('app.graphs.type-packing', {
+        url: "/type-packing/:cloneId",
+        templateUrl: "views/type-packing.html"
       });
   });

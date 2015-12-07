@@ -1,5 +1,5 @@
 {
   "verbose": true,
-  "ignore": [".idea/*","*.test.js", "fixtures/*", "./node_modules", "public/**"]
+  "ignore": [".idea/*","*.test.js", "fixtures/*", "./node_modules/**/*", "public/**/*"]
 }
 

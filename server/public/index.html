@@ -40,15 +40,19 @@
     <script src="./script/controllers/FilesCtrl.js"></script>
     <script src="./script/controllers/ClonesCtrl.js"></script>
     <script src="./script/controllers/MainCtrl.js"></script>
+    <script src="./script/controllers/ModalCtrl.js"></script>
     <script src="./script/controllers/FileTreeGraphCtrl.js"></script>
     <script src="./script/controllers/ProblemsCtrl.js"></script>
+    <script src="./script/controllers/TypePackingCtrl.js"></script>
 
     <script src="./script/directives/FileSnippetLoader.js"></script>
     <script src="./script/directives/FileLink.js"></script>
+    <script src="./script/directives/CloneClassInfo.js"></script>
 
     <script src="./script/services/FileService.js"></script>
     <script src="./script/services/FileTreeService.js"></script>
     <script src="./script/services/ScatterPlotService.js"></script>
+    <script src="./script/services/CirclePackingService.js"></script>
 
 </head>
 
@@ -66,6 +70,7 @@
                     <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">Graphs <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a data-ui-sref="app.graphs.file-tree">File Tree</a></li>
+                        <li><a data-ui-sref="app.graphs.type-packing({cloneId: null})">Clone Type Packing</a></li>
                     </ul>
                 </li>
 
