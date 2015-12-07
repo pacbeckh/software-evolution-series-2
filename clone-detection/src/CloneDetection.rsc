@@ -23,8 +23,8 @@ import transformation::AstAnonimizer;
 import output::Store;
 
 //public loc projectLoc = |project://hello-world-java/|;
-public loc projectLoc = |project://smallsql0.21_src|;
-//public loc projectLoc = |project://hsqldb|;
+//public loc projectLoc = |project://smallsql0.21_src|;
+public loc projectLoc = |project://hsqldb|;
 
 public M3 model;
 
@@ -94,7 +94,10 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 	list[AnonymousLink] links = [];
 	
-	for ( <cu,_> <- model@containment, isCompilationUnit(cu)){
+	for ( <cu,_> <- model@containment, isCompilationUnit(cu), cu.file != "ValidatingResourceBundle.java"){
+		iprintln(cu.file);
+		
+		begin = now();
 		Declaration d = createAstFromFile(cu, true, javaVersion="1.7");
 		
 		list[Statement] normalizedStatements = [];
@@ -105,6 +108,10 @@ public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 		}	
 		
 		links += concat([getAnonimizedStatements(n) | n <- normalizedStatements]);
+		
+		end = now();
+		Duration duration = end - begin;
+		iprintln("Took <duration.minutes> minutes <duration.seconds> seconds <duration.milliseconds> milliseconds ");
 	}
 	
 	return links;
