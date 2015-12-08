@@ -24,7 +24,7 @@ import output::Store;
 
 //public loc projectLoc = |project://hello-world-java/|;
 //public loc projectLoc = |project://smallsql0.21_src|;
-public loc projectLoc = |project://hsqldb|;
+public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
 
