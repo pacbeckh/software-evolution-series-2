@@ -1,11 +1,11 @@
 module postprocessing::OverlapProcessor
 
 import IO;
-import List;
+import Set;
 
-public map[int, set[set[tuple[loc,loc]]]] processOverlap(map[int, set[set[tuple[loc,loc]]]] cloneClasses) {
-	for(key <- cloneClasses){
-		cloneClasses[key] = { procesCloneClass(cloneClass) | cloneClass <- cloneClasses[key]};
+public map[int, set[set[tuple[loc,loc]]]] cleanOverlappingFragments(map[int, set[set[tuple[loc,loc]]]] cloneClasses) {
+	for (key <- cloneClasses) {
+		cloneClasses[key] = { processCloneClass(cloneClass) | cloneClass <- cloneClasses[key]};	
 	}
 	
 	return cloneClasses;
