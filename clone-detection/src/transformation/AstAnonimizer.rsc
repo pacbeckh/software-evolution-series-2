@@ -18,6 +18,7 @@ public list[AnonymousLink] getAnonimizedStatements(Statement normalized) {
 	list[AnonymousLink] answer = [];
 	visit(normalized) {
 		case b:\block(list[Statement] sts): {
+			
 			int i = size(sts);
 			int weightSum = 0;
 			NextLink next = noLink();

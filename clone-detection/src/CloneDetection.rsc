@@ -23,8 +23,8 @@ import transformation::AstAnonimizer;
 import output::Store;
 import postprocessing::NestedBlockProcessor;
 
-public loc projectLoc = |project://hello-world-java/|;
-//public loc projectLoc = |project://smallsql0.21_src|;
+//public loc projectLoc = |project://hello-world-java/|;
+public loc projectLoc = |project://smallsql0.21_src|;
 //public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
@@ -35,10 +35,12 @@ public M3 loadModel() {
 }
 
 public void mainFunction() {
-
 	println("<printTime(now())> Loading model");
 	M3 model = loadModel();
-	
+	mainFunctionWithModel(model);	
+}
+
+public void mainFunctionWithModel(M3 model) {
 	println("<printTime(now())> Starting clone detection");
 	cloneClasses = run(model);
 	
@@ -60,7 +62,6 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	
 	println("<printTime(now())> Getting all pairs...");
 	list[LinkPair] allPairs = getAllLinkPairs(links);
-	//printLinkPairs(allPairs);
 	
 	iprintln("<size(allPairs)> linkpairs found");
 	
@@ -82,7 +83,7 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
 	println("<printTime(now())> Purge nested clone classes...");
-	cloneClasses = cleanupNestedBlocks(cloneClasses);
+	//cloneClasses = cleanupNestedBlocks(cloneClasses);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
 	return cloneClasses;
@@ -105,7 +106,7 @@ public void doEvolve(list[LinkPair] allPairs) {
 public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 	list[AnonymousLink] links = [];
 	
-	for ( <cu,_> <- model@containment, isCompilationUnit(cu), cu.file != "ValidatingResourceBundle.java"){
+	for ( cu <- files(model@containment), cu.file != "ValidatingResourceBundle.java") {
 		links += anonimizeAndNormalizeFile(cu);	
 	}
 	
@@ -117,12 +118,15 @@ public list[AnonymousLink] anonimizeAndNormalizeFile(loc file) {
 	
 	list[Statement] normalizedStatements = [];
 	top-down-break visit(declaration){
-		case \method(_,_,_,_,s) : normalizedStatements += normalize(s);
-		case \constructor(_,_,_,s) : normalizedStatements += normalize(s);
-		case \initializer(s) : normalizedStatements += (CONFIG_INCLUDE_INITIALIZER_BLOCK) ? normalize(s) : [];
+		case x:\method(_,_,_,_,s) :
+			normalizedStatements += normalize(s);
+		case \constructor(_,_,_,s) :
+			normalizedStatements += normalize(s);
+		case x:\initializer(s) : 
+			normalizedStatements += (CONFIG_INCLUDE_INITIALIZER_BLOCK) ? normalize(s) : [];
 	}
 	
-	return concat([getAnonimizedStatements(n) | n <- normalizedStatements]);
+	return [getAnonimizedStatements(n) | n <- normalizedStatements];
 }
 
 

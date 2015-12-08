@@ -33,7 +33,7 @@ angular.module('CloneDetection').directive('fileSnippetLoader', function (FileSe
       $scope.snippetOpts = {
         lineWrapping: true,
         lineNumbers: true,
-        readOnly: 'nocursor',
+        readOnly: true,
         mode: 'clike',
         firstLineNumber: $scope.location.start.line
       };

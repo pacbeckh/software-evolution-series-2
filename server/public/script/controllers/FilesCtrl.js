@@ -59,7 +59,7 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
       $scope.editorOptions = {
         lineWrapping: true,
         lineNumbers: true,
-        readOnly: 'nocursor',
+        readOnly: true,
         mode: 'clike',
         onLoad: function () {
           $timeout(function () {
