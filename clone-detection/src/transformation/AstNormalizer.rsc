@@ -24,32 +24,32 @@ public Declaration normalizeMethods(Declaration declaration) {
 public Statement normalize(Statement statement) {
 	return visit(statement) {
 		case z:\if(Expression e, Statement s) => 
-			copySrc(z, withWeight(\if(e, addBlock(s)), [s]))
+			copySrc(z, withWeight(2, \if(e, addBlock(s)), [s]))
 		case z:\if(Expression e, Statement s1, Statement s2) =>
-			copySrc(z, withWeight(\if(e, addBlock(s1), addBlock(s2)), [s1,s2]))
+			copySrc(z, withWeight(4, \if(e, addBlock(s1), addBlock(s2)), [s1,s2]))
 		case z:\do(Statement s, Expression e) =>  
-			copySrc(z, withWeight(\do(addBlock(s), e), [s]))
+			copySrc(z, withWeight(2, \do(addBlock(s), e), [s]))
 		case z:\foreach(Declaration d, Expression e, Statement s) =>
-			copySrc(z, withWeight(\foreach(d, e, addBlock(s)), [s]))
+			copySrc(z, withWeight(2, \foreach(d, e, addBlock(s)), [s]))
     	case z:\for(list[Expression] initializers, Expression condition, list[Expression] updaters, Statement body) => 
-    		copySrc(z, withWeight(\for(initializers, condition, updaters, addBlock(body)), [body]))
+    		copySrc(z, withWeight(2, \for(initializers, condition, updaters, addBlock(body)), [body]))
     	case z:\for(list[Expression] initializers, list[Expression] updaters, Statement body) => 
-    		copySrc(z, withWeight(\for(initializers, updaters, addBlock(body)), [body]))
+    		copySrc(z, withWeight(2, \for(initializers, updaters, addBlock(body)), [body]))
 		case z:\label(str name, Statement body) => 
-    		copySrc(z, withWeight(\label(name, addBlock(body)), [body]))
+    		copySrc(z, withWeight(2, \label(name, addBlock(body)), [body]))
 		case z:\catch(Declaration exception, Statement body) => 
-			copySrc(z, withWeight(\catch(exception, addBlock(body)), [body]))
+			copySrc(z, withWeight(1, \catch(exception, addBlock(body)), [body]))
      	case z:\while(Expression condition, Statement body) => 
-     		copySrc(z, withWeight(\while(condition, addBlock(body)), [body]))
+     		copySrc(z, withWeight(2, \while(condition, addBlock(body)), [body]))
     	case z:\synchronizedStatement(Expression lock, Statement body) =>
-    		copySrc(z, withWeight(\synchronizedStatement(lock, addBlock(body)), [body]))
+    		copySrc(z, withWeight(1, \synchronizedStatement(lock, addBlock(body)), [body]))
     		
 		case s:\try(Statement body, list[Statement] catchClauses) =>
-     		withWeight(s, catchClauses)
+     		withWeight(1, s, catchClauses)
      	case s:\try(Statement body, list[Statement] catchClauses, Statement final) =>
-     		withWeight(s, catchClauses + final)
+     		withWeight(2, s, catchClauses + final)
  		case s:\switch(Expression expression, list[Statement] statements) => 
-     		withWeight(s, statements)
+     		withWeight(2, s, statements)
      		
      	case Statement s => withWeight(s)    	
     	
@@ -81,8 +81,8 @@ private default Statement withWeight(Statement statement) {
 	return statement;
 }
 
-private Statement withWeight(Statement parent, list[Statement] children) {
-	parent@weight = getWeight(children) + 1;
+private Statement withWeight(int extraWeight, Statement parent, list[Statement] children) {
+	parent@weight = getWeight(children) + 1 + extraWeight;
 	return parent;
 }
 

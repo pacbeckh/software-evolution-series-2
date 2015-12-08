@@ -55,24 +55,6 @@ test bool normalizeInfix() {
 		== normalize(\expressionStatement(\infix(\simpleName("a"),"\>\>=", \simpleName("b")))[@src=|file://a|]);
 }
 
-test bool normalizeInfix2() {
-//	expressionStatement(assignment(
-//    simpleName("month")[
-//      @src=|file:///C:/Users/Paco/UVA/software-evolution/software-evolution-series-1/smallsql0.21_src/src/smallsql/database/DateTime.java|(3078,5,<93,3>,<93,8>),
-//      @decl=|java+parameter:///smallsql/database/DateTime/calcMillis(int,int,int,int,int,int,int)/scope(month)/scope(0)/month|,
-//      @typ=int()
-//    ],
-//    "%=",
-//    number("12")[
-//      @src=|file:///C:/Users/Paco/UVA/software-evolution/software-evolution-series-1/smallsql0.21_src/src/smallsql/database/DateTime.java|(3087,2,<93,12>,<93,14>),
-//    ])[
-//    @src=|file:///C:/Users/Paco/UVA/software-evolution/software-evolution-series-1/smallsql0.21_src/src/smallsql/database/DateTime.java|(3078,11,<93,3>,<93,14>),
-//  ])[
-//  @src=|file:///C:/Users/Paco/UVA/software-evolution/software-evolution-series-1/smallsql0.21_src/src/smallsql/database/DateTime.java|(3078,12,<93,3>,<93,15>),
-//]
-return true;
-}
-
 test bool normalizeInfixLessThan() {
 	return \expressionStatement(\infix(\simpleName("b"), "\>", \simpleName("a")))
 		== normalize(\expressionStatement(\infix(\simpleName("a"),"\<", \simpleName("b")))[@src=|file://a|]);

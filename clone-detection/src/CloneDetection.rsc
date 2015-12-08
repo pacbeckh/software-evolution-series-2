@@ -22,9 +22,9 @@ import transformation::AstNormalizer;
 import transformation::AstAnonimizer;
 import output::Store;
 
-public loc projectLoc = |project://hello-world-java/|;
+//public loc projectLoc = |project://hello-world-java/|;
 //public loc projectLoc = |project://smallsql0.21_src|;
-//public loc projectLoc = |project://hsqldb-2.3.1|;
+public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
 
@@ -67,7 +67,7 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	map[int, list[LinkPair]] levelResults = evolveLinkPairs(allPairs);
 	
 	//Remove things we are not interested in, stuff below the threshold.
-	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD + 1]);
+	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD]);
 	
 	println("<printTime(now())> Transform pairs to start and end locations...");
 	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] levelResultsAbsolute = ();
