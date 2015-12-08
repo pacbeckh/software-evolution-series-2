@@ -9,6 +9,7 @@ import Domain;
 import logic::VariableMapping;
 import transformation::StatementVariables;
 
+public map[Statement,list[str]] varCache = ();
 
 public LinkPair evolvePair(LinkPair target) {
 	int maxWeight = head(target.leftStack)@maxWeight;
@@ -63,9 +64,17 @@ public LinkPair linkPairWithNext(AnonymousLink leftNext, AnonymousLink rightNext
 	);
 }
 
+public list[str] getVarsForStatement(Statement s) {
+	if (varCache[s]?) {
+		return varCache[s];
+	}
+	list[str] vars = statementToVariables(s);
+	varCache[s] = vars;
+	return vars;
+}
 public LinkPair evolveLinkPairWithNext(LinkPair input, AnonymousLink leftNext, AnonymousLink rightNext) {
-	list[str] leftVars = statementToVariables(leftNext.normal);
-	list[str] rightVars = statementToVariables(rightNext.normal);
+	list[str] leftVars = getVarsForStatement(leftNext.normal);
+	list[str] rightVars = getVarsForStatement(rightNext.normal);
 	
 	MappingComparison leftComparison = mappingComparison(input.ltrMappingPossible, input.ltrMapping);
 	MappingComparison rightComparison = mappingComparison(input.rtlMappingPossible, input.rtlMapping);
