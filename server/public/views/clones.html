@@ -11,8 +11,8 @@
                 <uib-tabset>
 
                     <uib-tab ng-repeat="cloneClass in activeClasses" heading="Clone Class {{cloneClass.uid}}" active="cloneClass.active">
-                        <div data-ng-if="cloneClass.active">
-                            <clone-class-info clone-class="cloneClass">
+                        <div data-ng-show="cloneClass.active">
+                            <clone-class-info clone-class="cloneClass" refresh-code-mirror="cloneClass.active">
                             </clone-class-info>
                         </div>
                     </uib-tab>
