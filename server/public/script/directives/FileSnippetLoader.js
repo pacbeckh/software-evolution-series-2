@@ -5,7 +5,8 @@ angular.module('CloneDetection').directive('fileSnippetLoader', function (FileSe
   return {
     templateUrl : './templates/file-snippet-loader.html',
     scope : {
-      location: '='
+      location: '=',
+      refreshCodeMirror: '='
     },
     link : function($scope) {
       $scope.loading = true;

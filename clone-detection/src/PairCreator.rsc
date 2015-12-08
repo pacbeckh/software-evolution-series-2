@@ -24,7 +24,6 @@ public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
 			linkIndex[link.anonymous] = [link];
 		}
 	}
-	iprintln("Link index <size(linkIndex)>");
 	iprintln("Ignored <i> AnonymousLinks ");
 	
 	list[LinkPair] allPairs = [];
