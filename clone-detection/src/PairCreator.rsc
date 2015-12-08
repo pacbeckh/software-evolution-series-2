@@ -14,7 +14,7 @@ public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
 	map[Statement,list[AnonymousLink]] linkIndex = ();
 	int i = 0;
 	for(link <- links) {
-		if(link@maxWeight <= CONFIG_STATEMENT_WEIGHT_THRESHOLD) {
+		if(link@maxWeight < CONFIG_STATEMENT_WEIGHT_THRESHOLD) {
 			i += 1;
 			continue;
 		}
