@@ -83,11 +83,20 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 
 	println("<printTime(now())> Purge overlapping clone classes...");
 	cloneClasses = cleanupCloneClasses(cloneClasses);
-	for (k <- cloneClasses) {
-		println("- <k> \> <size(cloneClasses[k])>");
-	}
+	//for (k <- cloneClasses) {
+		//println("- <k> \> <size(cloneClasses[k])>");
+	//}
 	
 	return cloneClasses;
+}
+
+public void doEvolve(list[LinkPair] allPairs) {
+	begin = now();
+	evolveLinkPairs(allPairs);
+	
+	end = now();
+	Duration duration = end - begin;
+	println("<printTime(now())> Took| <duration.minutes>:<duration.seconds>:<duration.milliseconds>");
 }
 
 // Uses compilationUnits in the m3 + fileAST
@@ -95,7 +104,7 @@ public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 	list[AnonymousLink] links = [];
 	
 	for ( <cu,_> <- model@containment, isCompilationUnit(cu), cu.file != "ValidatingResourceBundle.java"){
-		iprintln(cu.file);
+		//iprintln(cu.file);
 		
 		begin = now();
 		Declaration d = createAstFromFile(cu, true, javaVersion="1.7");
@@ -111,7 +120,7 @@ public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 		
 		end = now();
 		Duration duration = end - begin;
-		iprintln("Took <duration.minutes> minutes <duration.seconds> seconds <duration.milliseconds> milliseconds ");
+		//iprintln("Took <duration.minutes> minutes <duration.seconds> seconds <duration.milliseconds> milliseconds ");
 	}
 	
 	return links;
@@ -137,15 +146,37 @@ public list[AnonymousLink] anonimizeAndNormalize2(M3 model){
 
 
 public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
-	map[int, list[LinkPair]] levelResults = (); 
+	map[int, list[LinkPair]] levelResults = ();
+	map[value,value] cache = ();
+	
+	int eob = 0;
+	int hits = 0; 
 	for (focus <- allPairs) {
-		evolved = evolvePair(focus);
+	
+		//Just continue if element in cache
+		if (cache[{head(focus.leftStack), head(focus.rightStack)}]?) {
+			hits += 1;
+			continue;
+		}
+		
+		LinkPair evolved = evolvePair(focus);
 		if (levelResults[evolved@weight]?) {
 			levelResults[evolved@weight] += evolved;
 		} else {
 			levelResults[evolved@weight] = [evolved];
 		}
+		
+		//Cache Pair if EndOfBlock
+		if (head(evolved.leftStack).next == noLink() || head(evolved.rightStack).next == noLink()) {
+			eob += 1;
+			for (i <- [0..size(evolved.leftStack)]) {
+				cache[{evolved.leftStack[i],evolved.rightStack[i]}] = evolved; 
+			}
+		}
 	}
+	println("Cache size: <size(cache)>");
+	println("EOB: <eob>");
+	println("Hits: <hits>");
 	return levelResults;
 }
 
@@ -169,7 +200,7 @@ public map[int, set[set[tuple[loc,loc]]]] cleanupCloneClasses(map[int, set[set[t
 }
 
 public set[set[tuple[loc,loc]]] toEquivalence(rel[tuple[loc,loc],tuple[loc,loc]] rels)
-	= groupRangeByDomain((rels + {<r,l> | <l,r> <- rels})+);
+	= groupRangeByDomain((rels + invert(rels)) +);
 	
 private void printLinkPairs(list[LinkPair] pairs){
 	for(pair <- pairs){
