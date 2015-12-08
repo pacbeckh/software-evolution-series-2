@@ -149,8 +149,3 @@ public map[int, set[set[tuple[loc,loc]]]] cleanupCloneClasses(map[int, set[set[t
 public set[set[tuple[loc,loc]]] toEquivalence(rel[tuple[loc,loc],tuple[loc,loc]] rels)
 	= groupRangeByDomain((rels + {<r,l> | <l,r> <- rels})+);
 	
-private void printLinkPairs(list[LinkPair] pairs){
-	for(pair <- pairs){
-		println("Pair from <head(pair.leftStack).normal@src> = <head(pair.rightStack).normal@src>");
-	}
-}
