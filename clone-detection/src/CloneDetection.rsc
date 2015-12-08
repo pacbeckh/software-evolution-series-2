@@ -22,6 +22,8 @@ import transformation::AstNormalizer;
 import transformation::AstAnonimizer;
 import output::Store;
 import postprocessing::NestedBlockProcessor;
+import postprocessing::SameEndProcessor;
+import postprocessing::OverlapProcessor;
 
 //public loc projectLoc = |project://hello-world-java/|;
 public loc projectLoc = |project://smallsql0.21_src|;
@@ -78,12 +80,16 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	map[int, set[set[tuple[loc,loc]]]] cloneClasses = (k : toEquivalence(levelResultsAbsolute[k]) | k <- levelResultsAbsolute);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 
-	println("<printTime(now())> Purge overlapping clone classes...");
-	cloneClasses = cleanupCloneClasses(cloneClasses);
+	println("<printTime(now())> Purging clone classes with same endloc...");
+	cloneClasses = cleanupCloneClassesWithSameEnd(cloneClasses);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
 	println("<printTime(now())> Purge nested clone classes...");
-	//cloneClasses = cleanupNestedBlocks(cloneClasses);
+	cloneClasses = cleanupNestedBlocks(cloneClasses);
+	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
+	
+	println("<printTime(now())> Purging overlapping clone classes...");
+	cloneClasses = cleanOverlappingFragments(cloneClasses);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
 	return cloneClasses;
@@ -176,25 +182,6 @@ public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 	println("EOB: <eob>");
 	println("Hits: <hits>");
 	return levelResults;
-}
-
-public map[int, set[set[tuple[loc,loc]]]] cleanupCloneClasses(map[int, set[set[tuple[loc,loc]]]] input) {
-	list[int] orderedKeys = reverse(sort(toList(domain(input))));
-	set[set[loc]] knownClasses = {};
-		
-	map[int, set[set[tuple[loc,loc]]]] answer = ();
-	
-	for (k <-orderedKeys) {
-		answer[k] = {};
-		for (set[tuple[loc,loc]] clazz <- input[k]) {
-			set[loc] ends = {end | <_,end> <- clazz};
-			if (ends notin knownClasses) {
-				knownClasses += {ends};
-				answer[k] += {clazz};
-			}
-		}
-	}
-	return answer;
 }
 
 public set[set[tuple[loc,loc]]] toEquivalence(rel[tuple[loc,loc],tuple[loc,loc]] rels)

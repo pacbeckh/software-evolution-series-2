@@ -48,7 +48,7 @@ public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
 	
 	AnonymousLink leftNext = leftNextLink.val;
 	AnonymousLink rightNext = rightNextLink.val;
-	if (leftNext.anonymous != rightNext.anonymous || pairsOverlap(input, leftNext, rightNext)) {
+	if (leftNext.anonymous != rightNext.anonymous) {
 		return nothing();
 	}
 	
@@ -85,11 +85,6 @@ public LinkPair evolveLinkPairWithNext(LinkPair input, AnonymousLink leftNext, A
 		rightComparison.success,
 		rightComparison.mapping
 	);
-}
-
-public bool pairsOverlap(LinkPair input, AnonymousLink leftNext, AnonymousLink rightNext) {
-	set[loc] locs = { getLoc(x) | x <- input.leftStack + input.rightStack};
-	return (getLoc(leftNext) in locs) || (getLoc(rightNext) in locs); 
 }
 
 private loc getLoc(AnonymousLink link) = link.normal@src;
