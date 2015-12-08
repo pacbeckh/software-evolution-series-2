@@ -43,6 +43,7 @@ public void printEvolvedLinkPairs(list[LinkPair] pairs){
 		leftEnd = head(pair.leftStack).normal@src;
 		rightEnd = head(pair.rightStack).normal@src;
 		
-		println("<leftStart.file>:<leftStart.begin> to <leftEnd.begin> | Is a pair With | <rightStart.file>:<rightStart.begin> to <rightEnd.begin>");
+		println("<leftStart.file>:<leftStart.begin.line> to <leftEnd.begin.line> | Is a pair With | <rightStart.file>:<rightStart.begin.line> to <rightEnd.begin.line>");
+		
 	}
 }

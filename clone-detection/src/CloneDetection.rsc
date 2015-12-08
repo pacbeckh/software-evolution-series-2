@@ -67,16 +67,10 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	map[int, list[LinkPair]] levelResults = evolveLinkPairs(allPairs);
 	
 	//Remove things we are not interested in, stuff below the threshold.
-	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD + 1]);
+	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD]);
 	
 	println("<printTime(now())> Transform pairs to start and end locations...");
-	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] levelResultsAbsolute = ();
-	for (k <- levelResults) {
-		list[LinkPair] levelResult = levelResults[k];
-		rel[tuple[loc, loc],tuple[loc, loc]] rels = {<<last(l.leftStack).normal@src, head(l.leftStack).normal@src>, 
-						      <last(l.rightStack).normal@src, head(l.rightStack).normal@src>> | l <- levelResult};
-		levelResultsAbsolute[k] = rels;
-	}
+	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] levelResultsAbsolute = transformLinkPairsToLocs(levelResults);
 	
 	println("<printTime(now())> Creating clone classes with equiv rel...");
 	map[int, set[set[tuple[loc,loc]]]] cloneClasses = (k : toEquivalence(levelResultsAbsolute[k]) | k <- levelResultsAbsolute);
@@ -113,6 +107,20 @@ public list[AnonymousLink] anonimizeAndNormalizeFile(loc file) {
 	
 	return concat([getAnonimizedStatements(n) | n <- normalizedStatements]);
 }
+
+
+public map[int, rel[tuple[loc,loc],tuple[loc,loc]]] transformLinkPairsToLocs(map[int, list[LinkPair]] evolvedLinksPairs){
+	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] result = ();
+	for (k <- evolvedLinksPairs) {
+		list[LinkPair] levelResult = evolvedLinksPairs[k];
+		rel[tuple[loc, loc],tuple[loc, loc]] rels = {<<last(l.leftStack).normal@src, head(l.leftStack).normal@src>, 
+						      <last(l.rightStack).normal@src, head(l.rightStack).normal@src>> | l <- levelResult};
+		result[k] = rels;
+	}
+	
+	return result;
+}
+
 
 public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 	map[int, list[LinkPair]] levelResults = (); 
