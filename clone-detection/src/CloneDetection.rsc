@@ -21,10 +21,11 @@ import PairCreator;
 import transformation::AstNormalizer;
 import transformation::AstAnonimizer;
 import output::Store;
+import postprocessing::NestedBlockProcessor;
 
-//public loc projectLoc = |project://hello-world-java/|;
+public loc projectLoc = |project://hello-world-java/|;
 //public loc projectLoc = |project://smallsql0.21_src|;
-public loc projectLoc = |project://hsqldb-2.3.1|;
+//public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
 
@@ -74,14 +75,21 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	
 	println("<printTime(now())> Creating clone classes with equiv rel...");
 	map[int, set[set[tuple[loc,loc]]]] cloneClasses = (k : toEquivalence(levelResultsAbsolute[k]) | k <- levelResultsAbsolute);
+	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 
 	println("<printTime(now())> Purge overlapping clone classes...");
 	cloneClasses = cleanupCloneClasses(cloneClasses);
-	//for (k <- cloneClasses) {
-		//println("- <k> \> <size(cloneClasses[k])>");
-	//}
+	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
+	
+	println("<printTime(now())> Purge nested clone classes...");
+	cloneClasses = cleanupNestedBlocks(cloneClasses);
+	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
 	return cloneClasses;
+}
+
+public int numberOfCloneClasses(map[int, set[set[tuple[loc,loc]]]] input) {
+	return ( 0 | it + size(input[k]) | k <- input);
 }
 
 public void doEvolve(list[LinkPair] allPairs) {
