@@ -22,9 +22,9 @@ import transformation::AstNormalizer;
 import transformation::AstAnonimizer;
 import output::Store;
 
-//public loc projectLoc = |project://hello-world-java/|;
+public loc projectLoc = |project://hello-world-java/|;
 //public loc projectLoc = |project://smallsql0.21_src|;
-public loc projectLoc = |project://hsqldb-2.3.1|;
+//public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
 
@@ -95,46 +95,29 @@ public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 	list[AnonymousLink] links = [];
 	
 	for ( <cu,_> <- model@containment, isCompilationUnit(cu), cu.file != "ValidatingResourceBundle.java"){
-		iprintln(cu.file);
-		
 		begin = now();
-		Declaration d = createAstFromFile(cu, true, javaVersion="1.7");
+
+		links += anonimizeAndNormalizeFile(cu);		
 		
-		list[Statement] normalizedStatements = [];
-		top-down-break visit(d){
-			case \method(_,_,_,_,s) : normalizedStatements += normalize(s);
-			case \constructor(_,_,_,s) : normalizedStatements += normalize(s);
-			case \initializer(s) : normalizedStatements += (CONFIG_INCLUDE_INITIALIZER_BLOCK) ? normalize(s) : [];
-		}	
-		
-		links += concat([getAnonimizedStatements(n) | n <- normalizedStatements]);
-		
-		end = now();
-		Duration duration = end - begin;
+		Duration duration = now() - begin;
 		iprintln("Took <duration.minutes> minutes <duration.seconds> seconds <duration.milliseconds> milliseconds ");
 	}
 	
 	return links;
 }
 
-
- //Uses methods in the m3 + MethodAST
-public list[AnonymousLink] anonimizeAndNormalize2(M3 model){
-	list[AnonymousLink] links = [];
-	int methodIndex = 1;
+public list[AnonymousLink] anonimizeAndNormalizeFile(loc file) {
+	Declaration declaration = createAstFromFile(file, true, javaVersion="1.7");
 	
-	for (m <- methods(model)) {
-		//println("Handle method (<methodIndex>): <m.file>, <m>");
-		methodIndex += 1;
-
-		Declaration d = getMethodASTEclipse(m, model = model);
-		Declaration normalized = normalizeMethods(d);
-		links += getAnonimizedStatements(normalized);
+	list[Statement] normalizedStatements = [];
+	top-down-break visit(declaration){
+		case \method(_,_,_,_,s) : normalizedStatements += normalize(s);
+		case \constructor(_,_,_,s) : normalizedStatements += normalize(s);
+		case \initializer(s) : normalizedStatements += (CONFIG_INCLUDE_INITIALIZER_BLOCK) ? normalize(s) : [];
 	}
 	
-	return links;
+	return concat([getAnonimizedStatements(n) | n <- normalizedStatements]);
 }
-
 
 public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 	map[int, list[LinkPair]] levelResults = (); 
