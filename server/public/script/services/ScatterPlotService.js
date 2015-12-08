@@ -1,7 +1,7 @@
 angular.module('CloneDetection').service('ScatterPlotService', function ($http, $q) {
   function render(selector, data, clickCb) {
     var margin = {top: 20, right: 20, bottom: 30, left: 40},
-      width = 960 - margin.left - margin.right,
+      width = 1200 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
 
@@ -70,7 +70,7 @@ angular.module('CloneDetection').service('ScatterPlotService', function ($http, 
       .data(data)
       .enter().append("circle")
       .attr("class", "dot")
-      .attr("r", 3.5)
+      .attr("r", 8)
       .attr("cx", xMap)
       .attr("cy", yMap)
       .on("click", function (item) {

@@ -1,16 +1,16 @@
-angular.module('CloneDetection').directive('fileSnippetLoader', function (FileService) {
+angular.module('CloneDetection').directive('fileSnippetLoader', function (FileService, $timeout, $interval) {
 
   var promises = {};
 
   return {
     templateUrl : './templates/file-snippet-loader.html',
     scope : {
-      location: '=',
-      refreshCodeMirror: '='
+      location: '='
     },
-    link : function($scope) {
+    controller : function($scope) {
+      console.log("CONSTRUCT");
       $scope.loading = true;
-
+      $scope.counter = 0;
       var promise;
       if (promises[$scope.location.file]) {
         promise = promises[$scope.location.file];
@@ -22,10 +22,14 @@ angular.module('CloneDetection').directive('fileSnippetLoader', function (FileSe
       promise.then(function(content) {
         var rows = content.split("\n").slice(($scope.location.start.line - 1), $scope.location.end.line);
         $scope.previewContent = rows.join("\n");
-        $scope.loading = false;
-      })
-    },
-    controller : function($scope) {
+        $timeout(function() {
+          $scope.loading = false;
+          $timeout(function() {
+            $scope.counter += 1;
+          }, 50);
+        }, 50);
+      });
+
       $scope.snippetOpts = {
         lineWrapping: true,
         lineNumbers: true,
