@@ -1,11 +1,11 @@
 <div>
-    <div ng-if="loading">
+    <div ng-show="loading">
         <h3><i class="fa fa-spin fa-spinner"></i></h3>
     </div>
-    <div ng-if="!loading">
+    <div ng-show="!loading">
         <ui-codemirror ng-model="previewContent"
                        class="code-mirror-element"
                        ui-codemirror-opts="snippetOpts"
-                       ui-refresh="refreshCodeMirror"></ui-codemirror>
+                       ui-refresh="counter"></ui-codemirror>
     </div>
 </div>
