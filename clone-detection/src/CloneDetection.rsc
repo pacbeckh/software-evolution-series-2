@@ -95,12 +95,7 @@ public list[AnonymousLink] anonimizeAndNormalize(M3 model){
 	list[AnonymousLink] links = [];
 	
 	for ( <cu,_> <- model@containment, isCompilationUnit(cu), cu.file != "ValidatingResourceBundle.java"){
-		begin = now();
-
 		links += anonimizeAndNormalizeFile(cu);		
-		
-		Duration duration = now() - begin;
-		iprintln("Took <duration.minutes> minutes <duration.seconds> seconds <duration.milliseconds> milliseconds ");
 	}
 	
 	return links;
