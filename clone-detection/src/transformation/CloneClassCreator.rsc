@@ -93,6 +93,7 @@ private loc stackToLoc(list[AnonymousLink] stack)
 
 private loc mergeLoc(loc s, loc e) {
 	n = s.end = e.end;
+	n.length = e.offset - s.offset + e.length; 
 	return n;
 }
 

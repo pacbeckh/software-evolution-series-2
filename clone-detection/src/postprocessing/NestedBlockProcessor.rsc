@@ -52,7 +52,7 @@ public bool containsChild(CloneClass child, CloneClass parent) =
 	child == { childElem | childElem <- child, containedBy(childElem, parent) };
 
 public bool containedBy(loc item, CloneClass container) {
-	return any(c <- container, item <= c);
+	return any(c <- container, c.uri == item.uri, item <= c);
 }
 
 public bool isBeginBeforeOrEqual(loc a, loc b) = a.uri == b.uri && a.begin <= b.begin;

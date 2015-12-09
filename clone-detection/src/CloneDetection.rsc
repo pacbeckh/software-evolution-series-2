@@ -29,8 +29,8 @@ import postprocessing::OverlapProcessor;
 import transformation::CloneClassCreator;
 
 //public loc projectLoc = |project://hello-world-java/|;
-//public loc projectLoc = |project://smallsql0.21_src|;
-public loc projectLoc = |project://hsqldb-2.3.1|;
+public loc projectLoc = |project://smallsql0.21_src|;
+//public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
 
@@ -85,12 +85,12 @@ public map[int, set[CloneClass]] run(M3 model) {
 	cloneClasses = cleanupCloneClassesWithSameEnd(cloneClasses);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
-	logInfo("Purging overlapping clone classes...");
-	cloneClasses = cleanOverlappingFragments(cloneClasses);
-	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
-	
 	logInfo("Purge nested clone classes...");
 	cloneClasses = cleanupNestedBlocks(cloneClasses);
+	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
+	
+	logInfo("Purging overlapping clone classes...");
+	cloneClasses = cleanOverlappingFragments(cloneClasses);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
 	logInfo("Done with cleanup!");
