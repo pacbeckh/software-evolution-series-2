@@ -5,6 +5,11 @@ import IO;
 import Domain;
 import postprocessing::OverlapProcessor;
 
+test bool shouldRemoveEmptyResults() {
+	input = (1: {{fragment(1,2), fragment(2,3)}});
+	return cleanOverlappingFragments(input) == (1:{});
+}
+
 // 1  |
 // 2  | |
 // 3    | | 

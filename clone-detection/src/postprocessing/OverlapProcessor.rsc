@@ -5,7 +5,7 @@ import Set;
 
 public map[int, set[set[tuple[loc,loc]]]] cleanOverlappingFragments(map[int, set[set[tuple[loc,loc]]]] cloneClasses) {
 	for (key <- cloneClasses) {
-		cloneClasses[key] = { processCloneClass(cloneClass) | cloneClass <- cloneClasses[key]};	
+		cloneClasses[key] = { processCloneClass(cloneClass) | cloneClass <- cloneClasses[key]} - {{}};	
 	}
 	
 	return cloneClasses;
