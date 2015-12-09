@@ -7,6 +7,7 @@ import IO;
 import DateTime;
 
 import Domain;
+import util::Timing;
 
 public map[int, set[CloneClass]] cleanupNestedBlocks(map[int, set[CloneClass]] input) {
 	list[int] sortedKeys = sort(toList(domain(input)));
@@ -194,8 +195,6 @@ public test bool testCleanupWithChain() {
 
 
 public void performanceTestCleanupNestedBlocks(int height, int width, int size) {
-	begin = now();
-	
 	map[int, set[CloneClass]] input = ();
 	for (int i <- [1.. height+1]) {
 		set[CloneClass] level = {};
@@ -207,8 +206,7 @@ public void performanceTestCleanupNestedBlocks(int height, int width, int size) 
 		input[i] = level;
 	}
 	
-	cleanupNestedBlocks(input);
-	end = now();
-	Duration duration = end - begin;
-	println("<printTime(now())> Took| <duration.minutes>:<duration.seconds>:<duration.milliseconds>");
+	executeDuration("Performance Test Cleanup Nested Blocks", () {
+		cleanupNestedBlocks(input);
+	});
 }

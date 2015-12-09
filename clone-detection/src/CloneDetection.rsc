@@ -12,6 +12,8 @@ import lang::java::jdt::m3::AST;
 import Map;
 import util::Maybe;
 
+import util::Logging;
+import util::Timing;
 import Domain;
 import maintenance::Maintenance;
 import maintenance::Domain;
@@ -27,8 +29,8 @@ import postprocessing::OverlapProcessor;
 import transformation::CloneClassCreator;
 
 //public loc projectLoc = |project://hello-world-java/|;
-public loc projectLoc = |project://smallsql0.21_src|;
-//public loc projectLoc = |project://hsqldb-2.3.1|;
+//public loc projectLoc = |project://smallsql0.21_src|;
+public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
 
@@ -38,20 +40,21 @@ public M3 loadModel() {
 }
 
 public void mainFunction() {
-	println("<printTime(now())> Loading model");
+	logInfo("Loading model");
 	M3 model = loadModel();
 	mainFunctionWithModel(model);	
 }
 
 public void mainFunctionWithModel(M3 model) {
-	println("<printTime(now())> Starting clone detection");
+	logInfo("Starting clone detection");
 	cloneClasses = run(model);
 	
-	println("<printTime(now())> Starting maintenance");
+	logInfo("Starting maintenance");
 	MaintenanceData maintenance = runMaintenance(model);
 	
-	println("<printTime(now())> Store files to server");
+	logInfo("Store files to server");
 	storeInServer(projectLoc, cloneClasses, maintenance);
+	logInfo("Stored files to server");
 }
 
 public void runVoid(M3 model) {
@@ -59,16 +62,16 @@ public void runVoid(M3 model) {
 }
 
 public map[int, set[CloneClass]] run(M3 model) {
-	println("<printTime(now())> Normalize and anonimize statements...");
+	logInfo("Normalize and anonimize statements...");
 	list[AnonymousLink] links = anonimizeAndNormalize(model);
 	iprintln("<size(links)> links found");
 	
-	println("<printTime(now())> Getting all pairs...");
+	logInfo("Getting all pairs...");
 	list[LinkPair] allPairs = getAllLinkPairs(links);
 	
 	iprintln("<size(allPairs)> linkpairs found");
 	
-	println("<printTime(now())> Evolving pairs to maximal expansion...");
+	logInfo("Evolving pairs to maximal expansion...");
 	map[int, list[LinkPair]] levelResults = evolveLinkPairs(allPairs);
 	
 	//Remove things we are not interested in, stuff below the threshold.
@@ -78,33 +81,24 @@ public map[int, set[CloneClass]] run(M3 model) {
 	
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 
-	println("<printTime(now())> Purging clone classes with same endloc...");
+	logInfo("Purging clone classes with same endloc...");
 	cloneClasses = cleanupCloneClassesWithSameEnd(cloneClasses);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
-	println("<printTime(now())> Purging overlapping clone classes...");
+	logInfo("Purging overlapping clone classes...");
 	cloneClasses = cleanOverlappingFragments(cloneClasses);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
-	println("<printTime(now())> Purge nested clone classes...");
+	logInfo("Purge nested clone classes...");
 	cloneClasses = cleanupNestedBlocks(cloneClasses);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 	
-	println("<printTime(now())> Done with cleanup!");
+	logInfo("Done with cleanup!");
 	return cloneClasses;
 }
 
 public int numberOfCloneClasses(map[int, set[CloneClass]] input) {
 	return ( 0 | it + size(input[k]) | k <- input);
-}
-
-public void doEvolve(list[LinkPair] allPairs) {
-	begin = now();
-	evolveLinkPairs(allPairs);
-	
-	end = now();
-	Duration duration = end - begin;
-	println("<printTime(now())> Took| <duration.minutes>:<duration.seconds>:<duration.milliseconds>");
 }
 
 // Uses compilationUnits in the m3 + fileAST
@@ -141,7 +135,6 @@ public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 	int eob = 0;
 	int hits = 0; 
 	for (focus <- allPairs) {
-	
 		//Just continue if element in cache
 		if (cache[{head(focus.leftStack), head(focus.rightStack)}]?) {
 			hits += 1;
@@ -163,9 +156,9 @@ public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 			}
 		}
 	}
-	println("Cache size: <size(cache)>");
-	println("EOB: <eob>");
-	println("Hits: <hits>");
+	println(" \> Cache size: <size(cache)>");
+	println(" \> EOB: <eob>");
+	println(" \> Hits: <hits>");
 	return levelResults;
 }
 	
