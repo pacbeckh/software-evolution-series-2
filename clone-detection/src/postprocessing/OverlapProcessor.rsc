@@ -17,5 +17,8 @@ public set[tuple[loc,loc]] processCloneClass(set[tuple[loc,loc]] cloneClass) =
 private bool overlapsAllOthers(tuple[loc,loc] target, set[tuple[loc,loc]] cloneClass) = 
 	all(fragment <- cloneClass, target == fragment || fragmentsOverlap(target, fragment));
 
-bool fragmentsOverlap(<startA, endA>, <startB, endB>) = 
-	(startB.begin <= startA.begin && startA.end <= endB.end) || (startA.begin <= startB.begin && startB.begin <= endA.end);
+bool fragmentsOverlap(<startA, endA>, <startB, endB>) {
+	return startA.uri == startB.uri &&
+		((startB.begin <= startA.begin && startA.end <= endB .end) 
+			|| (startA.begin <= startB.begin && startB.begin <= endA.end));
+}
