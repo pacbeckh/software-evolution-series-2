@@ -6,23 +6,25 @@ import Set;
 import IO;
 import DateTime;
 
-public map[int, set[set[tuple[loc,loc]]]] cleanupNestedBlocks(map[int, set[set[tuple[loc,loc]]]] input) {
+
+public map[int, set[rel[loc,loc]]] cleanupNestedBlocks(map[int, set[rel[loc,loc]]] input) {
 	list[int] sortedKeys = sort(toList(domain(input)));
 	
-	map[tuple[int,set[tuple[loc,loc]]],set[str]] cloneClassLocations
+	map[tuple[int,rel[loc,loc]],set[str]] cloneClassLocations
 		= (<k,levelCloneClass> : locationsForLevelCloneClass(levelCloneClass) | k <- sortedKeys, levelCloneClass <- input[k]);
-	map[set[str], set[tuple[int,set[tuple[loc,loc]]]]] cloneClassLocationsInvert = invert(cloneClassLocations);
+	map[set[str], rel[int,rel[loc,loc]]] cloneClassLocationsInvert = invert(cloneClassLocations);
 	
-	map[int, set[set[tuple[loc,loc]]]] answer = ();
-	lrel[int,set[tuple[loc,loc]]] filteredCloneClassByLevel;
+	map[int, set[rel[loc,loc]]] answer = ();
+	lrel[int,rel[loc,loc]] filteredCloneClassByLevel;
 	
 	filteredCloneClassByLevel = for (k:<level,cloneClass> <- cloneClassLocations) {
 		set[str] locations = cloneClassLocations[k];
-		set[set[tuple[loc,loc]]] compareWith = {};
-		for (set[str] l <- cloneClassLocationsInvert, locations <= l) {
-			set[tuple[int,set[tuple[loc,loc]]]] cloneClassesOnLocations = cloneClassLocationsInvert[l];
-			compareWith += { cl | <size, cl> <- cloneClassesOnLocations, size > level};
-		}
+		set[rel[loc,loc]] compareWith = {
+			cl | set[str] l <- cloneClassLocationsInvert 
+			,locations <= l
+			,<size, cl> <- cloneClassLocationsInvert[l]
+			,size > level
+		};
 		
 		if(!oneContainsChild(cloneClass, compareWith)) {
 			append <level, cloneClass>;
@@ -39,16 +41,17 @@ public map[int, set[set[tuple[loc,loc]]]] cleanupNestedBlocks(map[int, set[set[t
 	return answer;
 }
 
-public set[str] locationsForLevelCloneClass(set[tuple[loc,loc]] input) = { lhs.uri | <lhs,_> <- input };
+public set[str] locationsForLevelCloneClass(rel[loc,loc] input) = { lhs.uri | <lhs,_> <- input };
 
-public bool oneContainsChild(set[tuple[loc,loc]] child, set[set[tuple[loc,loc]]] parents) = 
+public bool oneContainsChild(rel[loc,loc] child, set[rel[loc,loc]] parents) = 
 	any(parent <- parents, containsChild(child, parent)); 
 
-public bool containsChild(set[tuple[loc,loc]] child, set[tuple[loc,loc]] parent) =
+public bool containsChild(rel[loc,loc] child, rel[loc,loc] parent) =
 	child == { childElem | childElem <- child, containedBy(childElem, parent) };
 
-public bool containedBy(tuple[loc,loc] item, set[tuple[loc,loc]] container) =
-	any(c <- container, isBeginBeforeOrEqual(c[0],item[0]) && isEndBeforeOrEqual(item[1],c[1]));
+public bool containedBy(tuple[loc,loc] item, rel[loc,loc] container) {
+	return any(c <- container, isBeginBeforeOrEqual(c[0],item[0]) && isEndBeforeOrEqual(item[1],c[1]));
+}
 
 public bool isBeginBeforeOrEqual(loc a, loc b) = a.uri == b.uri && a.begin <= b.begin;
 
@@ -189,9 +192,9 @@ public test bool testCleanupWithChain() {
 public void performanceTestCleanupNestedBlocks(int height, int width, int size) {
 	begin = now();
 	
-	map[int, set[set[tuple[loc,loc]]]] input = ();
+	map[int, set[rel[loc,loc]]] input = ();
 	for (int i <- [1.. height+1]) {
-		set[set[tuple[loc,loc]]] level = {};
+		set[rel[loc,loc]] level = {};
 		for (int j <- [1.. height+1]) {
 			levelData = {<|file://foo|(0,0,<2,0>,<2,10 + i>) + "file<j>_<x>", |file://foo|(0,0,<7,0>,<7,10 + i>) + "file<j>_<x>">
 					  | x <- [0..size] };
