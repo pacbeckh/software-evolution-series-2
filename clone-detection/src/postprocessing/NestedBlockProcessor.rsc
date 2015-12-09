@@ -4,6 +4,7 @@ import List;
 import Map;
 import Set;
 import IO;
+import DateTime;
 
 public map[int, set[set[tuple[loc,loc]]]] cleanupNestedBlocks(map[int, set[set[tuple[loc,loc]]]] input) {
 	list[int] sortedKeys = sort(toList(domain(input)));
@@ -189,4 +190,25 @@ public test bool testCleanupWithChain() {
 		3 : {},
 		2 : {}
 	);
+}
+
+
+public void performanceTestCleanupNestedBlocks(int height, int width, int size) {
+	begin = now();
+	
+	map[int, set[set[tuple[loc,loc]]]] input = ();
+	for (int i <- [1.. height+1]) {
+		set[set[tuple[loc,loc]]] level = {};
+		for (int j <- [1.. height+1]) {
+			levelData = {<|file://foo|(0,0,<2,0>,<2,10 + i>) + "folder<j>" + "file<x>", |file://foo|(0,0,<7,0>,<7,10 + i>) + "folder<j>" + "file<x>">
+					  | x <- [0..size] };
+		    level += {levelData};
+		}
+		input[i] = level;
+	}
+	
+	cleanupNestedBlocks(input);
+	end = now();
+	Duration duration = end - begin;
+	println("<printTime(now())> Took| <duration.minutes>:<duration.seconds>:<duration.milliseconds>");
 }
