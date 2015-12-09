@@ -16,16 +16,13 @@ public map[int, set[set[tuple[loc,loc]]]] cleanupNestedBlocks(map[int, set[set[t
 	map[int, set[set[tuple[loc,loc]]]] answer = ();
 	lrel[int,set[tuple[loc,loc]]] filteredCloneClassByLevel;
 	
-	filteredCloneClassByLevel = for (k <- cloneClassLocations) {
-		int level = k[0];
-		set[tuple[loc,loc]] cloneClass = k[1];
+	filteredCloneClassByLevel = for (k:<level,cloneClass> <- cloneClassLocations) {
 		set[str] locations = cloneClassLocations[k];
 		set[set[tuple[loc,loc]]] compareWith = {};
-		for (l <- cloneClassLocationsInvert, locations <= l) {
+		for (set[str] l <- cloneClassLocationsInvert, locations <= l) {
 			set[tuple[int,set[tuple[loc,loc]]]] cloneClassesOnLocations = cloneClassLocationsInvert[l];
 			compareWith += { cl | <size, cl> <- cloneClassesOnLocations, size > level};
 		}
-		
 		
 		if(!oneContainsChild(cloneClass, compareWith)) {
 			append <level, cloneClass>;
@@ -35,36 +32,23 @@ public map[int, set[set[tuple[loc,loc]]]] cleanupNestedBlocks(map[int, set[set[t
 	for (<level, cloneClass> <- filteredCloneClassByLevel) {
 		if (answer[level]?) {
 			answer[level] += { cloneClass };
-		}else {
+		} else {
 			answer[level] = { cloneClass };
 		}
 	}
 	return answer;
 }
 
-public set[str] locationsForLevelCloneClass(set[tuple[loc,loc]] input) = { lhs.uri | <lhs,rhs> <- input };
+public set[str] locationsForLevelCloneClass(set[tuple[loc,loc]] input) = { lhs.uri | <lhs,_> <- input };
 
-public bool oneContainsChild(set[tuple[loc,loc]] child, set[set[tuple[loc,loc]]] parents) {
-	for (parent <- parents) {
-		if (containsChild(child, parent)) {
-			return true;
-		}
-	}
-	return false;
-}
+public bool oneContainsChild(set[tuple[loc,loc]] child, set[set[tuple[loc,loc]]] parents) = 
+	any(parent <- parents, containsChild(child, parent)); 
 
-public bool containsChild(set[tuple[loc,loc]] child, set[tuple[loc,loc]] parent) {
-	return child == { childElem | childElem <- child, containedBy(childElem, parent) };
-}
+public bool containsChild(set[tuple[loc,loc]] child, set[tuple[loc,loc]] parent) =
+	child == { childElem | childElem <- child, containedBy(childElem, parent) };
 
-public bool containedBy(tuple[loc,loc] item, set[tuple[loc,loc]] container) {
-	for (c <- container) {
-		if (isBeginBeforeOrEqual(c[0],item[0]) && isEndBeforeOrEqual(item[1],c[1])) {
-			return true;
-		}
-	}
-	return false;
-}
+public bool containedBy(tuple[loc,loc] item, set[tuple[loc,loc]] container) =
+	any(c <- container, isBeginBeforeOrEqual(c[0],item[0]) && isEndBeforeOrEqual(item[1],c[1]));
 
 public bool isBeginBeforeOrEqual(loc a, loc b) = a.uri == b.uri && a.begin <= b.begin;
 
