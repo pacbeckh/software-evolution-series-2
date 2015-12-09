@@ -47,32 +47,10 @@ public bool containedBy(tuple[loc,loc] item, set[tuple[loc,loc]] container) {
 	return false;
 }
 
-public bool isBeginBeforeOrEqual(loc a, loc b) {
-	if(a.uri != b.uri) {
-		return false;
-	}
-	if (a.begin.line < b.begin.line) {
-		return true;
-	}
-	if (a.begin.line == b.begin.line && a.begin.column <= b.begin.column) {
-		return true;
-	}
-	return false;
-}
+public bool isBeginBeforeOrEqual(loc a, loc b) = a.uri == b.uri && a.begin <= b.begin;
 
-public bool isEndBeforeOrEqual(loc a, loc b) {
-	if(a.path != b.path || a.file != b.file) {
-		return false;
-	}
-	if (a.end.line < b.end.line) {
-		return true;
-	}
-	if (a.end.line == b.end.line && a.end.column <= b.end.column) {
-		return true;
-	}
-	return false;
-}
-
+public bool isEndBeforeOrEqual(loc a, loc b) = a.uri == b.uri && a.end <= b.end;
+	
 public test bool containsChild1a() = containsChild(
 	{< |file://foo|(0,0,<2,0>,<6,0>), |file://foo|(0,0,<10,0>,<14,0>)>},
 	{< |file://foo|(0,0,<2,0>,<7,0>), |file://foo|(0,0,<10,0>,<15,0>)> }
