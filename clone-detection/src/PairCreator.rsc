@@ -11,20 +11,22 @@ import logic::PairEvolver;
 
 
 public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
-	map[Statement,list[AnonymousLink]] linkIndex = ();
+	map[list[Statement],list[AnonymousLink]] linkIndex = ();
 	int i = 0;
 	for(link <- links) {
 		if(link@maxWeight < CONFIG_STATEMENT_WEIGHT_THRESHOLD) {
 			i += 1;
 			continue;
 		}
-		if (linkIndex[link.anonymous]?) {
-			linkIndex[link.anonymous] = linkIndex[link.anonymous] + link;
+		list[Statement] key = collectAnonymousKey(link, CONFIG_STATEMENT_WEIGHT_THRESHOLD);
+		if (linkIndex[key]?) {
+			linkIndex[key] = linkIndex[key] + link;
 		} else {
-			linkIndex[link.anonymous] = [link];
+			linkIndex[key] = [link];
 		}
 	}
 	iprintln("Ignored <i> AnonymousLinks ");
+	iprintln("Link index size <size(linkIndex)>");
 	
 	list[LinkPair] allPairs = [];
 	for(k <- linkIndex, size(linkIndex[k]) > 1) {
@@ -32,6 +34,25 @@ public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
 		allPairs += pairs;
 	}
 	return allPairs;
+}
+
+public list[Statement] collectAnonymousKey(AnonymousLink link, int threshold) {
+	list[Statement] answer = [];
+	NextLink next = aLink(link);
+	int currentThreshold = threshold;
+	while(true) {
+		if (aLink(v) := next) {
+			answer += v.anonymous;
+			next = next.val.next;
+			currentThreshold -= v.normal@weight; 
+		} else {
+			throw "Error";
+		}
+		
+		if (currentThreshold <= 0) {
+			return answer;
+		}		
+	}	
 }
 
 public list[LinkPair] setupLinkPairs(list[AnonymousLink] links) {
