@@ -6,6 +6,8 @@ anno int Statement @ weight;
 
 anno int AnonymousLink @ maxWeight;
  
+alias CloneClass = set[loc];
+
 data AnonymousLink = anonymousLink(
 	Statement anonymous,
 	Statement normal,

@@ -24,9 +24,10 @@ import output::Store;
 import postprocessing::NestedBlockProcessor;
 import postprocessing::SameEndProcessor;
 import postprocessing::OverlapProcessor;
+import transformation::CloneClassCreator;
 
-//public loc projectLoc = |project://hello-world-java/|;
-public loc projectLoc = |project://smallsql0.21_src|;
+public loc projectLoc = |project://hello-world-java/|;
+//public loc projectLoc = |project://smallsql0.21_src|;
 //public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
@@ -57,7 +58,7 @@ public void runVoid(M3 model) {
 	run(model);
 }
 
-public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
+public map[int, set[CloneClass]] run(M3 model) {
 	println("<printTime(now())> Normalize and anonimize statements...");
 	list[AnonymousLink] links = anonimizeAndNormalize(model);
 	iprintln("<size(links)> links found");
@@ -73,11 +74,8 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	//Remove things we are not interested in, stuff below the threshold.
 	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD]);
 	
-	println("<printTime(now())> Transform pairs to start and end locations...");
-	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] levelResultsAbsolute = transformLinkPairsToLocs(levelResults);
+	map[int, set[CloneClass]] cloneClasses = createCloneClasses(levelResults);
 	
-	println("<printTime(now())> Creating clone classes with equiv rel...");
-	map[int, set[set[tuple[loc,loc]]]] cloneClasses = (k : toEquivalence(levelResultsAbsolute[k]) | k <- levelResultsAbsolute);
 	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
 
 	println("<printTime(now())> Purging clone classes with same endloc...");
@@ -95,7 +93,7 @@ public map[int, set[set[tuple[loc,loc]]]] run(M3 model) {
 	return cloneClasses;
 }
 
-public int numberOfCloneClasses(map[int, set[set[tuple[loc,loc]]]] input) {
+public int numberOfCloneClasses(map[int, set[CloneClass]] input) {
 	return ( 0 | it + size(input[k]) | k <- input);
 }
 
@@ -135,20 +133,6 @@ public list[AnonymousLink] anonimizeAndNormalizeFile(loc file) {
 	return concat([getAnonimizedStatements(n) | n <- normalizedStatements]);
 }
 
-
-public map[int, rel[tuple[loc,loc],tuple[loc,loc]]] transformLinkPairsToLocs(map[int, list[LinkPair]] evolvedLinksPairs){
-	map[int, rel[tuple[loc,loc],tuple[loc,loc]]] result = ();
-	for (k <- evolvedLinksPairs) {
-		list[LinkPair] levelResult = evolvedLinksPairs[k];
-		rel[tuple[loc, loc],tuple[loc, loc]] rels = {<<last(l.leftStack).normal@src, head(l.leftStack).normal@src>, 
-						      <last(l.rightStack).normal@src, head(l.rightStack).normal@src>> | l <- levelResult};
-		result[k] = rels;
-	}
-	
-	return result;
-}
-
-
 public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 	map[int, list[LinkPair]] levelResults = ();
 	map[value,value] cache = ();
@@ -183,7 +167,4 @@ public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 	println("Hits: <hits>");
 	return levelResults;
 }
-
-public set[set[tuple[loc,loc]]] toEquivalence(rel[tuple[loc,loc],tuple[loc,loc]] rels)
-	= groupRangeByDomain((rels + invert(rels)) +);
 	

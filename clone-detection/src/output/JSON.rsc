@@ -7,9 +7,9 @@ import String;
 import lang::json::IO;
 
 import maintenance::Domain;
+import Domain;
 
-
-public str cloneClassesToJSON(loc basePath, map[int, set[set[tuple[loc,loc]]]] cloneClasses) {
+public str cloneClassesToJSON(loc basePath, map[int, set[CloneClass]] cloneClasses) {
 	int  counter = 0;
 	json = for (weight <- cloneClasses, x <- cloneClasses[weight] ) {
 		counter += 1;
@@ -54,19 +54,19 @@ public value fileAnalysisToJSON(loc base, FileAnalysis fileAnalysis) = (
 public value effectiveLineToJSON(EffectiveLine ef) = ("number" : ef.number,"content" : ef.content);
 
 
-public map[str,value] cloneClassToJSON(loc basePath, int weight, set[tuple[loc,loc]] fragments, int uid) {
+public map[str,value] cloneClassToJSON(loc basePath, int weight, CloneClass clazz, int uid) {
 	return (
 		"uid" : "<uid>",
 		"weight" : weight,
-		"fragments" : [fragmentToJSON(basePath, fragment) | fragment <- fragments]
+		"fragments" : [fragmentToJSON(basePath, fragment) | fragment <- clazz]
 	);
 }
 
-public map[str,value] fragmentToJSON(loc basePath, tuple[loc,loc] fragment) {
+public map[str,value] fragmentToJSON(loc basePath, loc fragment) {
 	return (
-		"file" : relativePath(basePath, fragment[0]),
-		"start" : locToFileLocationJSON(fragment[0], true),
-		"end"   : locToFileLocationJSON(fragment[1], false)
+		"file" : relativePath(basePath, fragment),
+		"start" : locToFileLocationJSON(fragment, true),
+		"end"   : locToFileLocationJSON(fragment, false)
 	);
 }
  

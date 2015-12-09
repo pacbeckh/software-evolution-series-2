@@ -2,10 +2,11 @@ module output::Store
 
 import IO;
 
+import Domain;
 import output::JSON;
 import maintenance::Domain;
 
-public void storeInServer(loc l, map[int, set[set[tuple[loc,loc]]]] cloneClasses, MaintenanceData maintenance) {
+public void storeInServer(loc l, map[int, set[CloneClass]] cloneClasses, MaintenanceData maintenance) {
 	for (f <- |project://clone-detection/output|.ls) {
 		remove(f);
 	}
