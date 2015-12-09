@@ -69,55 +69,50 @@ test bool testOverlap4() {
 	return result == {f1,f2,f3}; 
 }
 
+test bool testOverlaps() {
+	return fragmentsOverlap(
+		|file://x|(0,1,<2,0>,<3,100>),
+		|file://x|(0,1,<1,0>,<2,100>)
+	);
+}
 
 test bool testFragmentsOverlap(){
-	loc f1start = |file://x|(0,1,<1,0>,<1,10>);
-	loc f1end = |file://x|(0,1,<2,0>,<2,10>);
-	loc f2start = |file://x|(0,1,<2,11>,<2,100>);
-	loc f2end = |file://x|(0,1,<3,0>,<3,1>);
+	loc f1 = |file://x|(0,1,<1,0>,<2,10>);
+	loc f2 = |file://x|(0,1,<2,11>,<3,1>);
 	
 	// false because f2 starts after f1 (note the column of the start,end)
-	return !fragmentsOverlap(<f1start,f1end>, <f2start,f2end>);
+	return !fragmentsOverlap(f1, f2);
 }
 
 test bool testFragmentsOverlap2(){
-	loc f1start = |file://x|(0,1,<1,0>,<1,10>);
-	loc f1end = |file://x|(0,1,<2,0>,<2,11>);
-	loc f2start = |file://x|(0,1,<2,10>,<2,100>);
-	loc f2end = |file://x|(0,1,<3,0>,<3,1>);
+	loc f1 = |file://x|(0,1,<1,0>,<2,11>);
+	loc f2 = |file://x|(0,1,<2,10>,<3,1>);
 	
 	// true because f1 starts in f2 (note the column of the start,end)
-	return fragmentsOverlap(<f1start,f1end>, <f2start,f2end>);
+	return fragmentsOverlap(f1, f2);
 }
 
 test bool testFragmentsOverlap3(){
-	loc f1start = |file://x|(0,1,<1,0>,<1,10>);
-	loc f1end = |file://x|(0,1,<2,0>,<2,11>);
-	
+	loc f1 = |file://x|(0,1,<1,0>,<2,11>);
 	// true because they are exactly the same
-	return fragmentsOverlap(<f1start,f1end>, <f1start,f1end>);
+	return fragmentsOverlap(f1, f1);
 }
 
 test bool testFragmentsOverlap4(){
-	loc f1start = |file://x|(0,1,<1,0>,<1,10>);
-	loc f1end = |file://x|(0,1,<2,0>,<2,11>);
-	loc f2start = f1end;
-	loc f2end = |file://x|(0,1,<3,0>,<3,1>);
-	
 	// true because they start and end at the same statement exactly the same
-	return fragmentsOverlap(<f1start,f1end>, <f2start,f2end>);
+	return fragmentsOverlap(
+		fragment("x", 1, 2),
+		fragment("x", 2, 3)
+	);
 }
 
 test bool testFragmentsOverlapDifferentFiles(){
-	loc f1start = |file://x|(0,1,<1,0>,<1,10>);
-	loc f1end = |file://x|(0,1,<2,0>,<2,11>);
-	loc f2start = |file://y|(0,1,<2,10>,<2,100>);
-	loc f2end = |file://y|(0,1,<3,0>,<3,1>);
-	
-	// false because f2 is in a different file.
-	return !fragmentsOverlap(<f1start,f1end>, <f2start,f2end>);
+	return !fragmentsOverlap(
+		fragment("x", 1, 2),
+		fragment("y", 1, 2)
+	);
 }
 
-private tuple[loc,loc] fragment(int startLine, int endLine) = <line(startLine), line(endLine)>;
+public loc fragment(int startLine, int endLine) = fragment("x", startLine, endLine);
 
-private loc line(int line) = |file://x1|(0,1,<line,0>,<line,100>);
+public loc fragment(str file, int startLine, int endLine) = |file://<file>|(0,1,<startLine,0>,<endLine,100>);

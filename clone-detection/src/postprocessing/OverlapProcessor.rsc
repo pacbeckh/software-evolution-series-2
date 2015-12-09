@@ -15,11 +15,15 @@ public map[int, set[CloneClass]] cleanOverlappingFragments(map[int, set[CloneCla
 public CloneClass processCloneClass(CloneClass cloneClass) = 
 	cloneClass - {fragment | fragment <- cloneClass, overlapsAllOthers(fragment, cloneClass)};
 
-private bool overlapsAllOthers(loc target, CloneClass cloneClass) = 
-	all(fragment <- cloneClass, target == fragment || fragmentsOverlap(target, fragment));
+public bool overlapsAllOthers(loc target, CloneClass cloneClass) {  
+	r = all(fragment <- cloneClass, target == fragment || fragmentsOverlap(target, fragment));
+	return r;
+}
 
-bool fragmentsOverlap(loc A, loc B) {
+public bool fragmentsOverlap(loc A, loc B) {
 	return A.uri == B.uri &&
-		((B.begin <= A.begin && A.end <= B .end) 
-			|| (A.begin <= B.begin && B.begin <= A.end));
+		((B.begin >= A.begin && B.begin <= A.end) ||
+		 (B.end >= A.begin && B.end <= A.end) ||
+		 (A.begin >= B.begin && A.begin <= B.end) ||
+		 (A.end >= B.begin && A.end <= B.end) );
 }
