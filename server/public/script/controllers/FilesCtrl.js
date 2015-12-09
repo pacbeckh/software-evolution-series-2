@@ -22,10 +22,10 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
   $scope.treeOptions = treeOptions;
   $scope.selectedFileContent = null;
 
-  var clonesToAllFragments = function(clones) {
+  var clonesToAllFragments = function (clones) {
     var answer = [];
-    clones.forEach(function(cloneClass) {
-      cloneClass.fragments.forEach(function(fragment) {
+    clones.forEach(function (cloneClass) {
+      cloneClass.fragments.forEach(function (fragment) {
         fragment.cloneClass = cloneClass;
         answer.push(fragment);
       })
@@ -46,12 +46,12 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
       path = path.substr(2);
     }
 
-    var highlightedLines = clonesToAllFragments(clones).filter(function(fragment) {
-                              return fragment.file == path;
-                           });
-    var groupedHighLights = _.groupBy( highlightedLines, function(fragment) {
-       return fragment.start.line;
-     });
+    var highlightedLines = clonesToAllFragments(clones).filter(function (fragment) {
+      return fragment.file == path;
+    });
+    var groupedHighLights = _.groupBy(highlightedLines, function (fragment) {
+      return fragment.start.line;
+    });
 
     FileService.getFile(path).then(function (data) {
       $scope.selectedFileContent = data;
@@ -64,48 +64,79 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
         onLoad: function () {
           $timeout(function () {
             var refs = $(".CodeMirror-linenumber[style]");
-            _.each(groupedHighLights, function(fragments, lineStart) {
+            _.each(groupedHighLights, function (fragments, lineStart) {
               refs.eq(lineStart - 1).on('click', function () {
-                      $scope.$apply(function () {
-                        $uibModal.open({
-                          templateUrl: './templates/clone-classes-modal.html',
-                          animation: true,
-                          size:'lg',
-                          controller: 'ModalCtrl',
-                          resolve: {cloneClasses:function(){
-                            return fragments.map(function(fragment){
-                              return fragment.cloneClass;
-                            });
-                          }}
+                $scope.$apply(function () {
+                  $uibModal.open({
+                    templateUrl: './templates/clone-classes-modal.html',
+                    animation: true,
+                    size: 'lg',
+                    controller: 'ModalCtrl',
+                    resolve: {
+                      cloneClasses: function () {
+                        return fragments.map(function (fragment) {
+                          return fragment.cloneClass;
                         });
+                      }
+                    }
                   });
+                });
               });
 
               refs.eq(lineStart - 1)
-                  .css('background', '#BB5252')
-                  .css('color', '#fff')
-                  .css('z-index', lineStart)
-                  .css('cursor', 'pointer')
+                .css('background', '#BB5252')
+                .css('color', '#fff')
+                .css('z-index', lineStart)
+                .css('cursor', 'pointer')
             })
           }, 10);
         }
       };
-    }, function() {
-      Notification.error({message : "Failed to load file: " + path});
+    }, function () {
+      Notification.error({message: "Failed to load file: " + path});
     });
   };
 
-  $scope.showSelected = function (node) {
+  $scope.showSelected = function (node, opts) {
+    opts = opts || {};
+
     $scope.selectedFile = node.path;
     $location.search("path", node.path);
     $scope.selectedFileContent = null;
-    loadPath($scope.clones,node.path, false);
+    loadPath($scope.clones, node.path, opts && opts.open);
   };
 
   $scope.toggleExpand = function () {
     $scope.expandedTree = !$scope.expandedTree;
   };
 
+  var modal = null;
+  $scope.$on('KEY_PRESS', function (event, data) {
+    if (data.keyCode == 190 && !modal) {
+
+      modal = $uibModal.open({
+        templateUrl: './templates/file-picker-modal.html',
+        animation: true,
+        size: 'lg',
+        controller: 'FilePickerCtrl',
+        resolve: {
+          allFileRefs: function () {
+            return $scope.cloneData.allFileRefs.filter(function(item) {
+              return !item.isDir;
+            });
+          }
+        }
+      });
+
+      modal.result.then(function(item) {
+        $scope.showSelected(item, {open: true});
+        modal = null;
+      }, function() {
+        modal = null;
+      })
+
+    }
+  });
 
   ////////////////////////////////
   init();
@@ -113,7 +144,7 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
   function init() {
     $scope.expandedTree = false;
 
-    var stop = $scope.$watch('cloneData', function(cloneData) {
+    var stop = $scope.$watch('cloneData', function (cloneData) {
       if (cloneData) {
         stop();
 

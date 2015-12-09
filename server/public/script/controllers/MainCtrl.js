@@ -1,4 +1,4 @@
-angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state, $http, $timeout, Notification) {
+angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state, $http, $timeout, Notification, $rootScope) {
   $scope.$state = $state;
 
   var clonesToAllFragments = function (clones) {
@@ -8,6 +8,18 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
         answer.push(fragment);
       })
     });
+    return answer;
+  };
+
+  var calculateFileRefs = function (files) {
+    var answer = [];
+    function doWork(list) {
+      list.forEach(function (item) {
+        answer.push(item);
+        doWork(item.children);
+      });
+    }
+    doWork(files);
     return answer;
   };
 
@@ -24,14 +36,14 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
     return _.uniq(answer, true);
   };
 
-  var addFileName = function(fragment)  {
+  var addFileName = function (fragment) {
     var components = fragment.file.split("/");
     fragment.fileName = components[components.length - 1];
   };
 
-  var calculateContainingFragments = function(files) {
+  var calculateContainingFragments = function (files) {
     var count = 0;
-    files.forEach(function(file) {
+    files.forEach(function (file) {
       var c = calculateContainingFragments(file.children);
       file.containingFragments = c + file.fragments.length;
       count += file.containingFragments;
@@ -91,7 +103,8 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
       problemFiles: problemFiles,
       maintenanceFiles: maintenanceFiles,
       allFragments: allFragments,
-      files: files
+      files: files,
+      allFileRefs: calculateFileRefs(files)
     }
   };
 
@@ -115,6 +128,14 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
     }).error(function () {
       Notification.error({message: 'Failed to load maintenance (Status: ' + 500 + ')'})
     });
+  };
+
+
+  $scope.someFunction = function (event) {
+    if (event.target.nodeName == 'TEXTAREA') {
+      return;
+    }
+    $rootScope.$broadcast('KEY_PRESS', event);
   };
 
   $http.get("/data/clones.json").success(loadMaintenance).error(function () {
