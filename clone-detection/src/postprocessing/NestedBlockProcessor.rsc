@@ -8,33 +8,51 @@ import DateTime;
 
 public map[int, set[set[tuple[loc,loc]]]] cleanupNestedBlocks(map[int, set[set[tuple[loc,loc]]]] input) {
 	list[int] sortedKeys = sort(toList(domain(input)));
+	
+	map[tuple[int,set[tuple[loc,loc]]],set[str]] cloneClassLocations
+		= (<k,levelCloneClass> : locationsForLevelCloneClass(levelCloneClass) | k <- sortedKeys, levelCloneClass <- input[k]);
+	map[set[str], set[tuple[int,set[tuple[loc,loc]]]]] cloneClassLocationsInvert = invert(cloneClassLocations);
+	
 	map[int, set[set[tuple[loc,loc]]]] answer = ();
-	for (i <- [0.. size(sortedKeys)]) {
-		int currentKey = sortedKeys[i];
-		
-		set[set[tuple[loc,loc]]] spectrum = {};
-		for (j <- [i+1.. size(sortedKeys)]) {
-			spectrum += input[sortedKeys[j]];
+	lrel[int,set[tuple[loc,loc]]] filteredCloneClassByLevel;
+	
+	filteredCloneClassByLevel = for (k <- cloneClassLocations) {
+		int level = k[0];
+		set[tuple[loc,loc]] cloneClass = k[1];
+		set[str] locations = cloneClassLocations[k];
+		set[set[tuple[loc,loc]]] compareWith = {};
+		for (l <- cloneClassLocationsInvert, locations <= l) {
+			set[tuple[int,set[tuple[loc,loc]]]] cloneClassesOnLocations = cloneClassLocationsInvert[l];
+			compareWith += { cl | <size, cl> <- cloneClassesOnLocations, size > level};
 		}
 		
-		answer[currentKey] = filterByContainment(input[currentKey], spectrum);
+		
+		if(!oneContainsChild(cloneClass, compareWith)) {
+			append <level, cloneClass>;
+		}
+	}
+	
+	for (<level, cloneClass> <- filteredCloneClassByLevel) {
+		if (answer[level]?) {
+			answer[level] += { cloneClass };
+		}else {
+			answer[level] = { cloneClass };
+		}
 	}
 	return answer;
 }
 
-public set[set[tuple[loc,loc]]] filterByContainment(set[set[tuple[loc,loc]]] children, set[set[tuple[loc,loc]]] parents) {
-	set[set[tuple[loc,loc]]] toRemove = {};
-	for (child <- children) {
-		for (parent <- parents) {
-			if (containsChild(child, parent)) {
-				toRemove += {child};
-				break;
-			}
+public set[str] locationsForLevelCloneClass(set[tuple[loc,loc]] input) = { lhs.uri | <lhs,rhs> <- input };
+
+public bool oneContainsChild(set[tuple[loc,loc]] child, set[set[tuple[loc,loc]]] parents) {
+	for (parent <- parents) {
+		if (containsChild(child, parent)) {
+			return true;
 		}
 	}
-	
-	return children - toRemove;
+	return false;
 }
+
 public bool containsChild(set[tuple[loc,loc]] child, set[tuple[loc,loc]] parent) {
 	return child == { childElem | childElem <- child, containedBy(childElem, parent) };
 }
@@ -90,8 +108,7 @@ public test bool testCleanupNestedBlockForNestedWithTotalOverlapOnStart() {
 		5 : five
 	);
 	return cleanupNestedBlocks(input) == (
-		6 : six,
-		5 : {}
+		6 : six
 	);
 }
 
@@ -103,8 +120,7 @@ public test bool testCleanupNestedBlockForNestedWithTotalOverlapOnEnd() {
 		5 : five
 	);
 	return cleanupNestedBlocks(input) == (
-		6 : six,
-		5 : {}
+		6 : six
 	);
 }
 
@@ -120,8 +136,7 @@ public test bool testCleanupNestedBlockForNestedWithKeysInBetween() {
 	);
 	return cleanupNestedBlocks(input) == (
 		6 : six,
-		5 : five,
-		4 : {}
+		5 : five
 	);
 }
 
@@ -140,8 +155,7 @@ public test bool testCleanupNestedBlockMultipleFiles() {
 		4 : four
 	);
 	return cleanupNestedBlocks(input) == (
-		6 : six,
-		4 : {}
+		6 : six
 	);
 }
 
@@ -173,8 +187,7 @@ public test bool testCleanupWhereOnlyOneFileMatchesClassWithTwoFiles() {
 	
 	input = ( 6 : six, 4 : four);
 	return cleanupNestedBlocks(input) == (
-		6 : six,
-		4 : {}
+		6 : six
 	);
 }
 
@@ -184,11 +197,7 @@ public test bool testCleanupWithChain() {
 	} };
 	input = ( 6 : six, 5 : six, 4 : six, 3 : six, 2: six);
 	return cleanupNestedBlocks(input) == (
-		6 : six,
-		5 : {},
-		4 : {},
-		3 : {},
-		2 : {}
+		6 : six
 	);
 }
 
@@ -200,7 +209,7 @@ public void performanceTestCleanupNestedBlocks(int height, int width, int size) 
 	for (int i <- [1.. height+1]) {
 		set[set[tuple[loc,loc]]] level = {};
 		for (int j <- [1.. height+1]) {
-			levelData = {<|file://foo|(0,0,<2,0>,<2,10 + i>) + "folder<j>" + "file<x>", |file://foo|(0,0,<7,0>,<7,10 + i>) + "folder<j>" + "file<x>">
+			levelData = {<|file://foo|(0,0,<2,0>,<2,10 + i>) + "file<j>_<x>", |file://foo|(0,0,<7,0>,<7,10 + i>) + "file<j>_<x>">
 					  | x <- [0..size] };
 		    level += {levelData};
 		}
