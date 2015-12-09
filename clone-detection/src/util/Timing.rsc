@@ -1,5 +1,7 @@
 module util::Timing
 
+import DateTime;
+
 import util::Logging;
 
 public void executeDuration(str message, void () f) {
