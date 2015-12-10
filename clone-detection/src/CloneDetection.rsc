@@ -151,10 +151,11 @@ public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 		}
 		
 		LinkPair evolved = evolvePair(focus);
-		if (levelResults[evolved@weight]?) {
-			levelResults[evolved@weight] += evolved;
+		int w = evolved@weight;
+		if (levelResults[w]?) {
+			levelResults[w] += evolved;
 		} else {
-			levelResults[evolved@weight] = [evolved];
+			levelResults[w] = [evolved];
 		}
 		
 		//Cache Pair if EndOfBlock

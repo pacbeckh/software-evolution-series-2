@@ -24,17 +24,13 @@ public LinkPair evolvePair(LinkPair target) {
 			return subject;
 		} 
 		just(p) = next;
-		if(!isMappingPossible(p)) {
+		if(!p.mappingPossible) {
 			subject@weight = maxWeight - head(subject.leftStack).next.val@maxWeight;
 			
 			return subject;
 		}
 		subject = p;
 	}
-}
-
-public bool isMappingPossible(LinkPair p) {
-	return p.ltrMappingPossible && p.rtlMappingPossible;
 }
  
 public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
@@ -56,7 +52,7 @@ public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
 
 public LinkPair linkPairWithNext(AnonymousLink leftNext, AnonymousLink rightNext) {
 	return evolveLinkPairWithNext(
-		linkPair([],[], true, (), true, ()),
+		linkPair([],[], true, (), ()),
 		leftNext,
 		rightNext
 	);
@@ -74,23 +70,14 @@ public LinkPair evolveLinkPairWithNext(LinkPair input, AnonymousLink leftNext, A
 	list[str] leftVars = getVarsForStatement(leftNext.normal);
 	list[str] rightVars = getVarsForStatement(rightNext.normal);
 	
-	MappingComparison leftComparison = mappingComparison(input.ltrMappingPossible, input.ltrMapping);
-	MappingComparison rightComparison = mappingComparison(input.rtlMappingPossible, input.rtlMapping);
-	
-	if(input.ltrMappingPossible) {
-		leftComparison = compareVariables(leftVars, rightVars, input.ltrMapping);
-	}
-	if(input.rtlMappingPossible) {
-		rightComparison = compareVariables(rightVars, leftVars, input.rtlMapping);
-	}
+	<r, ltr, rtl> = compareVariables(leftVars, rightVars, input.ltrMapping, input.rtlMapping);
 	
 	return linkPair(
 		leftNext + input.leftStack,
 		rightNext + input.rightStack,
-		leftComparison.success,
-		leftComparison.mapping,
-		rightComparison.success,
-		rightComparison.mapping
+		r,
+		ltr,
+		rtl
 	);
 }
 
