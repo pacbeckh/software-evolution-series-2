@@ -37,5 +37,10 @@ angular
       .state('app.graphs.type-packing', {
         url: "/type-packing/:cloneId",
         templateUrl: "views/type-packing.html"
+      })
+       .state('app.graphs.donut', {
+        url: "/donut",
+        templateUrl: "views/donut.html"
       });
+
   });

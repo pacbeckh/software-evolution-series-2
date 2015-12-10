@@ -1,139 +1,254 @@
-angular.module('CloneDetection').service('DonutService', function () {
+angular.module('CloneDetection').service('DonutService', function($state) {
+    packages = {
+        // Lazily construct the package hierarchy from class names.
+        root: function(classes) {
+            var map = {};
 
-  var packages = {
+            function find(name, data) {
+                var node = map[name],
+                    i;
+                if (!node) {
+                    node = map[name] = data || {
+                        name: name,
+                        children: []
+                    };
+                    if (name.length) {
+                        node.parent = find(name.substring(0, i = name.lastIndexOf("/")));
+                        node.parent.children.push(node);
+                        node.key = name.substring(i + 1);
+                        node.csskey = node.key.replace(/\./, "\\.");
+                    }
+                }
+                return node;
+            }
 
-    // Lazily construct the package hierarchy from class names.
-    root: function (classes) {
-      var map = {};
+            classes.forEach(function(d) {
+                find(d.name, d);
+            });
 
-      function find(name, data) {
-        var node = map[name], i;
-        if (!node) {
-          node = map[name] = data || {name: name, children: []};
-          if (name.length) {
-            node.parent = find(name.substring(0, i = name.lastIndexOf(".")));
-            node.parent.children.push(node);
-            node.key = name.substring(i + 1);
-          }
+            return map[""];
+        },
+
+        // Return a list of imports for the given array of nodes.
+        imports: function(nodes) {
+            var map = {},
+                imports = [];
+
+            // Compute a map from name to node.
+            nodes.forEach(function(d) {
+                map[d.name] = d;
+            });
+
+            // For each import, construct a link from the source to target node.
+            nodes.forEach(function(d) {
+                if (d.imports) d.imports.forEach(function(i) {
+                    imports.push({
+                        source: map[d.name],
+                        target: map[i]
+                    });
+                });
+            });
+
+            return imports;
         }
-        return node;
-      }
 
-      classes.forEach(function (d) {
-        find(d.name, d);
-      });
+    };
 
-      return map[""];
-    },
 
-    // Return a list of imports for the given array of nodes.
-    imports: function (nodes) {
-      var map = {},
-        imports = [];
+    return {
+        render: render
+    };
 
-      // Compute a map from name to node.
-      nodes.forEach(function (d) {
-        map[d.name] = d;
-      });
 
-      // For each import, construct a link from the source to target node.
-      nodes.forEach(function (d) {
-        if (d.imports) d.imports.forEach(function (i) {
-          imports.push({source: map[d.name], target: map[i]});
+    function render(donutData) {
+        var w = 1280,
+            h = 766,
+            rx = w / 2,
+            ry = h / 2,
+            m0,
+            rotate = 0;
+
+        var splines = [];
+
+        var cluster = d3.layout.cluster()
+            .size([360, ry - 120])
+            .sort(function(a, b) {
+                return d3.ascending(a.key, b.key);
+            });
+
+        var bundle = d3.layout.bundle();
+
+        var line = d3.svg.line.radial()
+            .interpolate("bundle")
+            .tension(.85)
+            .radius(function(d) {
+                return d.y;
+            })
+            .angle(function(d) {
+                return d.x / 180 * Math.PI;
+            });
+
+        // Chrome 15 bug: <http://code.google.com/p/chromium/issues/detail?id=98951>
+        var div = d3.select("#donut-graph").insert("div", "h2")
+            .style("width", w + "px")
+            .style("height", w + "px")
+            .style("position", "absolute")
+            .style("-webkit-backface-visibility", "hidden");
+
+        var svg = div.append("svg:svg")
+            .attr("width", w)
+            .attr("height", w)
+            .append("svg:g")
+            .attr("transform", "translate(" + rx + "," + ry + ")");
+
+        svg.append("svg:path")
+            .attr("class", "arc")
+            .attr("d", d3.svg.arc().outerRadius(ry - 120).innerRadius(0).startAngle(0).endAngle(2 * Math.PI))
+            .on("mousedown", mousedown);
+
+        d3.json("flare.json", function(something) {
+            var nodes = cluster.nodes(packages.root(donutData)),
+                links = packages.imports(nodes),
+                splines = bundle(links);
+
+            var path = svg.selectAll("path.link")
+                .data(links)
+                .enter().append("svg:path")
+                .attr("class", function(d) {
+                    return "link source-" + d.source.key + " target-" + d.target.key;
+                })
+                .attr("d", function(d, i) {
+                    return line(splines[i]);
+                });
+
+            svg.selectAll("g.node")
+                .data(nodes.filter(function(n) {
+                    return !n.children;
+                }))
+                .enter().append("svg:g")
+                .attr("class", "node")
+                .attr("id", function(d) {
+                    return "node-" + d.key;
+                })
+                .attr("transform", function(d) {
+                    return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
+                })
+                .append("svg:text")
+                .attr("dx", function(d) {
+                    return d.x < 180 ? 8 : -8;
+                })
+                .attr("dy", ".31em")
+                .attr("text-anchor", function(d) {
+                    return d.x < 180 ? "start" : "end";
+                })
+                .attr("transform", function(d) {
+                    return d.x < 180 ? null : "rotate(180)";
+                })
+                .text(function(d) {
+                    return d.key;
+                })
+                .on("mouseover", mouseover)
+                .on("mouseout", mouseout)
+                .on("dblclick", select);
         });
-      });
 
-      return imports;
+        d3.select(window)
+            .on("mousemove", mousemove)
+            .on("mouseup", mouseup);
+
+        function escape(x) {
+           return x.replace(/\./g, '\\.' );
+        }
+
+        function select(d) {
+            console.log(d);
+
+            svg.selectAll("path.link.source-" + d.key)
+                .classed("source", true)
+                .each(updateNodes("target", true));
+
+            $state.go("app.files", {path: d.name});
+        }
+
+        function mouse(e) {
+            return [e.pageX - rx, e.pageY - ry];
+        }
+
+        function mousedown() {
+            m0 = mouse(d3.event);
+            d3.event.preventDefault();
+        }
+
+        function mousemove() {
+            if (m0) {
+                var m1 = mouse(d3.event),
+                    dm = Math.atan2(cross(m0, m1), dot(m0, m1)) * 180 / Math.PI;
+                div.style("-webkit-transform", "translateY(" + (ry - rx) + "px)rotateZ(" + dm + "deg)translateY(" + (rx - ry) + "px)");
+            }
+        }
+
+        function mouseup() {
+            if (m0) {
+                var m1 = mouse(d3.event),
+                    dm = Math.atan2(cross(m0, m1), dot(m0, m1)) * 180 / Math.PI;
+
+                rotate += dm;
+                if (rotate > 360) rotate -= 360;
+                else if (rotate < 0) rotate += 360;
+                m0 = null;
+
+                div.style("-webkit-transform", null);
+
+                svg
+                    .attr("transform", "translate(" + rx + "," + ry + ")rotate(" + rotate + ")")
+                    .selectAll("g.node text")
+                    .attr("dx", function(d) {
+                        return (d.x + rotate) % 360 < 180 ? 8 : -8;
+                    })
+                    .attr("text-anchor", function(d) {
+                        return (d.x + rotate) % 360 < 180 ? "start" : "end";
+                    })
+                    .attr("transform", function(d) {
+                        return (d.x + rotate) % 360 < 180 ? null : "rotate(180)";
+                    });
+            }
+        }
+
+        function mouseover(d) {
+            svg.selectAll("path.link.target-" + d.csskey)
+                .classed("target", true)
+                .each(updateNodes("source", true));
+
+            svg.selectAll("path.link.source-" + d.csskey)
+                .classed("source", true)
+                .each(updateNodes("target", true));
+        }
+
+        function mouseout(d) {
+            svg.selectAll("path.link.source-" + d.csskey)
+                .classed("source", false)
+                .each(updateNodes("target", false));
+
+            svg.selectAll("path.link.target-" + d.csskey)
+                .classed("target", false)
+                .each(updateNodes("source", false));
+        }
+
+        function updateNodes(name, value) {
+            return function(d) {
+                if (value) this.parentNode.appendChild(this);
+                svg.select("#node-" + d[name].key).classed(name, value);
+            };
+        }
+
+        function cross(a, b) {
+            return a[0] * b[1] - a[1] * b[0];
+        }
+
+        function dot(a, b) {
+            return a[0] * b[0] + a[1] * b[1];
+        }
+
+
     }
-  };
-
-
-  return {
-    render: render
-  };
-
-
-  function render() {
-
-    var width = 960,
-      height = 500;
-
-    var fill = d3.scale.ordinal()
-      .range(["#f0f0f0", "#d9d9d9", "#bdbdbd"]);
-
-    var stroke = d3.scale.linear()
-      .domain([0, 1e4])
-      .range(["brown", "steelblue"]);
-
-    var treemap = d3.layout.treemap()
-      .size([width, height])
-      .value(function (d) {
-        return d.size;
-      });
-    debugger;
-
-    var bundle = d3.layout.bundle();
-
-    var div = d3.select("#donut-graph").append("div")
-      .style("position", "relative")
-      .style("width", width + "px")
-      .style("height", height + "px");
-
-    var line = d3.svg.line()
-      .interpolate("bundle")
-      .tension(.85)
-      .x(function (d) {
-        return d.x + d.dx / 2;
-      })
-      .y(function (d) {
-        return d.y + d.dy / 2;
-      });
-
-    d3.json("/flare.json", function (error, classes) {
-      if (error) throw error;
-
-      var nodes = treemap.nodes(packages.root(classes)),
-        links = packages.imports(nodes);
-
-      div.selectAll(".cell")
-        .data(nodes)
-        .enter().append("div")
-        .attr("class", "cell")
-        .style("background-color", function (d) {
-          return d.children ? fill(d.key) : null;
-        })
-        .call(cell)
-        .text(function (d) {
-          return d.children ? null : d.key;
-        });
-
-      div.append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .style("position", "absolute")
-        .selectAll(".link")
-        .data(bundle(links))
-        .enter().append("path")
-        .attr("class", "link")
-        .attr("d", line)
-        .style("stroke", function (d) {
-          return stroke(d[0].value);
-        });
-    });
-
-    function cell() {
-      this.style("left", function (d) {
-        return d.x + "px";
-      })
-        .style("top", function (d) {
-          return d.y + "px";
-        })
-        .style("width", function (d) {
-          return d.dx - 1 + "px";
-        })
-        .style("height", function (d) {
-          return d.dy - 1 + "px";
-        });
-    }
-  }
 });

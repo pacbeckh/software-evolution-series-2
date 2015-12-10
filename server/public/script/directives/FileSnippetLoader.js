@@ -8,7 +8,6 @@ angular.module('CloneDetection').directive('fileSnippetLoader', function (FileSe
       location: '='
     },
     controller : function($scope) {
-      console.log("CONSTRUCT");
       $scope.loading = true;
       $scope.counter = 0;
       var promise;

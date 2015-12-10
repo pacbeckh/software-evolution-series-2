@@ -1,3 +1,46 @@
+<style type="text/css">
+    path.arc {
+        cursor: move;
+        fill: #fff;
+    }
+
+    .node {
+        font-size: 10px;
+    }
+
+    .node:hover {
+        fill: #1f77b4;
+    }
+
+    .link {
+        fill: none;
+        stroke: #1f77b4;
+        stroke-opacity: .4;
+        pointer-events: none;
+    }
+
+    .link.source, .link.target {
+        stroke-opacity: 1;
+        stroke-width: 2px;
+    }
+
+    .node.target {
+        fill: #2ca02c !important;
+    }
+
+    .link.source {
+        stroke: #2ca02c;
+    }
+
+    .node.source {
+        fill: #2ca02c;
+    }
+
+    .link.target {
+        stroke: #2ca02c;
+    }
+</style>
+
 <div ng-controller="DonutCtrl">
     <div id="donut-graph"></div>
 </div>
