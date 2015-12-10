@@ -28,8 +28,8 @@ import postprocessing::SameEndProcessor;
 import postprocessing::OverlapProcessor;
 import transformation::CloneClassCreator;
 
-//public loc projectLoc = |project://hello-world-java/|;
-public loc projectLoc = |project://smallsql0.21_src|;
+public loc projectLoc = |project://hello-world-java/|;
+//public loc projectLoc = |project://smallsql0.21_src|;
 //public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
@@ -47,7 +47,11 @@ public void mainFunction() {
 
 public void mainFunctionWithModel(M3 model) {
 	logInfo("Starting clone detection");
-	cloneClasses = run(model);
+
+	logInfo("Collecting declarations");	
+	list[Declaration] declarations = collectDeclarations(model); 
+	
+	cloneClasses = run(declarations);
 	
 	logInfo("Starting maintenance");
 	MaintenanceData maintenance = runMaintenance(model);
@@ -57,13 +61,15 @@ public void mainFunctionWithModel(M3 model) {
 	logInfo("Stored files to server");
 }
 
-public void runVoid(M3 model) {
-	run(model);
+public void runVoid(list[Declaration] declarations) {
+	run(declarations);
 }
 
-public map[int, set[CloneClass]] run(M3 model) {
+public map[int, set[CloneClass]] run(list[Declaration] declarations) {
 	logInfo("Normalize and anonimize statements...");
-	list[AnonymousLink] links = anonimizeAndNormalize(model);
+
+	
+	list[AnonymousLink] links = anonimizeAndNormalize(declarations);
 	iprintln("<size(links)> links found");
 	
 	logInfo("Getting all pairs...");
@@ -97,24 +103,27 @@ public map[int, set[CloneClass]] run(M3 model) {
 	return cloneClasses;
 }
 
+public list[Declaration] collectDeclarations(M3 model)
+	= [ createAstFromFile(cu, true, javaVersion="1.7") | 
+		cu <- files(model@containment), 
+		cu.file != "ValidatingResourceBundle.java"];
+		
 public int numberOfCloneClasses(map[int, set[CloneClass]] input) {
 	return ( 0 | it + size(input[k]) | k <- input);
 }
 
 // Uses compilationUnits in the m3 + fileAST
-public list[AnonymousLink] anonimizeAndNormalize(M3 model){
+public list[AnonymousLink] anonimizeAndNormalize(list[Declaration] declarations){
 	list[AnonymousLink] links = [];
 	
-	for ( cu <- files(model@containment), cu.file != "ValidatingResourceBundle.java") {
-		links += anonimizeAndNormalizeFile(cu);	
+	for ( d <- declarations) {
+		links += anonimizeAndNormalizeFile(d);	
 	}
 	
 	return links;
 }
 
-public list[AnonymousLink] anonimizeAndNormalizeFile(loc file) {
-	Declaration declaration = createAstFromFile(file, true, javaVersion="1.7");
-	
+public list[AnonymousLink] anonimizeAndNormalizeFile(Declaration declaration) {
 	list[Statement] normalizedStatements = [];
 	top-down-break visit(declaration){
 		case x:\method(_,_,_,_,s) :

@@ -11,27 +11,25 @@ import transformation::StatementVariables;
 
 public map[Statement,list[str]] varCache = ();
 
+private Maybe[LinkPair] NOTHING = nothing();
+
 public LinkPair evolvePair(LinkPair target) {
 	int maxWeight = head(target.leftStack)@maxWeight;
 	LinkPair subject = target;
 	while(true) {
 		Maybe[LinkPair] next = evolveLinkPair(subject);
 		
-		if (nothing() == next) {
-
+		if (NOTHING == next) {
 			subject@weight = noLink() := head(subject.leftStack).next ? maxWeight :  maxWeight - head(subject.leftStack).next.val@maxWeight;			
+			return subject;
+		} 
+		just(p) = next;
+		if(!isMappingPossible(p)) {
+			subject@weight = maxWeight - head(subject.leftStack).next.val@maxWeight;
 			
 			return subject;
-			
-			break;
-		} else if (just(p) := next) {
-			if(!isMappingPossible(p)) {
-				subject@weight = maxWeight - head(subject.leftStack).next.val@maxWeight;
-				
-				return subject;
-			}
-			subject = p;
-		} 		
+		}
+		subject = p;
 	}
 }
 

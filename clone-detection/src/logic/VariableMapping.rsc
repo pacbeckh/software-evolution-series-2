@@ -7,17 +7,17 @@ public MappingComparison compareVariables(list[str] leftVars, list[str] rightVar
 	if (size(leftVars) != size(rightVars)) {
 		return mappingComparison(false, mapping);
 	}
-	int i = 0;
 	m = mapping;
-	while (i < size(leftVars)) {
-		if (m[leftVars[i]]?) {
-			if (m[leftVars[i]] != rightVars[i]) {
+	for (int i <- [0..size(leftVars)]) {
+		lVar = leftVars[i];
+		rVar = rightVars[i];
+		if (m[lVar]?) {
+			if (m[lVar] != rVar) {
 				return mappingComparison(false, m);
 			} 
 		} else {
-			m[leftVars[i]] = rightVars[i];
+			m[lVar] = rVar;
 		}
-		i+=1;
 	}
 	return mappingComparison(true, m);
 }
