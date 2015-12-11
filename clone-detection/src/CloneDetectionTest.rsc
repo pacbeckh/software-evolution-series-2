@@ -19,7 +19,7 @@ test bool testNestedDuplicates() {
 	list[AnonymousLink] links = getLinksForFile("NestedDuplicates.java");
 	list[LinkPair] linkPairs = getAllLinkPairs(links);
 	
-	map[int, list[LinkPair]] evolvedLinkPairs = evolveLinkPairs(linkPairs);
+	map[int, set[LinkPair]] evolvedLinkPairs = evolveLinkPairs(linkPairs);
 	map[int, set[CloneClass]] cloneClasses = createCloneClasses(evolvedLinkPairs);
 	
 	cleanupCloneClassesWithSameEnd(cloneClasses);

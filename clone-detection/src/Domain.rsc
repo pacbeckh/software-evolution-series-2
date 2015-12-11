@@ -11,6 +11,7 @@ alias CloneClass = set[loc];
 data AnonymousLink = anonymousLink(
 	Statement anonymous,
 	Statement normal,
+	loc origin,
 	NextLink next
 );
 

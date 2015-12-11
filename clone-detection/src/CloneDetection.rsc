@@ -28,9 +28,9 @@ import postprocessing::SameEndProcessor;
 import postprocessing::OverlapProcessor;
 import transformation::CloneClassCreator;
 
-public loc projectLoc = |project://hello-world-java/|;
+//public loc projectLoc = |project://hello-world-java/|;
 //public loc projectLoc = |project://smallsql0.21_src|;
-//public loc projectLoc = |project://hsqldb-2.3.1|;
+public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
 
@@ -49,12 +49,12 @@ public void mainFunctionWithModel(M3 model) {
 	logInfo("Starting clone detection");
 
 	logInfo("Collecting declarations");	
-	list[Declaration] declarations = collectDeclarations(model); 
+	lrel[loc,Declaration] declarations = collectDeclarations(model); 
 	
 	cloneClasses = run(declarations);
 	
 	logInfo("Starting maintenance");
-	MaintenanceData maintenance = runMaintenance(model);
+	MaintenanceData maintenance = runMaintenance(model, declarations);
 	
 	logInfo("Store files to server");
 	storeInServer(projectLoc, cloneClasses, maintenance);
@@ -65,7 +65,7 @@ public void runVoid(list[Declaration] declarations) {
 	run(declarations);
 }
 
-public map[int, set[CloneClass]] run(list[Declaration] declarations) {
+public map[int, set[CloneClass]] run(lrel[loc,Declaration] declarations) {
 	logInfo("Normalize and anonimize statements...");
 
 	
@@ -78,7 +78,7 @@ public map[int, set[CloneClass]] run(list[Declaration] declarations) {
 	iprintln("<size(allPairs)> linkpairs found");
 	
 	logInfo("Evolving pairs to maximal expansion...");
-	map[int, list[LinkPair]] levelResults = evolveLinkPairs(allPairs);
+	map[int, set[LinkPair]] levelResults = evolveLinkPairs(allPairs);
 	
 	//Remove things we are not interested in, stuff below the threshold.
 	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD]);
@@ -103,8 +103,8 @@ public map[int, set[CloneClass]] run(list[Declaration] declarations) {
 	return cloneClasses;
 }
 
-public list[Declaration] collectDeclarations(M3 model)
-	= [ createAstFromFile(cu, true, javaVersion="1.7") | 
+public lrel[loc,Declaration] collectDeclarations(M3 model)
+	= [ <cu,createAstFromFile(cu, true, javaVersion="1.7")> | 
 		cu <- files(model@containment), 
 		cu.file != "ValidatingResourceBundle.java"];
 		
@@ -112,11 +112,10 @@ public int numberOfCloneClasses(map[int, set[CloneClass]] input) {
 	return ( 0 | it + size(input[k]) | k <- input);
 }
 
-// Uses compilationUnits in the m3 + fileAST
-public list[AnonymousLink] anonimizeAndNormalize(list[Declaration] declarations){
+public list[AnonymousLink] anonimizeAndNormalize(lrel[loc,Declaration] declarations){
 	list[AnonymousLink] links = [];
 	
-	for ( d <- declarations) {
+	for ( <_,d> <- declarations) {
 		links += anonimizeAndNormalizeFile(d);	
 	}
 	
@@ -137,29 +136,26 @@ public list[AnonymousLink] anonimizeAndNormalizeFile(Declaration declaration) {
 	return concat([getAnonimizedStatements(n) | n <- normalizedStatements]);
 }
 
-public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
-	map[int, list[LinkPair]] levelResults = ();
+public map[int, set[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
+	//map[int, list[LinkPair]] levelResults = ();
 	map[value,value] cache = ();
 	
 	int eob = 0;
-	int hits = 0; 
-	for (focus <- allPairs) {
+	int hits = 0;
+	lrel[int,LinkPair] levelListRelation; 
+	levelListRelation = for (focus <- allPairs) {
 		//Just continue if element in cache
-		if (cache[{head(focus.leftStack), head(focus.rightStack)}]?) {
+		if (cache[{focus.leftStack[0], focus.rightStack[0]}]?) {
 			hits += 1;
 			continue;
 		}
 		
 		LinkPair evolved = evolvePair(focus);
 		int w = evolved@weight;
-		if (levelResults[w]?) {
-			levelResults[w] += evolved;
-		} else {
-			levelResults[w] = [evolved];
-		}
+		append <w,evolved>;
 		
 		//Cache Pair if EndOfBlock
-		if (head(evolved.leftStack).next == noLink() || head(evolved.rightStack).next == noLink()) {
+		if (evolved.leftStack[0].next == noLink() || evolved.rightStack[0].next == noLink()) {
 			eob += 1;
 			for (i <- [0..size(evolved.leftStack)]) {
 				cache[{evolved.leftStack[i],evolved.rightStack[i]}] = evolved; 
@@ -169,6 +165,7 @@ public map[int, list[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 	println(" \> Cache size: <size(cache)>");
 	println(" \> EOB: <eob>");
 	println(" \> Hits: <hits>");
-	return levelResults;
+	
+	return index(levelListRelation);
 }
 	

@@ -56,34 +56,10 @@ public list[Statement] collectAnonymousKey(AnonymousLink link, int threshold) {
 }
 
 public list[LinkPair] setupLinkPairs(list[AnonymousLink] links) {
-	list[LinkPair] result = [];
-	
-	for(int i <- [0 .. size(links)], int j <- [i+1 .. size(links)]) {
-		//if(!lookAhead(links[i], links[j], CONFIG_PAIR_LOOKAHEAD_WEIGHT_THRESHOLD)) {
-		//	iprintln("WE STILL USE THIS?!");
-		//	continue;
-		//}
-		
+	return for(int i <- [0 .. size(links)], int j <- [i+1 .. size(links)]) {
 		LinkPair linkPair = linkPairWithNext(links[i], links[j]);
 		if (linkPair.mappingPossible) {
-			result += linkPair;
+			append linkPair;
 		}
 	}
-	return result;
 }
-//
-//private bool lookAhead(AnonymousLink left, AnonymousLink right, int minWeight) {
-//	if(left.anonymous != right.anonymous) {
-//		return false;
-//	}
-//
-//	if ((minWeight - left.normal@weight) <= 0) {
-//		return true;
-//	}
-//	
-//	if(\noLink() := left.next || \noLink() := right.next) {
-//		return false;
-//	}
-//	
-//	return lookAhead(left.next.val, right.next.val, minWeight - left.normal@weight); 
-//}

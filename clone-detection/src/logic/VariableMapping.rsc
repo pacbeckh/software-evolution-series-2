@@ -7,7 +7,6 @@ public tuple[bool,map[str,str],map[str,str]] compareVariables(list[str] leftVars
 											 map[str, str] ltrMapping, map[str, str] rtlMapping) {
 	if (size(leftVars) != size(rightVars)) {
 		return <false, ltrMapping, rtlMapping>;
-		//mappingComparison(false, mapping);
 	}
 	
 	ltr = ltrMapping;
@@ -20,7 +19,6 @@ public tuple[bool,map[str,str],map[str,str]] compareVariables(list[str] leftVars
 		if (ltr[lVar]?) {
 			if (ltr[lVar] != rVar) {
 				return <false, ltrMapping, rtlMapping>;
-				//return mappingComparison(false, m);
 			} 
 		} else {
 			ltr[lVar] = rVar;
@@ -36,5 +34,4 @@ public tuple[bool,map[str,str],map[str,str]] compareVariables(list[str] leftVars
 		
 	}
 	return <true, ltr, rtl>;
-	//return mappingComparison(true, m);
 }

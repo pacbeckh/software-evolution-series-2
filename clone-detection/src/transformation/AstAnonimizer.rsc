@@ -31,7 +31,7 @@ public list[AnonymousLink] getAnonimizedStatements(Statement normalized) {
 				Statement anon = anonimizeStatement(statement, anonCache);
 				anonCache += (statement@src : anon); 
 				
-				AnonymousLink link = anonymousLink(anon, statement, next);
+				AnonymousLink link = anonymousLink(anon, statement, statement@src, next);
 				link@maxWeight = weightSum;
 				
 				answer += link;
@@ -44,21 +44,11 @@ public list[AnonymousLink] getAnonimizedStatements(Statement normalized) {
 }
 
 public Statement anonimizeStatement(Statement statement, map[loc, Statement] anonCache) {
-	//iprintln("--------INPUT-------");
-	//iprintln(statement);
-	//iprintln("-------/INPUT-------");
-	
-	res = top-down-break visit(statement) {
+	return top-down-break visit(statement) {
 		case Statement s => anonCache[s@src] when s@src? && anonCache[s@src]?
 		case Expression e => anonimizeExpression(e)
 		case Type t => anonimizeType(t)
 	}
-	
-	//println("--------RESULT--------");
-	//iprintln(res);
-	//iprintln("-------/RESULT-------");
-	
-	return res;
 }
 
 private Type anonimizeType(Type t) {

@@ -14,18 +14,20 @@ public map[Statement,list[str]] varCache = ();
 private Maybe[LinkPair] NOTHING = nothing();
 
 public LinkPair evolvePair(LinkPair target) {
-	int maxWeight = head(target.leftStack)@maxWeight;
+	int maxWeight = target.leftStack[0]@maxWeight;
 	LinkPair subject = target;
 	while(true) {
 		Maybe[LinkPair] next = evolveLinkPair(subject);
 		
 		if (NOTHING == next) {
-			subject@weight = noLink() := head(subject.leftStack).next ? maxWeight :  maxWeight - head(subject.leftStack).next.val@maxWeight;			
+			subject@weight = noLink() := subject.leftStack[0].next ? maxWeight :  maxWeight - subject.leftStack[0].next.val@maxWeight;			
 			return subject;
-		} 
-		just(p) = next;
+		}
+		p = next.val;
+		//iprintln(next.val);
+		//just(p) = next;
 		if(!p.mappingPossible) {
-			subject@weight = maxWeight - head(subject.leftStack).next.val@maxWeight;
+			subject@weight = maxWeight - subject.leftStack[0].next.val@maxWeight;
 			
 			return subject;
 		}
@@ -34,8 +36,8 @@ public LinkPair evolvePair(LinkPair target) {
 }
  
 public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
-	NextLink leftNextLink = head(input.leftStack).next;
-	NextLink rightNextLink = head(input.rightStack).next;
+	NextLink leftNextLink = input.leftStack[0].next;
+	NextLink rightNextLink = input.rightStack[0].next;
 	
 	if (leftNextLink == noLink() || rightNextLink == noLink()) {
 		return nothing();
@@ -47,14 +49,32 @@ public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
 		return nothing();
 	}
 	
-	return just(evolveLinkPairWithNext(input, leftNext, rightNext));
+	list[str] leftVars = getVarsForStatement(leftNext.normal);
+	list[str] rightVars = getVarsForStatement(rightNext.normal);
+	
+	<r, ltr, rtl> = compareVariables(leftVars, rightVars, input.ltrMapping, input.rtlMapping);
+	
+	return just(linkPair(
+		leftNext + input.leftStack,
+		rightNext + input.rightStack,
+		r,
+		ltr,
+		rtl
+	));
 }
 
 public LinkPair linkPairWithNext(AnonymousLink leftNext, AnonymousLink rightNext) {
-	return evolveLinkPairWithNext(
-		linkPair([],[], true, (), ()),
-		leftNext,
-		rightNext
+	list[str] leftVars = getVarsForStatement(leftNext.normal);
+	list[str] rightVars = getVarsForStatement(rightNext.normal);
+	
+	<r, ltr, rtl> = compareVariables(leftVars, rightVars, (), ());
+	
+	return linkPair(
+		[leftNext],
+		[rightNext],
+		r,
+		ltr,
+		rtl
 	);
 }
 
@@ -66,19 +86,3 @@ public list[str] getVarsForStatement(Statement s) {
 	varCache[s] = vars;
 	return vars;
 }
-public LinkPair evolveLinkPairWithNext(LinkPair input, AnonymousLink leftNext, AnonymousLink rightNext) {
-	list[str] leftVars = getVarsForStatement(leftNext.normal);
-	list[str] rightVars = getVarsForStatement(rightNext.normal);
-	
-	<r, ltr, rtl> = compareVariables(leftVars, rightVars, input.ltrMapping, input.rtlMapping);
-	
-	return linkPair(
-		leftNext + input.leftStack,
-		rightNext + input.rightStack,
-		r,
-		ltr,
-		rtl
-	);
-}
-
-private loc getLoc(AnonymousLink link) = link.normal@src;

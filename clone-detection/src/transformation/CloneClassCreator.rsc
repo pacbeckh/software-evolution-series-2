@@ -13,7 +13,7 @@ import Domain;
 import util::Logging;
 import util::Timing;
 
-public map[int, set[CloneClass]] createCloneClasses(map[int, list[LinkPair]] levelResults) {
+public map[int, set[CloneClass]] createCloneClasses(map[int, set[LinkPair]] levelResults) {
 	logInfo("Transform pairs to start and end locations...");
 	map[int, rel[loc,loc]] levelResultsAbsolute = transformLinkPairsToFragments(levelResults);
 	
@@ -82,14 +82,14 @@ private set[set[&T]] partitionsForIrreflexiveAsymetricRel(rel[&T,&T] rels) {
 	}
 }
 
-private map[int, rel[loc,loc]] transformLinkPairsToFragments(map[int, list[LinkPair]] evolvedLinksPairs)
+private map[int, rel[loc,loc]] transformLinkPairsToFragments(map[int, set[LinkPair]] evolvedLinksPairs)
 	= ( k : {linkPairToFragmentPair(l) | l <- evolvedLinksPairs[k]} | k <- evolvedLinksPairs);
 
 private tuple[loc,loc] linkPairToFragmentPair(LinkPair linkPair)
 	= <stackToLoc(linkPair.leftStack), stackToLoc(linkPair.rightStack)>;
 
 private loc stackToLoc(list[AnonymousLink] stack)
-	= mergeLoc(last(stack).normal@src, head(stack).normal@src);
+	= mergeLoc(last(stack).normal@src, stack[0].normal@src);
 
 private loc mergeLoc(loc s, loc e) {
 	n = s.end = e.end;
