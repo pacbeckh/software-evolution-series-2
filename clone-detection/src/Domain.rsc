@@ -11,6 +11,7 @@ alias CloneClass = set[loc];
 data AnonymousLink = anonymousLink(
 	Statement anonymous,
 	Statement normal,
+	loc origin,
 	NextLink next
 );
 
@@ -21,16 +22,9 @@ anno int LinkPair @ weight;
 data LinkPair = linkPair(
 	list[AnonymousLink] leftStack,
 	list[AnonymousLink] rightStack,
-	bool ltrMappingPossible,
+	bool mappingPossible,
 	map[str,str] ltrMapping,
-	bool rtlMappingPossible,
 	map[str,str] rtlMapping
-);
-
-
-data MappingComparison = mappingComparison(
-	bool success,
-	map[str,str] mapping
 );
 
 data CloneFragment = cloneFragement(
