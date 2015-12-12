@@ -21,7 +21,6 @@ public Type typeVoid = lang::java::jdt::m3::AST::\void();
 
 test bool testEvolveWithCorrectWeight() {
 	CONFIG_STATEMENT_WEIGHT_THRESHOLD = 2;
-	CONFIG_PAIR_LOOKAHEAD_WEIGHT_THRESHOLD = 2;
 
 	Statement s = \block([
 		\expressionStatement(\simpleName("s1")[@typ=tsInt])[@src=|file://x1|],

@@ -3,7 +3,6 @@ module Domain
 import lang::java::jdt::m3::AST;
 
 anno int Statement @ weight;
-
 anno int AnonymousLink @ maxWeight;
  
 alias CloneClass = set[loc];
@@ -25,9 +24,4 @@ data LinkPair = linkPair(
 	bool mappingPossible,
 	map[str,str] ltrMapping,
 	map[str,str] rtlMapping
-);
-
-data CloneFragment = cloneFragement(
-	Statement startStatement,
-	int length
 );

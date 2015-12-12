@@ -57,6 +57,7 @@ public map[int, set[CloneClass]] run(lrel[loc,Declaration] declarations) {
 	
 	list[AnonymousLink] links = anonimizeAndNormalize(declarations);
 	logDebug(" \> <size(links)> links found");
+	logDebug(" \> <size({ l | l <- links })> links found");
 	
 	logInfo("Getting all pairs...");
 	list[LinkPair] allPairs = getAllLinkPairs(links);
@@ -117,7 +118,7 @@ public list[AnonymousLink] anonimizeAndNormalizeFile(Declaration declaration) {
 		case \constructor(_,_,_,s) :
 			normalizedStatements += normalize(s);
 		case x:\initializer(s) : 
-			normalizedStatements += (CONFIG_INCLUDE_INITIALIZER_BLOCK) ? normalize(s) : [];
+			normalizedStatements += normalize(s);
 	}
 	
 	return concat([getAnonimizedStatements(n) | n <- normalizedStatements]);

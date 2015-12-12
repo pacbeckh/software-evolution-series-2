@@ -11,20 +11,16 @@ import util::Logging;
 
 public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
 	map[list[Statement],list[AnonymousLink]] linkIndex = ();
-	int i = 0;
-	for(link <- links) {
-		if(link@maxWeight < CONFIG_STATEMENT_WEIGHT_THRESHOLD) {
-			i += 1;
-			continue;
-		}
-		list[Statement] key = collectAnonymousKey(link, CONFIG_STATEMENT_WEIGHT_THRESHOLD);
+	
+	for(link <- links, link@maxWeight >= CONFIG_STATEMENT_WEIGHT_THRESHOLD) {
+		list[Statement] key = collectAnonymousKey(link);
 		if (linkIndex[key]?) {
-			linkIndex[key] = linkIndex[key] + link;
+			linkIndex[key] += link;
 		} else {
 			linkIndex[key] = [link];
 		}
 	}
-	logDebug(" \> Ignored <i> AnonymousLinks ");
+	
 	logDebug(" \> Link index size <size(linkIndex)>");
 	
 	list[LinkPair] allPairs = [];
@@ -35,10 +31,10 @@ public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
 	return allPairs;
 }
 
-public list[Statement] collectAnonymousKey(AnonymousLink link, int threshold) {
+public list[Statement] collectAnonymousKey(AnonymousLink link) {
 	list[Statement] answer = [];
 	NextLink next = aLink(link);
-	int currentThreshold = threshold;
+	int currentThreshold = CONFIG_STATEMENT_WEIGHT_THRESHOLD;
 	while(true) {
 		if (aLink(v) := next) {
 			answer += v.anonymous;
