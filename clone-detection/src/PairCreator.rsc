@@ -2,13 +2,12 @@ module PairCreator
 
 import lang::java::jdt::m3::AST;
 import List;
-import IO;
 import Map;
 
 import Domain;
 import Config;
 import logic::PairEvolver;
-
+import util::Logging;
 
 public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
 	map[list[Statement],list[AnonymousLink]] linkIndex = ();
@@ -25,8 +24,8 @@ public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
 			linkIndex[key] = [link];
 		}
 	}
-	iprintln("Ignored <i> AnonymousLinks ");
-	iprintln("Link index size <size(linkIndex)>");
+	logDebug(" \> Ignored <i> AnonymousLinks ");
+	logDebug(" \> Link index size <size(linkIndex)>");
 	
 	list[LinkPair] allPairs = [];
 	for(k <- linkIndex, size(linkIndex[k]) > 1) {

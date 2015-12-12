@@ -5,7 +5,6 @@ import List;
 import Map;
 
 import Domain;
-import IO;
 
 public map[int, set[CloneClass]] cleanupCloneClassesWithSameEnd(map[int, set[CloneClass]] input) {
 	list[int] orderedKeys = reverse(sort(toList(domain(input))));

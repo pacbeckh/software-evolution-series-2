@@ -1,14 +1,11 @@
 module maintenance::DuplicationDetection
 
-
-import IO;
 import List;
-import DateTime;
 import Map;
 import Set;
 import Type;
 import String;
-
+import Relation;
 import maintenance::Domain;
 
 alias LineRef = tuple[FileAnalysis, int];
@@ -28,14 +25,7 @@ public set[LineRefs] computeDuplications(ProjectAnalysis project) {
 
 public map[FileAnalysis,list[int]] aggregateDuplications(set[LineRefs] duplications) {
 	LineRefs s = union(duplications);
-	map[FileAnalysis,set[int]] aggregate = ();
-	for (<fileAnalysis, ln> <- s) {
-		if (aggregate[fileAnalysis]?) {
-			aggregate[fileAnalysis] += ln;
-		} else {
-			aggregate[fileAnalysis] = {ln};
-		}
-	}
+	map[FileAnalysis,set[int]] aggregate = index(s);
 	return ( k: sort(toList(aggregate[k])) | k <- aggregate );
 }
 

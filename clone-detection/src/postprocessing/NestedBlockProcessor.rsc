@@ -3,8 +3,7 @@ module postprocessing::NestedBlockProcessor
 import List;
 import Map;
 import Set;
-import IO;
-import DateTime;
+import ListRelation;
 
 import Domain;
 import util::Timing;
@@ -16,7 +15,6 @@ public map[int, set[CloneClass]] cleanupNestedBlocks(map[int, set[CloneClass]] i
 		= (<k,levelCloneClass> : locationsForLevelCloneClass(levelCloneClass) | k <- sortedKeys, levelCloneClass <- input[k]);
 	map[set[str], rel[int,CloneClass]] cloneClassLocationsInvert = invert(cloneClassLocations);
 	
-	map[int, set[CloneClass]] answer = ();
 	lrel[int,CloneClass] filteredCloneClassByLevel;
 	
 	filteredCloneClassByLevel = for (k:<level,cloneClass> <- cloneClassLocations) {
@@ -33,14 +31,7 @@ public map[int, set[CloneClass]] cleanupNestedBlocks(map[int, set[CloneClass]] i
 		}
 	}
 	
-	for (<level, cloneClass> <- filteredCloneClassByLevel) {
-		if (answer[level]?) {
-			answer[level] += { cloneClass };
-		} else {
-			answer[level] = { cloneClass };
-		}
-	}
-	return answer;
+	return index(filteredCloneClassByLevel);
 }
 
 public set[str] locationsForLevelCloneClass(CloneClass input) = { lhs.uri | lhs <- input };

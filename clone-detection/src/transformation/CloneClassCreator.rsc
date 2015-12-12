@@ -1,8 +1,6 @@
 module transformation::CloneClassCreator
 
 import Map;
-import DateTime;
-import IO;
 import List;
 import Relation;
 import lang::java::jdt::m3::AST;
@@ -120,8 +118,8 @@ public void performanceTestToEquivalence(int i, bool fuzzy) {
 		result2 = toEquivalenceDefault(linkSet);
 	});
 	
-	iprintln(size(result2));
-	println("Result: <result1 == result2>");
+	logInfo("<size(result2)>");
+	logInfo("Result: <result1 == result2>");
 }
 
 

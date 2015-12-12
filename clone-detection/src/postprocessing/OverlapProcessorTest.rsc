@@ -1,7 +1,5 @@
 module postprocessing::OverlapProcessorTest
 
-import IO;
-
 import Domain;
 import postprocessing::OverlapProcessor;
 

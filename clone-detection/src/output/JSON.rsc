@@ -1,7 +1,6 @@
 module output::JSON
 
 
-import IO;
 import Set;
 import String;
 import lang::json::IO;
@@ -41,8 +40,6 @@ public value projectAnalysisToJSON(loc base, ProjectAnalysis project) {
 		"LOC" : project.LOC,
 		"files" : [ fileAnalysisToJSON(base, file) | file <- project.files ]
 	);
-	iprintln(project);
-	return 1;
 }
 
 public value fileAnalysisToJSON(loc base, FileAnalysis fileAnalysis) = (
@@ -76,24 +73,19 @@ public str relativePath(loc base, loc subject) {
 	if (base.scheme == "project") {
 		baseString = base.authority + base.path;
 	} else {
-		iprintln("WARN: (JSON.rsc) We have a problem determining the base string");
+		logWarn("(JSON.rsc) We have a problem determining the base string");
 	}
 
 	if (subject.scheme == "file" || subject.scheme == "java+compilationUnit") {
 		subjectString = subject.path;
 	} else {
-		iprintln("WARN: (JSON.rsc) We have a problem determining the subject string");
+		logWarn("(JSON.rsc) We have a problem determining the subject string");
 	}
 	
 	if (/^<match:.*<baseString>>/ := subjectString) {
 		return replaceFirst(subjectString, match, "");
 	}
-	
-	iprintln("We have a problem detecting locations");
-	iprintln(baseString);
-	iprintln(subjectString);
-	
-	return "foo";
+	return subjectString;
 }
 public value locToFileLocationJSON(loc l, bool getStart) {
 	if(getStart) {

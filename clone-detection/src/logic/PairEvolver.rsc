@@ -2,7 +2,6 @@ module logic::PairEvolver
 
 import List;
 import util::Maybe;
-import IO;
 import lang::java::jdt::m3::AST;
 
 import Domain;
@@ -24,8 +23,7 @@ public LinkPair evolvePair(LinkPair target) {
 			return subject;
 		}
 		p = next.val;
-		//iprintln(next.val);
-		//just(p) = next;
+		
 		if(!p.mappingPossible) {
 			subject@weight = maxWeight - subject.leftStack[0].next.val@maxWeight;
 			

@@ -1,25 +1,10 @@
 module transformation::AstNormalizer
 
 import lang::java::m3::AST; 
-import IO;
-import String;
 import List;
 
 import Config;
 import Domain;
-
-//TODO This method is obsolete and can be removed.
-public Declaration normalizeMethods(Declaration declaration) {
-	return visit (declaration) {
-		case \method(\return, name, parameters, exceptions, impl) =>
-			\method(\return, name, parameters, exceptions, normalize(impl))
-		case \constructor(name, parameters, exceptions, impl) =>
-			\constructor(name, parameters, exceptions, normalize(impl))
-		// The following case is only useful/required when we create the AST from file/project instead of a method.	
-		case \initializer(Statement s) =>
-			\initializer(normalize(s))
-	}
-}
 
 public Statement normalize(Statement statement) {
 	return visit(statement) {

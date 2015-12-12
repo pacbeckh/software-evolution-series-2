@@ -2,7 +2,6 @@ module logic::PairEvolverTest
 
 import List;
 import Set;
-import IO;
 import Map;
 import lang::java::m3::TypeSymbol;
 

@@ -6,8 +6,8 @@ import lang::java::m3::Core;
 
 import Domain; 
 import List;
-import IO;
 import CloneDetection;
+import util::Logging;
 
 private loc projectLoc = |project://hello-world-java|;
 
@@ -31,7 +31,7 @@ public void printLinkPairs(list[LinkPair] pairs){
 		leftLoc = head(pair.leftStack).normal@src;
 		rightLoc = head(pair.rightStack).normal@src;
 		
-		println("Pair from <leftLoc.file>:<leftLoc.begin> to <rightLoc.file>:<rightLoc.begin>");
+		logDebug(" \> Pair from <leftLoc.file>:<leftLoc.begin> to <rightLoc.file>:<rightLoc.begin>");
 	}
 }
 
@@ -43,7 +43,7 @@ public void printEvolvedLinkPairs(list[LinkPair] pairs){
 		leftEnd = head(pair.leftStack).normal@src;
 		rightEnd = head(pair.rightStack).normal@src;
 		
-		println("<leftStart.file>:<leftStart.begin.line> to <leftEnd.begin.line> | Is a pair With | <rightStart.file>:<rightStart.begin.line> to <rightEnd.begin.line>");
+		logDebug(" \> <leftStart.file>:<leftStart.begin.line> to <leftEnd.begin.line> | Is a pair With | <rightStart.file>:<rightStart.begin.line> to <rightEnd.begin.line>");
 		
 	}
 }

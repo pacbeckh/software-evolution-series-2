@@ -2,15 +2,12 @@ module transformation::AstAnonimizer
 
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
-import IO;
 import List;
 import Map;
 import Set;
 
-
 import Config;
 import Domain;
-
 
 public list[AnonymousLink] getAnonimizedStatements(Statement normalized) {
 	map[loc, Statement] anonCache = ();

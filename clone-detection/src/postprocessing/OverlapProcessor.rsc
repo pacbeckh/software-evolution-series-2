@@ -1,6 +1,5 @@
 module postprocessing::OverlapProcessor
 
-import IO;
 import Set;
 import Domain;
 

@@ -2,32 +2,19 @@ module transformation::AstNormalizerTest
 
 import lang::java::jdt::m3::Core;
 import lang::java::m3::AST; 
-import IO;
 
 import Config;
 import TestUtil;
-
+import util::Logging;
 import transformation::AstNormalizer;
 
 test bool eachStatementShouldHaveAWeight(Statement s) = eachStatementHasAWeight(normalize(s));
-
-test bool eachStatementShouldHaveAWeight2() {
-	for(m <- methods(getTestM3())) {
-		Declaration d = getMethodASTEclipse(m, model = getTestM3());
-		
-		if(!eachStatementHasAWeight(normalizeMethods(d))) {
-			return false;
-		}
-	}
-
-	return true;
-}
 
 private bool eachStatementHasAWeight(node statement){
 	visit(statement){
 		case Statement s: {
 			if(!s@weight?){
-				println("No weights for found for: <s>");
+				logInfo("No weights for found for: <s>");
 				return false;
 			}
 		}
