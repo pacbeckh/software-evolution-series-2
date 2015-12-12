@@ -29,8 +29,8 @@ import postprocessing::OverlapProcessor;
 import transformation::CloneClassCreator;
 
 //public loc projectLoc = |project://hello-world-java/|;
-//public loc projectLoc = |project://smallsql0.21_src|;
-public loc projectLoc = |project://hsqldb-2.3.1|;
+public loc projectLoc = |project://smallsql0.21_src|;
+//public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 model;
 
@@ -80,24 +80,24 @@ public map[int, set[CloneClass]] run(lrel[loc,Declaration] declarations) {
 	logInfo("Evolving pairs to maximal expansion...");
 	map[int, set[LinkPair]] levelResults = evolveLinkPairs(allPairs);
 	
-	//Remove things we are not interested in, stuff below the threshold.
-	levelResults = ( levelResults | delete(it,i) | int i <- [1..CONFIG_STATEMENT_WEIGHT_THRESHOLD]);
-	
 	map[int, set[CloneClass]] cloneClasses = createCloneClasses(levelResults);
-	
-	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
+	printNumberOfCloneClasses(cloneClasses);	
 
+	return purgeCloneClasses(cloneClasses);
+}
+
+public map[int, set[CloneClass]]  purgeCloneClasses(map[int, set[CloneClass]] cloneClasses) {
+	logInfo("Purging overlapping clone classes...");
+	cloneClasses = cleanOverlappingFragments(cloneClasses);
+	printNumberOfCloneClasses(cloneClasses);
+	
 	logInfo("Purging clone classes with same endloc...");
 	cloneClasses = cleanupCloneClassesWithSameEnd(cloneClasses);
-	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
+	printNumberOfCloneClasses(cloneClasses);
 	
 	logInfo("Purge nested clone classes...");
 	cloneClasses = cleanupNestedBlocks(cloneClasses);
-	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
-	
-	logInfo("Purging overlapping clone classes...");
-	cloneClasses = cleanOverlappingFragments(cloneClasses);
-	println(" \> Got <numberOfCloneClasses(cloneClasses)> clone classes");
+	printNumberOfCloneClasses(cloneClasses);
 	
 	logInfo("Done with cleanup!");
 	return cloneClasses;
@@ -108,6 +108,9 @@ public lrel[loc,Declaration] collectDeclarations(M3 model)
 		cu <- files(model@containment), 
 		cu.file != "ValidatingResourceBundle.java"];
 		
+public void printNumberOfCloneClasses(map[int, set[CloneClass]] input) = 
+	logDebug(" \> Got <numberOfCloneClasses(input)> clone classes");
+	
 public int numberOfCloneClasses(map[int, set[CloneClass]] input) {
 	return ( 0 | it + size(input[k]) | k <- input);
 }

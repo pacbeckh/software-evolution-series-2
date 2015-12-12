@@ -38,7 +38,6 @@ private set[set[loc]] toEquivalenceFast(rel[loc,loc] rels) {
 	return partitionsForIrreflexiveAsymetricRel(rels);
 }
 
-
 private set[set[&T]] partitionsForIrreflexiveAsymetricRel(rel[&T,&T] rels) {
 	int counter = 0;
 	map[&T,set[&T]] indexed = index(rels);
@@ -64,13 +63,12 @@ private set[set[&T]] partitionsForIrreflexiveAsymetricRel(rel[&T,&T] rels) {
 	set[set[&T]] partitions = toSet(partitionsList);
 	
 	
-	lrel[set[&T],set[&T]] overlappingList;
-	overlappingList = for (i <- [0..size(partitionsList)], j <- [i+1 .. size(partitionsList)]) {
-		if (!isEmpty(partitionsList[i] & partitionsList[j])) {
-			append <partitionsList[i], partitionsList[j]>;
-		}
-	}
-	rel[set[&T],set[&T]] overlapping = toSet(overlappingList); 
+	rel[set[&T],set[&T]] overlapping = {
+		<partitionsList[i], partitionsList[j]> |
+			i <- [0..size(partitionsList)], 
+				j <- [i+1 .. size(partitionsList)],
+					!isEmpty(partitionsList[i] & partitionsList[j])
+	}; 
 	
 	if (isEmpty(overlapping)) {
 		return partitions;
