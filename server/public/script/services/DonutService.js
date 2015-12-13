@@ -16,7 +16,7 @@ angular.module('CloneDetection').service('DonutService', function($state) {
                         node.parent = find(name.substring(0, i = name.lastIndexOf("/")));
                         node.parent.children.push(node);
                         node.key = name.substring(i + 1);
-                        node.csskey = node.key.replace(/\./, "\\.");
+                        node.id = node.name.replace(/\./, "\\.").replace(/\//g, "\\/");
                     }
                 }
                 return node;
@@ -48,21 +48,22 @@ angular.module('CloneDetection').service('DonutService', function($state) {
                     });
                 });
             });
-
             return imports;
         }
-
     };
-
 
     return {
         render: render
     };
 
+    var donutData = undefined;
+    function render(cloneData) {
+        if(donutData === undefined){
+            donutData = createDonutData(cloneData);
+        }
 
-    function render(donutData) {
-        var w = 1280,
-            h = 766,
+        var w = 1500,
+            h = 1000,
             rx = w / 2,
             ry = h / 2,
             m0,
@@ -106,67 +107,80 @@ angular.module('CloneDetection').service('DonutService', function($state) {
             .attr("d", d3.svg.arc().outerRadius(ry - 120).innerRadius(0).startAngle(0).endAngle(2 * Math.PI))
             .on("mousedown", mousedown);
 
-        d3.json("flare.json", function(something) {
-            var nodes = cluster.nodes(packages.root(donutData)),
-                links = packages.imports(nodes),
-                splines = bundle(links);
 
-            var path = svg.selectAll("path.link")
-                .data(links)
-                .enter().append("svg:path")
-                .attr("class", function(d) {
-                    return "link source-" + d.source.key + " target-" + d.target.key;
-                })
-                .attr("d", function(d, i) {
-                    return line(splines[i]);
-                });
+        var nodes = cluster.nodes(packages.root(donutData)),
+            links = packages.imports(nodes),
+            splines = bundle(links);
 
-            svg.selectAll("g.node")
-                .data(nodes.filter(function(n) {
-                    return !n.children;
-                }))
-                .enter().append("svg:g")
-                .attr("class", "node")
-                .attr("id", function(d) {
-                    return "node-" + d.key;
-                })
-                .attr("transform", function(d) {
-                    return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
-                })
-                .append("svg:text")
-                .attr("dx", function(d) {
-                    return d.x < 180 ? 8 : -8;
+        var path = svg.selectAll("path.link")
+            .data(links)
+            .enter().append("svg:path")
+            .attr("class", function(d) {
+                return "link source-" + d.source.name + " target-" + d.target.name;
+            })
+            .attr("d", function(d, i) {
+                return line(splines[i]);
+            });
+
+        svg.selectAll("g.node")
+            .data(nodes.filter(function(n) {
+                return !n.children;
+            }))
+            .enter().append("svg:g")
+            .attr("class", "node")
+            .attr("id", function(d) {
+                return "node-" + d.name;
+            })
+            .attr("transform", function(d) {
+                return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
+            })
+            .append("svg:text")
+            .attr("dx", function(d) {
+                return d.x < 180 ? 8 : -8;
+            })
+            .attr("dy", ".31em")
+            .attr("transform", function(d) {
+                return d.x < 180 ? null : "rotate(180)";
+            })
+            .attr("text-anchor", function(d) {
+                return d.x < 180 ? "start" : "end";
+            })
+            .on("click", select)
+            .on("mouseout", mouseout)
+            .on("mouseover", mouseover)
+            .on("dblclick", openFile)
+            .each(createNodeName);
+
+        function createNodeName(d){
+            parent = d3.select(this);
+            parent.append("svg:tspan")
+            .text(function(d) {
+                return d.key;
+            })
+            .classed("reflexive",function(d) {
+                return d.reflexive;
+            });
+
+            if(d.reflexive){
+             parent.append("svg:tspan")
+                .attr("class", "reflexiveSymbol")
+                .attr("x", function(d){
+                    return d.x < 180 ? 2 : -2;
                 })
                 .attr("dy", ".31em")
-                .attr("text-anchor", function(d) {
-                    return d.x < 180 ? "start" : "end";
-                })
-                .attr("transform", function(d) {
-                    return d.x < 180 ? null : "rotate(180)";
-                })
-                .text(function(d) {
-                    return d.key;
-                })
-                .on("mouseover", mouseover)
-                .on("mouseout", mouseout)
-                .on("dblclick", select);
-        });
+                .html(function(d) {
+                    return "*"/*"&#9899;"*/;
+                });
+            }
+
+        }
 
         d3.select(window)
             .on("mousemove", mousemove)
-            .on("mouseup", mouseup);
+            .on("mouseup", mouseup)
+            .on("keydown", keyPressed);
 
-        function escape(x) {
-           return x.replace(/\./g, '\\.' );
-        }
-
-        function select(d) {
-            console.log(d);
-
-            svg.selectAll("path.link.source-" + d.key)
-                .classed("source", true)
-                .each(updateNodes("target", true));
-
+        function openFile(d) {
             $state.go("app.files", {path: d.name});
         }
 
@@ -210,26 +224,54 @@ angular.module('CloneDetection').service('DonutService', function($state) {
                     })
                     .attr("transform", function(d) {
                         return (d.x + rotate) % 360 < 180 ? null : "rotate(180)";
-                    });
+                    })
+                    .select(".reflexiveSymbol")
+                    .attr("x", function(d){
+                         return (d.x + rotate) % 360 < 180 ? 2 : -2;
+                     });
             }
         }
 
+
+        var lastClicked = undefined;
+        function select(d) {
+            if(lastClicked){
+                unclick(lastClicked);
+            }
+
+            svg.select("#node-" + d.id)
+                .classed("selected", true);
+            console.log(d);
+            lastClicked = d;
+
+            svg.selectAll("path.link.source-" + d.id)
+                    .classed("source", true)
+                    .each(updateNodes("target", true));
+
+        }
+
+        function keyPressed(d) {
+            if(d3.event.keyCode == 27) {
+                unclick(lastClicked);
+            }
+        }
+
+        function unclick(d) {
+            svg.select("#node-" + d.id)
+                    .classed("selected", false);
+            svg.selectAll("path.link.source-" + d.id)
+                    .classed("source", false)
+                    .each(updateNodes("target", false));
+        }
+
         function mouseover(d) {
-            svg.selectAll("path.link.target-" + d.csskey)
+            svg.selectAll("path.link.target-" + d.id)
                 .classed("target", true)
                 .each(updateNodes("source", true));
-
-            svg.selectAll("path.link.source-" + d.csskey)
-                .classed("source", true)
-                .each(updateNodes("target", true));
         }
 
         function mouseout(d) {
-            svg.selectAll("path.link.source-" + d.csskey)
-                .classed("source", false)
-                .each(updateNodes("target", false));
-
-            svg.selectAll("path.link.target-" + d.csskey)
+            svg.selectAll("path.link.target-" + d.id)
                 .classed("target", false)
                 .each(updateNodes("source", false));
         }
@@ -237,7 +279,7 @@ angular.module('CloneDetection').service('DonutService', function($state) {
         function updateNodes(name, value) {
             return function(d) {
                 if (value) this.parentNode.appendChild(this);
-                svg.select("#node-" + d[name].key).classed(name, value);
+                svg.select("#node-" + d[name].id).classed(name, value);
             };
         }
 
@@ -248,7 +290,38 @@ angular.module('CloneDetection').service('DonutService', function($state) {
         function dot(a, b) {
             return a[0] * b[0] + a[1] * b[1];
         }
+    }
 
+    function createDonutData(cloneData){
+        var result = {};
 
+        cloneData.allFileRefs.forEach(function(fileRef){
+            if(!fileRef.isDir && fileRef.path.indexOf("src/") >= 0 && !_.isEmpty(fileRef.fragments)){
+                result[fileRef.path] = {
+                    name : fileRef.path,
+                    imports : new Set(),
+                    reflexive : false
+                }
+            }
+        });
+
+        cloneData.clones.forEach(function(clone) {
+            files = clone.fragments.map(function(fragment){
+                    return fragment.file;
+            });
+
+            for (i = 0; i < files.length; i++) {
+                for (j = i + 1; j < files.length; j++){
+                    if(files[i] !== files[j]){
+                        result[files[i]].imports.add(files[j]);
+                        result[files[j]].imports.add(files[i]);
+                    } else{
+                        result[files[i]].reflexive = true;
+                    }
+                }
+            }
+        });
+
+        return _.values(result);
     }
 });

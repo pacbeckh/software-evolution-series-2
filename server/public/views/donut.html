@@ -24,12 +24,20 @@
         stroke-width: 2px;
     }
 
+    .node .reflexive {
+        font-weight: bold;
+    }
+
     .node.target {
         fill: #2ca02c !important;
     }
 
     .link.source {
         stroke: #2ca02c;
+    }
+
+    .node.selected {
+        fill: #1f77b4;
     }
 
     .node.source {
@@ -42,5 +50,14 @@
 </style>
 
 <div ng-controller="DonutCtrl">
+    <div id="donut-help" class="panel panel-default">
+        <div class="panel-heading">File relations</div>
+        <div class="panel-body">
+            <p>The following graph shows which files share clones.</p>
+            <p>- A <var>*</var> indicates reflexive relation.</br>
+            - Press <kbd>escape</kbd> to remove the selection.</br>
+            - Double click on a file to explore its contents.</p>
+        </div>
+    </div>
     <div id="donut-graph"></div>
 </div>

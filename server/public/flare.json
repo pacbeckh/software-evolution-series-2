@@ -1,5 +1,0 @@
-[
-  {"name": "com.wcc.graph.Fragment", "imports":["com.wcc.graph.Pair"]},
-  {"name": "com.wcc.graph.Class", "imports":["com.wcc.graph.Fragment", "com.wcc.graph.Pair"]},
-  {"name": "com.wcc.graph.Pair", "imports":["com.wcc.graph.Fragment", "com.wcc.graph.Pair", "com.wcc.graph.Pair", "com.wcc.graph.Pair", "com.wcc.graph.Pair", "com.wcc.graph.Pair", "com.wcc.graph.Pair"]}
-]
