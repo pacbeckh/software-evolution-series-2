@@ -13,15 +13,15 @@ public map[int, set[CloneClass]] cleanupCloneClassesWithSameEnd(map[int, set[Clo
 	map[int, set[CloneClass]] answer = ();
 	
 	for (k <-orderedKeys) {
-		answer[k] = {};
-		for (CloneClass clazz <- input[k]) {
+		addedClasses = for (CloneClass clazz <- input[k]) {
 			rel[str, tuple[int,int]] ends = { <l.uri, l.end> | l <- clazz};
 			
 			if (ends notin knownClasses) {
 				knownClasses += {ends};
-				answer[k] += {clazz};
+				append clazz;
 			}
 		}
+		answer[k] = toSet(addedClasses);
 	}
 	return answer;
 }
