@@ -46,6 +46,11 @@ angular
       .state('app.graphs.scatterplot', {
         url: "/scatterplot",
         templateUrl: "views/scatterplot.html"
+      })
+      .state('app.graphs.treemap',
+      {
+        url: "/treemap",
+        templateUrl: "views/treemap.html"
       });
 
   });
