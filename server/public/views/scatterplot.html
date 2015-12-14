@@ -1,8 +1,8 @@
 <div ng-controller="ScatterPlotCtrl">
 
     <div class="row">
-        <div class="col-md-12">
-            <div id="class-scatter-plot">
+        <div class="col-md-12" style="min-height: 550px;">
+            <div id="class-scatter-plot" data-ng-if="showChart">
                 <highchart id="scatterPlot" config="chartConfig" ></highchart>
             </div>
         </div>

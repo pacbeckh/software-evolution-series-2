@@ -1,4 +1,4 @@
-angular.module('CloneDetection').controller('ScatterPlotCtrl', function($scope) {
+angular.module('CloneDetection').controller('ScatterPlotCtrl', function($scope, $timeout) {
 
     var selectClassesByDataItem = function (uids, clones) {
         $scope.activeClasses = clones.filter(function (cloneClass) {
@@ -84,6 +84,7 @@ angular.module('CloneDetection').controller('ScatterPlotCtrl', function($scope) 
 			text: 'Clone class distribution'
 		},
 		xAxis: {
+		  allowDecimals: false,
 			title: {
 				enabled: true,
 				text: 'Weight'
@@ -182,7 +183,7 @@ angular.module('CloneDetection').controller('ScatterPlotCtrl', function($scope) 
 	var stop = $scope.$watch('cloneData', function(cloneData) {
 		if (cloneData) {
 			stop();
-
+		  	$scope.showChart = false;
 
 			series = createSeries(cloneData.clones);
 			var conf = chartConfig();
@@ -190,6 +191,9 @@ angular.module('CloneDetection').controller('ScatterPlotCtrl', function($scope) 
 			conf.series = series;
 
 			$scope.chartConfig = conf;
+		  $timeout(function() {
+			$scope.showChart = true;
+		  }, 5);
 		}
 	});
 
