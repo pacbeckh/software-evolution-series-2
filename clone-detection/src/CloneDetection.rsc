@@ -23,8 +23,8 @@ import transformation::AstAnonimizer;
 import transformation::CloneClassCreator;
 import util::Logging;
 
-public loc projectLoc = |project://hello-world-java/|;
-//public loc projectLoc = |project://smallsql0.21_src|;
+//public loc projectLoc = |project://hello-world-java/|;
+public loc projectLoc = |project://smallsql0.21_src|;
 //public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 loadModel() = createM3FromEclipseProject(projectLoc);
@@ -57,7 +57,6 @@ public map[int, set[CloneClass]] run(lrel[loc,Declaration] declarations) {
 	
 	list[AnonymousLink] links = anonimizeAndNormalize(declarations);
 	logDebug(" \> <size(links)> links found");
-	logDebug(" \> <size({ l | l <- links })> links found");
 	
 	logInfo("Getting all pairs...");
 	list[LinkPair] allPairs = getAllLinkPairs(links);
@@ -138,7 +137,10 @@ public map[int, set[LinkPair]] evolveLinkPairs(list[LinkPair] allPairs) {
 		}
 		
 		LinkPair evolved = evolvePair(focus);
-		append <evolved@weight,evolved>;
+		int w = evolved@weight;
+		if (w >= CONFIG_STATEMENT_WEIGHT_THRESHOLD) {
+			append <w,evolved>;
+		}
 		
 		//Cache Pair if EndOfBlock
 		if (evolved.leftStack[0].next == noLink() || evolved.rightStack[0].next == noLink()) {
