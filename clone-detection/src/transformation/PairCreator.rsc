@@ -1,4 +1,4 @@
-module PairCreator
+module transformation::PairCreator
 
 import lang::java::jdt::m3::AST;
 import List;

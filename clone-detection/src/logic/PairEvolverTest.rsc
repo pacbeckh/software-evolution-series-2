@@ -7,7 +7,7 @@ import lang::java::m3::TypeSymbol;
 
 import Config;
 import Domain;
-import PairCreator;
+import transformation::PairCreator;
 import CloneDetection;
 import transformation::AstNormalizer;
 import transformation::AstAnonimizer;

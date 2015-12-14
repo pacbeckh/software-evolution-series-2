@@ -9,7 +9,7 @@ import IO;
 import Domain;
 import Config;
 import logic::PairEvolver;
-import PairCreator;
+import transformation::PairCreator;
 import TestUtil;
 import CloneDetection;
 import transformation::CloneClassCreator;
