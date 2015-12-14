@@ -41,11 +41,8 @@ angular
       })
        .state('app.graphs.donut', {
         url: "/donut",
-        templateUrl: "views/donut.html"
-      })
-      .state('app.graphs.scatterplot', {
-        url: "/scatterplot",
-        templateUrl: "views/scatterplot.html"
+        templateUrl: "views/donut.html",
+        skipContainer : true
       });
 
   });

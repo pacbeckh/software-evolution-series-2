@@ -87,13 +87,3 @@
 #circle-pack-graph .node--leaf {
   pointer-events: none;
 }
-#donut-help {
-  width: 250px;
-  position: absolute;
-}
-
-#donut-graph {
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}

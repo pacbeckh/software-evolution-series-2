@@ -47,17 +47,46 @@
     .link.target {
         stroke: #2ca02c;
     }
+
+    #donut-graph {
+        min-height: 1500px;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+    #donut-help {
+        width: 250px;
+        position: absolute;
+        left: 20px;
+    }
+
+    #donut-help ul {
+        padding-left: 20px;
+    }
+
+    #donut-clone-class-tabs {
+        position: absolute;
+        top: 1100px;
+        left: 20px;
+        right: 20px;
+    }
 </style>
 
-<div ng-controller="DonutCtrl">
+<div data-ng-controller="DonutCtrl">
     <div id="donut-help" class="panel panel-default">
         <div class="panel-heading">File relations</div>
         <div class="panel-body">
             <p>The following graph shows which files share clones.</p>
-            <p>- A <var>*</var> indicates reflexive relation.</br>
-            - Press <kbd>escape</kbd> to remove the selection.</br>
-            - Double click on a file to explore its contents.</p>
+            <ul>
+                <li>A <var>*</var> indicates reflexive relation.</li>
+                <li>Press <kbd>escape</kbd> to remove the selection.</li>
+                <li>Double click on a file to explore its contents.</li>
+            </ul>
         </div>
     </div>
     <div id="donut-graph"></div>
+    <div id="donut-clone-class-tabs">
+        <clone-class-tab-set clone-classes="activeClones">
+        </clone-class-tab-set>
+    </div>
 </div>
