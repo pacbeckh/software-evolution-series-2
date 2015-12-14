@@ -58,7 +58,6 @@ angular.module('CloneDetection').service('DonutService', function ($state) {
   };
 
 
-
   function render(cloneData, onClickCb) {
     if (donutData === undefined) {
       donutData = createDonutData(cloneData);
