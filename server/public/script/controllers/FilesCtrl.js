@@ -33,6 +33,24 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     return answer;
   };
 
+  var cloneFragmentClickCallback = function(fragments, lineStart) {
+    return function () {
+      $uibModal.open({
+        templateUrl: './templates/clone-classes-modal.html',
+        animation: true,
+        size: 'lg',
+        controller: 'ModalCtrl',
+        resolve: {
+          cloneClasses: function () {
+            return fragments.map(function (fragment) {
+              return fragment.cloneClass;
+            });
+          }
+        }
+      });
+    };
+  };
+
   var loadPath = function (clones, path, selectInTree) {
     if (selectInTree) {
       var nodeInfo = nodeMap[path];
@@ -53,6 +71,36 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
       return fragment.start.line;
     });
 
+    function addHighlightsWhenLineVisible() {
+      var refs = $(".CodeMirror-linenumber[style]");
+      var allPresent = _.all(groupedHighLights, function(fragments, lineStart) {
+        return refs.eq(lineStart - 1).length > 0;
+      });
+
+      if (allPresent) {
+        addHighlights(refs);
+      } else {
+        $timeout(function() {
+          addHighlightsWhenLineVisible();
+        }, 200);
+      }
+    }
+
+    function addHighlights(refs) {
+        _.each(groupedHighLights, function (fragments, lineStart) {
+          refs.eq(lineStart - 1).on('click', function () {
+            $scope.$apply(cloneFragmentClickCallback(fragments, lineStart));
+          });
+
+
+          refs.eq(lineStart - 1)
+            .css('background', '#BB5252')
+            .css('color', '#fff')
+            .css('z-index', lineStart)
+            .css('cursor', 'pointer')
+        })
+    }
+
     FileService.getFile(path).then(function (data) {
       $scope.selectedFileContent = data;
 
@@ -62,34 +110,7 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
         readOnly: true,
         mode: 'clike',
         onLoad: function () {
-          $timeout(function () {
-            var refs = $(".CodeMirror-linenumber[style]");
-            _.each(groupedHighLights, function (fragments, lineStart) {
-              refs.eq(lineStart - 1).on('click', function () {
-                $scope.$apply(function () {
-                  $uibModal.open({
-                    templateUrl: './templates/clone-classes-modal.html',
-                    animation: true,
-                    size: 'lg',
-                    controller: 'ModalCtrl',
-                    resolve: {
-                      cloneClasses: function () {
-                        return fragments.map(function (fragment) {
-                          return fragment.cloneClass;
-                        });
-                      }
-                    }
-                  });
-                });
-              });
-
-              refs.eq(lineStart - 1)
-                .css('background', '#BB5252')
-                .css('color', '#fff')
-                .css('z-index', lineStart)
-                .css('cursor', 'pointer')
-            })
-          }, 10);
+          $timeout(addHighlightsWhenLineVisible, 10);
         }
       };
     }, function () {
