@@ -21,6 +21,9 @@
     <script src="./components/d3/d3.js"></script>
     <script src="./components/angular/angular.js"></script>
     <script src="./components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="./components/highcharts-release/highcharts.js"></script>
+    <script src="./components/highcharts-ng/dist/highcharts-ng.js"></script>
+
     <script type="text/javascript" src="./components/codemirror/lib/codemirror.js"></script>
     <script type="text/javascript" src="./components/angular/angular.js"></script>
     <script type="text/javascript" src="./components/angular-bootstrap/ui-bootstrap.js"></script>
@@ -37,7 +40,6 @@
     <script src="./script/notifications.js"></script>
 
     <script src="./script/controllers/FilesCtrl.js"></script>
-    <script src="./script/controllers/ClonesCtrl.js"></script>
     <script src="./script/controllers/MainCtrl.js"></script>
     <script src="./script/controllers/ModalCtrl.js"></script>
     <script src="./script/controllers/FilePickerCtrl.js"></script>
@@ -45,6 +47,8 @@
     <script src="./script/controllers/ProblemsCtrl.js"></script>
     <script src="./script/controllers/TypePackingCtrl.js"></script>
     <script src="./script/controllers/DonutCtrl.js"></script>
+    <script src="./script/controllers/ScatterPlotCtrl.js"></script>
+
 
     <script src="./script/directives/FileSnippetLoader.js"></script>
     <script src="./script/directives/FileLink.js"></script>
@@ -52,7 +56,6 @@
 
     <script src="./script/services/FileService.js"></script>
     <script src="./script/services/FileTreeService.js"></script>
-    <script src="./script/services/ScatterPlotService.js"></script>
     <script src="./script/services/CirclePackingService.js"></script>
     <script src="./script/services/DonutService.js"></script>
 
@@ -74,6 +77,7 @@
                         <li><a data-ui-sref="app.graphs.file-tree">File Tree</a></li>
                         <li><a data-ui-sref="app.graphs.type-packing({cloneId: null})">Clone Type Packing</a></li>
                         <li><a data-ui-sref="app.graphs.donut">Donut</a></li>
+                        <li><a data-ui-sref="app.graphs.scatterplot">Scatterplot</a></li>
                     </ul>
                 </li>
 

@@ -15,17 +15,19 @@
     "tests"
   ],
   "dependencies": {
-    "angular": "~1.4.8",
-    "angular-bootstrap": "~0.14.3",
-    "angular-tree-control": "~0.2.22",
-    "angular-ui-codemirror": "~0.3.0",
-    "angular-ui-notification": "~0.1.0",
-    "angular-ui-router": "~0.2.15",
-    "bootstrap": "~3.3.6",
-    "d3": "~3.5.10",
-    "ez-file-tree": "~0.5.1",
-    "font-awesome": "~4.5.0",
-	"lodash": "~3.10.1"
+    "angular": "1.4.8",
+    "angular-bootstrap": "0.14.3",
+    "angular-tree-control": "0.2.22",
+    "angular-ui-codemirror": "0.3.0",
+    "angular-ui-notification": "0.1.0",
+    "angular-ui-router": "0.2.15",
+    "bootstrap": "3.3.6",
+    "d3": "3.5.10",
+    "ez-file-tree": "0.5.1",
+    "font-awesome": "4.5.0",
+	"lodash": "3.10.1",
+    "highcharts-ng": "0.0.11",
+    "highcharts-release": "4.1.10"
   },
   "resolutions": {
     "angular": "~1.4.8"

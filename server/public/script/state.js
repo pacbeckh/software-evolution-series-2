@@ -19,7 +19,8 @@ angular
       })
       .state('app.clones', {
         url: "clones/{weight}/{fragments}",
-        templateUrl: "views/clones.html"
+        templateUrl: "views/scatterplot.html",
+        reloadOnSearch : false
       })
       .state('app.problems', {
         url: "problems",
@@ -41,6 +42,10 @@ angular
        .state('app.graphs.donut', {
         url: "/donut",
         templateUrl: "views/donut.html"
+      })
+      .state('app.graphs.scatterplot', {
+        url: "/scatterplot",
+        templateUrl: "views/scatterplot.html"
       });
 
   });

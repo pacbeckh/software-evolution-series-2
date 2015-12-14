@@ -3,7 +3,8 @@ angular.module('CloneDetection', [
   'ui.bootstrap',
   'ui-notification',
   'treeControl',
-  'CloneDetection.states'
+  'CloneDetection.states',
+  'highcharts-ng'
 ]).run(function () {
   console.log("Angular: Clone Detection has started");
 });
