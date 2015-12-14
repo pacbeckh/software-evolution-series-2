@@ -28,7 +28,16 @@ angular.module('CloneDetection').service('FileTreeService', function () {
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    root = {name: "/", isDir: true, children: files};
+    root = {
+      name: "/",
+      isDir: true,
+      children: files,
+      containingFragments: _.sum(files, function (object) {
+          return object.containingFragments;
+        }
+      )
+    };
+
     root.x0 = height / 2;
     root.y0 = 0;
 
