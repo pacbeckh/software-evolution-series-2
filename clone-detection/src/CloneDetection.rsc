@@ -92,6 +92,7 @@ public map[int, set[CloneClass]]  purgeCloneClasses(map[int, set[CloneClass]] cl
 public lrel[loc,Declaration] collectDeclarations(M3 model) = [
 	<cu,createAstFromFile(cu, true, javaVersion="1.7")> | 
 		cu <- files(model@containment), 
+			cu.file == "DuplicationInStructuralTraversal.java",
 			cu.file != "ValidatingResourceBundle.java"
 ];
 		

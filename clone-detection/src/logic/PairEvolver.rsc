@@ -4,6 +4,7 @@ import List;
 import util::Maybe;
 import lang::java::jdt::m3::AST;
 
+import Config;
 import Domain;
 import logic::VariableMapping;
 import transformation::StatementVariables;
@@ -45,6 +46,14 @@ public Maybe[LinkPair] evolveLinkPair(LinkPair input) {
 	AnonymousLink rightNext = rightNextLink.val;
 	if (leftNext.anonymous != rightNext.anonymous) {
 		return nothing();
+	} else if (CONFIG_SKIP_MAPPING) {
+		return just(linkPair(
+			leftNext + input.leftStack,
+			rightNext + input.rightStack,
+			true,
+			(),
+			()
+		));
 	}
 	
 	list[str] leftVars = getVarsForStatement(leftNext.normal);

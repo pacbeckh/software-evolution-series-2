@@ -8,6 +8,7 @@ import Set;
 
 import Config;
 import Domain;
+import IO;
 
 public list[AnonymousLink] getAnonimizedStatements(Statement normalized) {
 	map[loc, Statement] anonCache = ();
@@ -62,6 +63,11 @@ private Expression anonimizeExpression(Expression expression) {
 	return top-down-break visit(expression) {
 		case Type t : anonimizeType(t);
 	
+		case x:\methodCall(isSuper, name, arguments) => \methodCall(isSuper, "method0", [anonimizeExpression(a) | a <- arguments])
+			when CONFIG_ANONYMOUS_METHODS
+		case x:\methodCall(isSuper, receiver, name, arguments) => \methodCall(isSuper, anonimizeExpression(receiver), "method0", [anonimizeExpression(a) | a <- arguments])
+			when CONFIG_ANONYMOUS_METHODS
+
 		case x:\variable(_, dim) => \variable("id0", dim)
 		case x:\variable(_, dim, e) => \variable("id0",dim, anonimizeExpression(e))
 		case x:\simpleName(a) =>\cast(toType(x@typ), \simpleName("id0"))

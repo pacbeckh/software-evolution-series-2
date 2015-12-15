@@ -22,7 +22,7 @@ public test bool shouldAddCorrectMaxWeight(){
 	])[@src=|file://foo|];
 	
 	normalized = normalize(s);
-	//
+	
 	list[AnonymousLink] result = getAnonimizedStatements(normalized);
 	
 	return
