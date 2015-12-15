@@ -16,7 +16,6 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
 
       var points = createPoints(problemFileIndex, rootFiles);
 
-
       $scope.treeMapConfig = createChartConfig(points);
       $timeout(function () {
         $scope.loading = false;
@@ -54,8 +53,6 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
     return children.filter(function (file) {
       return (file.children && file.children.length > 0 ) || file.fragments.length > 0;
     });
-
-    return file;
   }
 
   function createPoints(problemFileIndex, files, parent) {
@@ -72,7 +69,6 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
       } else {
         point.value = problemFileIndex[file.path].maintenance.LOC;
         point.colorValue = problemFileIndex[file.path].percentageDuplicated;
-        //point.colorValue = file.fragments.length;
       }
     });
 
@@ -86,7 +82,6 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
           minColor: '#45B700',
           maxColor: '#FF0000'
         },
-
         plotOptions: {
           treemap: {
             events: {
@@ -99,7 +94,14 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
               }
             },
             tooltip: {
-//                   pointFormat: '{point.value} fragments'
+              useHTML : true,
+              pointFormatter : function() {
+                if (this.name.match(/\.java$/)) {
+                  return this.name + ", fragments: " + $scope.cloneData.maintenanceFiles[this.id].target.containingFragments;
+                } else {
+                  return this.name;
+                }
+              }
             },
             getExtremesFromAll: false
           }
@@ -122,13 +124,9 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
         }],
         data: points
       }],
-      subtitle: {
-        text: 'Click points to drill down.'
-      },
       title: {
         text: 'Clone distribution'
       }
     }
   }
-
 });
