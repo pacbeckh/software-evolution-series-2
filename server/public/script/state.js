@@ -43,6 +43,11 @@ angular
         url: "/donut",
         templateUrl: "views/donut.html",
         skipContainer : true
+       })
+      .state('app.graphs.treemap',
+      {
+        url: "/treemap",
+        templateUrl: "views/treemap.html"
       });
 
   });
