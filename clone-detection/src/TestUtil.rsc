@@ -23,7 +23,7 @@ public M3 getTestM3() {
 }
 
 public list[AnonymousLink] getLinksForFile(str fileName) {
-	return head([anonimizeAndNormalizeFile(cu) |<cu,_> <- getTestM3()@containment, isCompilationUnit(cu), cu.file==fileName]);
+	return head([anonimizeAndNormalizeFile(createAstFromFile(cu, true, javaVersion="1.7")) |<cu,_> <- getTestM3()@containment, isCompilationUnit(cu), cu.file==fileName]);
 }
 
 public void printLinkPairs(list[LinkPair] pairs){

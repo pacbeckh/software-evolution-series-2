@@ -5,14 +5,13 @@ angular.module('CloneDetection').service('CirclePackingService', function () {
   };
 
 
-  function render(data, onClick) {
+  function render(data) {
     var margin = 20,
       diameter = 800;
 
-    var color = d3.scale.linear()
-      .domain([-1, 5])
-      .range(["black", "white"])
-      .interpolate(d3.interpolateHcl);
+    var color = function(i) {
+      return ["black", "#ccc"][i];
+    };
 
     var pack = d3.layout.pack()
       .padding(2)

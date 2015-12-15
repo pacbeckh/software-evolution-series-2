@@ -49,16 +49,18 @@
     <script src="./script/controllers/TypePackingCtrl.js"></script>
     <script src="./script/controllers/DonutCtrl.js"></script>
     <script src="./script/controllers/ScatterPlotCtrl.js"></script>
-
+    <script src="./script/controllers/TreeMapCtrl.js"></script>
 
     <script src="./script/directives/FileSnippetLoader.js"></script>
     <script src="./script/directives/FileLink.js"></script>
     <script src="./script/directives/CloneClassInfo.js"></script>
+    <script src="./script/directives/CloneClassTabSet.js"></script>
 
     <script src="./script/services/FileService.js"></script>
     <script src="./script/services/FileTreeService.js"></script>
     <script src="./script/services/CirclePackingService.js"></script>
     <script src="./script/services/DonutService.js"></script>
+    <script src="./script/services/TreeMapService.js"></script>
 
 </head>
 
@@ -77,8 +79,8 @@
                     <ul class="dropdown-menu">
                         <li><a data-ui-sref="app.graphs.file-tree">File Tree</a></li>
                         <li><a data-ui-sref="app.graphs.type-packing({cloneId: null})">Clone Type Packing</a></li>
-                        <li><a data-ui-sref="app.graphs.donut">Donut</a></li>
-                        <li><a data-ui-sref="app.graphs.scatterplot">Scatterplot</a></li>
+                        <li><a data-ui-sref="app.graphs.donut">Clone dependencies</a></li>
+                        <li><a data-ui-sref="app.graphs.treemap">Package</a></li>
                     </ul>
                 </li>
 

@@ -2,15 +2,9 @@
     <h3 class="modal-title">Clone class {{cloneClass.uid}}</h3>
 </div>
 <div class="modal-body">
-    <uib-tabset>
-        <uib-tab ng-repeat="cloneClass in cloneClasses" heading="Clone Class {{cloneClass.uid}}" active="cloneClass.active">
-            <div data-ng-show="cloneClass.active">
-                <clone-class-info clone-class="cloneClass" refresh-code-mirror="cloneClass.active">
-                </clone-class-info>
-            </div>
-        </uib-tab>
-    </uib-tabset>
+    <clone-class-tab-set clone-classes="cloneClasses">
+    </clone-class-tab-set>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$close()">Close</button>
+    <button class="btn btn-primary" type="button" data-ng-click="$close()">Close</button>
 </div>

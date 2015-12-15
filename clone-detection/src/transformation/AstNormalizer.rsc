@@ -2,6 +2,7 @@ module transformation::AstNormalizer
 
 import lang::java::m3::AST; 
 import List;
+import String;
 
 import Config;
 import Domain;

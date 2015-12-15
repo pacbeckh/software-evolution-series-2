@@ -8,8 +8,7 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, Tre
           stop();
           TreeMapService.render(input);
         }
-      });
-
+    });
 
     function prepareData(cloneData){
       var files = cloneData.files.filter(function (x) {
@@ -29,7 +28,7 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, Tre
 
     function fixChilds(file){
       if(file.children.length == 0){
-        file.size = file.fragments.length;
+        file.size = Math.sqrt(file.fragments.length);
         delete file.children;
       }else{
         file.children = file.children.map(function(child){

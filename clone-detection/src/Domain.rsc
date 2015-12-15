@@ -2,6 +2,7 @@ module Domain
 
 import lang::java::jdt::m3::AST;
 
+anno int LinkPair @ weight;
 anno int Statement @ weight;
 anno int AnonymousLink @ maxWeight;
  
@@ -15,8 +16,6 @@ data AnonymousLink = anonymousLink(
 );
 
 data NextLink = aLink(AnonymousLink val) | noLink();
-
-anno int LinkPair @ weight;
 
 data LinkPair = linkPair(
 	list[AnonymousLink] leftStack,

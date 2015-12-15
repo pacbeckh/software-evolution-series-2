@@ -1,12 +1,19 @@
 angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state, $http, $timeout, Notification, $rootScope) {
   $scope.$state = $state;
 
+  var addFileName = function (fragment) {
+    var components = fragment.file.split("/");
+    fragment.fileName = components[components.length - 1];
+  };
+
   var clonesToAllFragments = function (clones) {
     var answer = [];
     clones.forEach(function (cloneClass) {
       cloneClass.fragments.forEach(function (fragment) {
+        addFileName(fragment);
         answer.push(fragment);
-      })
+      });
+      cloneClass.fragments = _.sortByAll(cloneClass.fragments, ['fileName', 'start.line']);
     });
     return answer;
   };
@@ -34,11 +41,6 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
       return a - b;
     });
     return _.uniq(answer, true);
-  };
-
-  var addFileName = function (fragment) {
-    var components = fragment.file.split("/");
-    fragment.fileName = components[components.length - 1];
   };
 
   var calculateContainingFragments = function (files) {
@@ -73,7 +75,6 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
 
     var allFragments = clonesToAllFragments(clones);
     allFragments.forEach(function (fragment) {
-      addFileName(fragment)
       maintenanceFiles[fragment.file].target.fragments.push(fragment);
     });
 
