@@ -1,21 +1,17 @@
-angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, TreeMapService) {
+angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope) {
 
 
     var stop = $scope.$watch('cloneData', function (cloneData) {
         if (cloneData) {
           stop();
 
-          console.log(cloneData);
           var d3Input = prepareData(cloneData)
 
-//          TreeMapService.render(d3input);
-
-//          console.log("start copy");
           rootFiles = d3Input.children;
-//          console.log("copy fixed");
           points = createPoints(rootFiles);
+
           console.log(points);
-          $scope.treemapConfig = createChartConfig(points);
+          $scope.treeMapConfig = createChartConfig(points);
         }
     });
 
@@ -86,7 +82,8 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, Tre
                 treemap: {
                  tooltip: {
 //                   pointFormat: '{point.value} fragments'
-                 }
+                 },
+                 getExtremesFromAll: false
                 }
              }
          },
@@ -99,7 +96,7 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, Tre
              },
              levelIsConstant: false,
              levels: [{
-                 level: 2,
+                 level: 1,
                  dataLabels: {
                      enabled: true
                  },
