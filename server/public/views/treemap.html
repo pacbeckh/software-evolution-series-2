@@ -1,5 +1,5 @@
 <div ng-controller="TreeMapCtrl">
-    <div class="row">
-        <highchart style="height:800px" id="treemap" config="treeMapConfig"></highchart>
+    <div class="row" data-ng-if="!loading">
+        <highchart style="height:600px" id="treemap" config="treeMapConfig"></highchart>
     </div>
 </div>

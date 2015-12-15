@@ -1,17 +1,26 @@
-angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope) {
+angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $timeout) {
 
+
+    $scope.loading = true;
 
     var stop = $scope.$watch('cloneData', function (cloneData) {
         if (cloneData) {
           stop();
 
-          var d3Input = prepareData(cloneData)
+          var rootFiles = prepareData(cloneData).children;
 
-          rootFiles = d3Input.children;
-          points = createPoints(rootFiles);
+          var problemFileIndex = {};
+          cloneData.problemFiles.forEach(function(file) {
+            problemFileIndex[file.maintenance.file] = file;
+          });
 
-          console.log(points);
+          var points = createPoints(problemFileIndex, rootFiles);
+
+
           $scope.treeMapConfig = createChartConfig(points);
+          $timeout(function() {
+            $scope.loading = false;
+          }, 5);
         }
     });
 
@@ -37,20 +46,19 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope) {
     function fixChilds(children){
         children.forEach(function(file){
             if(file.children.length == 0) {
-                file.size = Math.sqrt(file.fragments.length);
                 delete file.children;
             } else {
                 file.children = fixChilds(file.children);
             }
         });
         return children.filter(function (file){
-          return (file.size === undefined && file.children && file.children.length > 0 ) || file.size > 0;
+          return (file.children && file.children.length > 0 ) || file.fragments.length > 0;
         });
 
       return file;
     }
 
-    function createPoints(files, parent){
+    function createPoints(problemFileIndex, files, parent){
       var result = [];
       files.forEach(function (file){
          var point = {
@@ -60,10 +68,11 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope) {
          };
          result.push(point);
         if(file.children){
-          result = result.concat(createPoints(file.children, file));
+          result = result.concat(createPoints(problemFileIndex, file.children, file));
         } else {
-          point.value = Math.sqrt(file.fragments.length);
-          point.colorValue = Math.sqrt(file.fragments.length);
+          point.value = problemFileIndex[file.path].maintenance.LOC;
+          point.colorValue = problemFileIndex[file.path].percentageDuplicated;
+          //point.colorValue = file.fragments.length;
         }
       });
 
@@ -74,8 +83,8 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope) {
       return {
         options: {
          colorAxis: {
-                 minColor: 'rgb(0,255,0)',
-                 maxColor: 'rgb(255,0,0)'
+                 minColor: '#45B700',
+                 maxColor: '#FF0000'
              },
 
              plotOptions : {
