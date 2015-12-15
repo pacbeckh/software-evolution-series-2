@@ -97,7 +97,9 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
               useHTML : true,
               pointFormatter : function() {
                 if (this.name.match(/\.java$/)) {
-                  return this.name + ", fragments: " + $scope.cloneData.maintenanceFiles[this.id].target.containingFragments;
+                  return this.name + "<br>"
+                    + $scope.cloneData.maintenanceFiles[this.id].target.containingFragments + " fragment(s)" + "<br>"
+                    + this.value + " LOC";
                 } else {
                   return this.name;
                 }
