@@ -1,10 +1,11 @@
-(function(){d3.layout = {};
+(function () {
+  d3.layout = {};
 // Implements hierarchical edge bundling using Holten's algorithm. For each
 // input link, a path is computed that travels through the tree, up the parent
 // hierarchy to the least common ancestor, and then back down to the destination
 // node. Each path is simply an array of nodes.
-  d3.layout.bundle = function() {
-    return function(links) {
+  d3.layout.bundle = function () {
+    return function (links) {
       var paths = [],
         i = -1,
         n = links.length;
@@ -56,7 +57,8 @@
     }
     return sharedNode;
   }
-  d3.layout.chord = function() {
+
+  d3.layout.chord = function () {
     var chord = {},
       chords,
       groups,
@@ -82,8 +84,10 @@
       groups = [];
 
       // Compute the sum.
-      k = 0, i = -1; while (++i < n) {
-        x = 0, j = -1; while (++j < n) {
+      k = 0, i = -1;
+      while (++i < n) {
+        x = 0, j = -1;
+        while (++j < n) {
           x += matrix[i][j];
         }
         groupSums.push(x);
@@ -93,15 +97,15 @@
 
       // Sort groups…
       if (sortGroups) {
-        groupIndex.sort(function(a, b) {
+        groupIndex.sort(function (a, b) {
           return sortGroups(groupSums[a], groupSums[b]);
         });
       }
 
       // Sort subgroups…
       if (sortSubgroups) {
-        subgroupIndex.forEach(function(d, i) {
-          d.sort(function(a, b) {
+        subgroupIndex.forEach(function (d, i) {
+          d.sort(function (a, b) {
             return sortSubgroups(matrix[i][a], matrix[i][b]);
           });
         });
@@ -114,8 +118,10 @@
 
       // Compute the start and end angle for each group and subgroup.
       // Note: Opera has a bug reordering object literal properties!
-      x = 0, i = -1; while (++i < n) {
-        x0 = x, j = -1; while (++j < n) {
+      x = 0, i = -1;
+      while (++i < n) {
+        x0 = x, j = -1;
+        while (++j < n) {
           var di = groupIndex[i],
             dj = subgroupIndex[di][j],
             v = matrix[di][dj],
@@ -139,8 +145,10 @@
       }
 
       // Generate chords for each (non-empty) subgroup-subgroup link.
-      i = -1; while (++i < n) {
-        j = i - 1; while (++j < n) {
+      i = -1;
+      while (++i < n) {
+        j = i - 1;
+        while (++j < n) {
           var source = subgroups[i + "-" + j],
             target = subgroups[j + "-" + i];
           if (source.value || target.value) {
@@ -155,54 +163,54 @@
     }
 
     function resort() {
-      chords.sort(function(a, b) {
+      chords.sort(function (a, b) {
         return sortChords(
           (a.source.value + a.target.value) / 2,
           (b.source.value + b.target.value) / 2);
       });
     }
 
-    chord.matrix = function(x) {
+    chord.matrix = function (x) {
       if (!arguments.length) return matrix;
       n = (matrix = x) && matrix.length;
       chords = groups = null;
       return chord;
     };
 
-    chord.padding = function(x) {
+    chord.padding = function (x) {
       if (!arguments.length) return padding;
       padding = x;
       chords = groups = null;
       return chord;
     };
 
-    chord.sortGroups = function(x) {
+    chord.sortGroups = function (x) {
       if (!arguments.length) return sortGroups;
       sortGroups = x;
       chords = groups = null;
       return chord;
     };
 
-    chord.sortSubgroups = function(x) {
+    chord.sortSubgroups = function (x) {
       if (!arguments.length) return sortSubgroups;
       sortSubgroups = x;
       chords = null;
       return chord;
     };
 
-    chord.sortChords = function(x) {
+    chord.sortChords = function (x) {
       if (!arguments.length) return sortChords;
       sortChords = x;
       if (chords) resort();
       return chord;
     };
 
-    chord.chords = function() {
+    chord.chords = function () {
       if (!chords) relayout();
       return chords;
     };
 
-    chord.groups = function() {
+    chord.groups = function () {
       if (!groups) relayout();
       return groups;
     };
@@ -210,7 +218,7 @@
     return chord;
   };
 // A rudimentary force layout using Gauss-Seidel.
-  d3.layout.force = function() {
+  d3.layout.force = function () {
     var force = {},
       event = d3.dispatch("tick"),
       size = [1, 1],
@@ -230,7 +238,7 @@
       charges;
 
     function repulse(node) {
-      return function(quad, x1, y1, x2, y2) {
+      return function (quad, x1, y1, x2, y2) {
         if (quad.point !== node) {
           var dx = quad.cx - node.x,
             dy = quad.cy - node.y,
@@ -289,7 +297,8 @@
       if (k = alpha * gravity) {
         x = size[0] / 2;
         y = size[1] / 2;
-        i = -1; if (k) while (++i < n) {
+        i = -1;
+        if (k) while (++i < n) {
           o = nodes[i];
           o.x += (x - o.x) * k;
           o.y += (y - o.y) * k;
@@ -299,7 +308,8 @@
       // compute quadtree center of mass and apply charge forces
       if (charge) {
         d3_layout_forceAccumulate(q = d3.geom.quadtree(nodes), alpha, charges);
-        i = -1; while (++i < n) {
+        i = -1;
+        while (++i < n) {
           if (!(o = nodes[i]).fixed) {
             q.visit(repulse(o));
           }
@@ -307,7 +317,8 @@
       }
 
       // position verlet integration
-      i = -1; while (++i < n) {
+      i = -1;
+      while (++i < n) {
         o = nodes[i];
         if (o.fixed) {
           o.x = o.px;
@@ -324,30 +335,30 @@
       return (alpha *= .99) < .005;
     }
 
-    force.on = function(type, listener) {
+    force.on = function (type, listener) {
       event.on(type, listener);
       return force;
     };
 
-    force.nodes = function(x) {
+    force.nodes = function (x) {
       if (!arguments.length) return nodes;
       nodes = x;
       return force;
     };
 
-    force.links = function(x) {
+    force.links = function (x) {
       if (!arguments.length) return links;
       links = x;
       return force;
     };
 
-    force.size = function(x) {
+    force.size = function (x) {
       if (!arguments.length) return size;
       size = x;
       return force;
     };
 
-    force.linkDistance = function(x) {
+    force.linkDistance = function (x) {
       if (!arguments.length) return linkDistance;
       linkDistance = d3.functor(x);
       return force;
@@ -356,37 +367,37 @@
     // For backwards-compatibility.
     force.distance = force.linkDistance;
 
-    force.linkStrength = function(x) {
+    force.linkStrength = function (x) {
       if (!arguments.length) return linkStrength;
       linkStrength = d3.functor(x);
       return force;
     };
 
-    force.friction = function(x) {
+    force.friction = function (x) {
       if (!arguments.length) return friction;
       friction = x;
       return force;
     };
 
-    force.charge = function(x) {
+    force.charge = function (x) {
       if (!arguments.length) return charge;
       charge = typeof x === "function" ? x : +x;
       return force;
     };
 
-    force.gravity = function(x) {
+    force.gravity = function (x) {
       if (!arguments.length) return gravity;
       gravity = x;
       return force;
     };
 
-    force.theta = function(x) {
+    force.theta = function (x) {
       if (!arguments.length) return theta;
       theta = x;
       return force;
     };
 
-    force.start = function() {
+    force.start = function () {
       var i,
         j,
         n = nodes.length,
@@ -461,19 +472,19 @@
       return force.resume();
     };
 
-    force.resume = function() {
+    force.resume = function () {
       alpha = .1;
       d3.timer(tick);
       return force;
     };
 
-    force.stop = function() {
+    force.stop = function () {
       alpha = 0;
       return force;
     };
 
     // use `node.call(force.drag)` to make nodes draggable
-    force.drag = function() {
+    force.drag = function () {
       if (!drag) drag = d3.behavior.drag()
         .origin(Object)
         .on("dragstart", dragstart)
@@ -556,7 +567,8 @@
   function d3_layout_forceLinkStrength(link) {
     return 1;
   }
-  d3.layout.partition = function() {
+
+  d3.layout.partition = function () {
     var hierarchy = d3.layout.hierarchy(),
       size = [1, 1]; // width, height
 
@@ -596,7 +608,7 @@
       return nodes;
     }
 
-    partition.size = function(x) {
+    partition.size = function (x) {
       if (!arguments.length) return size;
       size = x;
       return partition;
@@ -604,7 +616,7 @@
 
     return d3_layout_hierarchyRebind(partition, hierarchy);
   };
-  d3.layout.pie = function() {
+  d3.layout.pie = function () {
     var value = Number,
       sort = d3_layout_pieSortByValue,
       startAngle = 0,
@@ -613,7 +625,9 @@
     function pie(data, i) {
 
       // Compute the numeric values for each data element.
-      var values = data.map(function(d, i) { return +value.call(pie, d, i); });
+      var values = data.map(function (d, i) {
+        return +value.call(pie, d, i);
+      });
 
       // Compute the start angle.
       var a = +(typeof startAngle === "function"
@@ -629,11 +643,15 @@
       // Optionally sort the data.
       var index = d3.range(data.length);
       if (sort != null) index.sort(sort === d3_layout_pieSortByValue
-        ? function(i, j) { return values[j] - values[i]; }
-        : function(i, j) { return sort(data[i], data[j]); });
+        ? function (i, j) {
+        return values[j] - values[i];
+      }
+        : function (i, j) {
+        return sort(data[i], data[j]);
+      });
 
       // Compute the arcs!
-      var arcs = index.map(function(i) {
+      var arcs = index.map(function (i) {
         return {
           data: data[i],
           value: d = values[i],
@@ -643,7 +661,7 @@
       });
 
       // Return the arcs in the original data's order.
-      return data.map(function(d, i) {
+      return data.map(function (d, i) {
         return arcs[index[i]];
       });
     }
@@ -653,7 +671,7 @@
      * for each datum. The default value function is `Number`. The value function
      * is passed two arguments: the current datum and the current index.
      */
-    pie.value = function(x) {
+    pie.value = function (x) {
       if (!arguments.length) return value;
       value = x;
       return pie;
@@ -665,7 +683,7 @@
      * less than b, a positive value if a is greater than b, and zero if a equals
      * b.
      */
-    pie.sort = function(x) {
+    pie.sort = function (x) {
       if (!arguments.length) return sort;
       sort = x;
       return pie;
@@ -677,7 +695,7 @@
      * case of a function, it is evaluated once per array (as opposed to per
      * element).
      */
-    pie.startAngle = function(x) {
+    pie.startAngle = function (x) {
       if (!arguments.length) return startAngle;
       startAngle = x;
       return pie;
@@ -689,7 +707,7 @@
      * case of a function, it is evaluated once per array (as opposed to per
      * element).
      */
-    pie.endAngle = function(x) {
+    pie.endAngle = function (x) {
       if (!arguments.length) return endAngle;
       endAngle = x;
       return pie;
@@ -700,7 +718,7 @@
 
   var d3_layout_pieSortByValue = {};
 // data is two-dimensional array of x,y; we populate y0
-  d3.layout.stack = function() {
+  d3.layout.stack = function () {
     var values = Object,
       order = d3_layout_stackOrders["default"],
       offset = d3_layout_stackOffsets["zero"],
@@ -711,13 +729,13 @@
     function stack(data, index) {
 
       // Convert series to canonical two-dimensional representation.
-      var series = data.map(function(d, i) {
+      var series = data.map(function (d, i) {
         return values.call(stack, d, i);
       });
 
       // Convert each series to canonical [[x,y]] representation.
-      var points = series.map(function(d, i) {
-        return d.map(function(v, i) {
+      var points = series.map(function (d, i) {
+        return d.map(function (v, i) {
           return [x.call(stack, v, i), y.call(stack, v, i)];
         });
       });
@@ -746,37 +764,37 @@
       return data;
     }
 
-    stack.values = function(x) {
+    stack.values = function (x) {
       if (!arguments.length) return values;
       values = x;
       return stack;
     };
 
-    stack.order = function(x) {
+    stack.order = function (x) {
       if (!arguments.length) return order;
       order = typeof x === "function" ? x : d3_layout_stackOrders[x];
       return stack;
     };
 
-    stack.offset = function(x) {
+    stack.offset = function (x) {
       if (!arguments.length) return offset;
       offset = typeof x === "function" ? x : d3_layout_stackOffsets[x];
       return stack;
     };
 
-    stack.x = function(z) {
+    stack.x = function (z) {
       if (!arguments.length) return x;
       x = z;
       return stack;
     };
 
-    stack.y = function(z) {
+    stack.y = function (z) {
       if (!arguments.length) return y;
       y = z;
       return stack;
     };
 
-    stack.out = function(z) {
+    stack.out = function (z) {
       if (!arguments.length) return out;
       out = z;
       return stack;
@@ -800,13 +818,15 @@
 
   var d3_layout_stackOrders = {
 
-    "inside-out": function(data) {
+    "inside-out": function (data) {
       var n = data.length,
         i,
         j,
         max = data.map(d3_layout_stackMaxIndex),
         sums = data.map(d3_layout_stackReduceSum),
-        index = d3.range(n).sort(function(a, b) { return max[a] - max[b]; }),
+        index = d3.range(n).sort(function (a, b) {
+          return max[a] - max[b];
+        }),
         top = 0,
         bottom = 0,
         tops = [],
@@ -824,11 +844,11 @@
       return bottoms.reverse().concat(tops);
     },
 
-    "reverse": function(data) {
+    "reverse": function (data) {
       return d3.range(data.length).reverse();
     },
 
-    "default": function(data) {
+    "default": function (data) {
       return d3.range(data.length);
     }
 
@@ -836,7 +856,7 @@
 
   var d3_layout_stackOffsets = {
 
-    "silhouette": function(data) {
+    "silhouette": function (data) {
       var n = data.length,
         m = data[0].length,
         sums = [],
@@ -856,7 +876,7 @@
       return y0;
     },
 
-    "wiggle": function(data) {
+    "wiggle": function (data) {
       var n = data.length,
         x = data[0],
         m = x.length,
@@ -887,7 +907,7 @@
       return y0;
     },
 
-    "expand": function(data) {
+    "expand": function (data) {
       var n = data.length,
         m = data[0].length,
         k = 1 / n,
@@ -904,7 +924,7 @@
       return y0;
     },
 
-    "zero": function(data) {
+    "zero": function (data) {
       var j = -1,
         m = data[0].length,
         y0 = [];
@@ -936,7 +956,8 @@
   function d3_layout_stackSum(p, d) {
     return p + d[1];
   }
-  d3.layout.histogram = function() {
+
+  d3.layout.histogram = function () {
     var frequency = true,
       valuer = Number,
       ranger = d3_layout_histogramRange,
@@ -962,7 +983,8 @@
       }
 
       // Fill the bins, ignoring values outside the range.
-      i = -1; while(++i < n) {
+      i = -1;
+      while (++i < n) {
         x = values[i];
         if ((x >= range[0]) && (x <= range[1])) {
           bin = bins[d3.bisect(thresholds, x, 1, m) - 1];
@@ -976,7 +998,7 @@
 
     // Specifies how to extract a value from the associated data. The default
     // value function is `Number`, which is equivalent to the identity function.
-    histogram.value = function(x) {
+    histogram.value = function (x) {
       if (!arguments.length) return valuer;
       valuer = x;
       return histogram;
@@ -988,7 +1010,7 @@
     // function that returns the range given the array of values and the current
     // index `i`. The default range is the extent (minimum and maximum) of the
     // values.
-    histogram.range = function(x) {
+    histogram.range = function (x) {
       if (!arguments.length) return ranger;
       ranger = d3.functor(x);
       return histogram;
@@ -1003,17 +1025,19 @@
     // values, and the current index `i`, returning an array of thresholds. The
     // default bin function will divide the values into uniform bins using
     // Sturges' formula.
-    histogram.bins = function(x) {
+    histogram.bins = function (x) {
       if (!arguments.length) return binner;
       binner = typeof x === "number"
-        ? function(range) { return d3_layout_histogramBinFixed(range, x); }
+        ? function (range) {
+        return d3_layout_histogramBinFixed(range, x);
+      }
         : d3.functor(x);
       return histogram;
     };
 
     // Specifies whether the histogram's `y` value is a count (frequency) or a
     // probability (density). The default value is true.
-    histogram.frequency = function(x) {
+    histogram.frequency = function (x) {
       if (!arguments.length) return frequency;
       frequency = !!x;
       return histogram;
@@ -1038,7 +1062,8 @@
   function d3_layout_histogramRange(values) {
     return [d3.min(values), d3.max(values)];
   }
-  d3.layout.hierarchy = function() {
+
+  d3.layout.hierarchy = function () {
     var sort = d3_layout_hierarchySort,
       children = d3_layout_hierarchyChildren,
       value = d3_layout_hierarchyValue;
@@ -1092,26 +1117,26 @@
       return nodes;
     }
 
-    hierarchy.sort = function(x) {
+    hierarchy.sort = function (x) {
       if (!arguments.length) return sort;
       sort = x;
       return hierarchy;
     };
 
-    hierarchy.children = function(x) {
+    hierarchy.children = function (x) {
       if (!arguments.length) return children;
       children = x;
       return hierarchy;
     };
 
-    hierarchy.value = function(x) {
+    hierarchy.value = function (x) {
       if (!arguments.length) return value;
       value = x;
       return hierarchy;
     };
 
     // Re-evaluates the `value` property for the specified hierarchy.
-    hierarchy.revalue = function(root) {
+    hierarchy.revalue = function (root) {
       revalue(root, 0);
       return root;
     };
@@ -1127,7 +1152,7 @@
     object.value = d3.rebind(object, hierarchy.value);
 
     // If the new API is used, enabling inlining.
-    object.nodes = function(d) {
+    object.nodes = function (d) {
       d3_layout_hierarchyInline = true;
       return (object.nodes = object)(d);
     };
@@ -1149,8 +1174,8 @@
 
 // Returns an array source+target objects for the specified nodes.
   function d3_layout_hierarchyLinks(nodes) {
-    return d3.merge(nodes.map(function(parent) {
-      return (parent.children || []).map(function(child) {
+    return d3.merge(nodes.map(function (parent) {
+      return (parent.children || []).map(function (child) {
         return {source: parent, target: child};
       });
     }));
@@ -1158,7 +1183,7 @@
 
 // For backwards-compatibility, don't enable inlining by default.
   var d3_layout_hierarchyInline = false;
-  d3.layout.pack = function() {
+  d3.layout.pack = function () {
     var hierarchy = d3.layout.hierarchy().sort(d3_layout_packSort),
       size = [1, 1];
 
@@ -1180,7 +1205,7 @@
       return nodes;
     }
 
-    pack.size = function(x) {
+    pack.size = function (x) {
       if (!arguments.length) return size;
       size = x;
       return pack;
@@ -1361,8 +1386,9 @@
       c.y = a.y;
     }
   }
+
 // Implements a hierarchical layout using the cluster (or dendogram) algorithm.
-  d3.layout.cluster = function() {
+  d3.layout.cluster = function () {
     var hierarchy = d3.layout.hierarchy().sort(null).value(null),
       separation = d3_layout_treeSeparation,
       size = [1, 1]; // width, height
@@ -1376,7 +1402,7 @@
         ky;
 
       // First walk, computing the initial x & y values.
-      d3_layout_treeVisitAfter(root, function(node) {
+      d3_layout_treeVisitAfter(root, function (node) {
         var children = node.children;
         if (children && children.length) {
           node.x = d3_layout_clusterX(children);
@@ -1395,7 +1421,7 @@
         x1 = right.x + separation(right, left) / 2;
 
       // Second walk, normalizing x & y to the desired size.
-      d3_layout_treeVisitAfter(root, function(node) {
+      d3_layout_treeVisitAfter(root, function (node) {
         node.x = (node.x - x0) / (x1 - x0) * size[0];
         node.y = (1 - node.y / root.y) * size[1];
       });
@@ -1403,13 +1429,13 @@
       return nodes;
     }
 
-    cluster.separation = function(x) {
+    cluster.separation = function (x) {
       if (!arguments.length) return separation;
       separation = x;
       return cluster;
     };
 
-    cluster.size = function(x) {
+    cluster.size = function (x) {
       if (!arguments.length) return size;
       size = x;
       return cluster;
@@ -1419,13 +1445,13 @@
   };
 
   function d3_layout_clusterY(children) {
-    return 1 + d3.max(children, function(child) {
+    return 1 + d3.max(children, function (child) {
         return child.y;
       });
   }
 
   function d3_layout_clusterX(children) {
-    return children.reduce(function(x, child) {
+    return children.reduce(function (x, child) {
         return x + child.x;
       }, 0) / children.length;
   }
@@ -1439,8 +1465,9 @@
     var children = node.children, n;
     return children && (n = children.length) ? d3_layout_clusterRight(children[n - 1]) : node;
   }
+
 // Node-link tree diagram using the Reingold-Tilford "tidy" algorithm
-  d3.layout.tree = function() {
+  d3.layout.tree = function () {
     var hierarchy = d3.layout.hierarchy().sort(null).value(null),
       separation = d3_layout_treeSeparation,
       size = [1, 1]; // width, height
@@ -1533,7 +1560,7 @@
       }
 
       // Initialize temporary layout variables.
-      d3_layout_treeVisitAfter(root, function(node, previousSibling) {
+      d3_layout_treeVisitAfter(root, function (node, previousSibling) {
         node._tree = {
           ancestor: node,
           prelim: 0,
@@ -1557,7 +1584,7 @@
         y1 = deep.depth || 1;
 
       // Clear temporary layout variables; transform x and y.
-      d3_layout_treeVisitAfter(root, function(node) {
+      d3_layout_treeVisitAfter(root, function (node) {
         node.x = (node.x - x0) / (x1 - x0) * size[0];
         node.y = node.depth / y1 * size[1];
         delete node._tree;
@@ -1566,13 +1593,13 @@
       return nodes;
     }
 
-    tree.separation = function(x) {
+    tree.separation = function (x) {
       if (!arguments.length) return separation;
       separation = x;
       return tree;
     };
 
-    tree.size = function(x) {
+    tree.size = function (x) {
       if (!arguments.length) return size;
       size = x;
       return tree;
@@ -1643,6 +1670,7 @@
       }
       callback(node, previousSibling);
     }
+
     visit(node, null);
   }
 
@@ -1676,9 +1704,10 @@
       ? vim._tree.ancestor
       : ancestor;
   }
+
 // Squarified Treemaps by Mark Bruls, Kees Huizing, and Jarke J. van Wijk
 // Modified to support a target aspect ratio by Jeff Heer
-  d3.layout.treemap = function() {
+  d3.layout.treemap = function () {
     var hierarchy = d3.layout.hierarchy(),
       round = Math.round,
       size = [1, 1], // width, height
@@ -1830,13 +1859,13 @@
       return nodes;
     }
 
-    treemap.size = function(x) {
+    treemap.size = function (x) {
       if (!arguments.length) return size;
       size = x;
       return treemap;
     };
 
-    treemap.padding = function(x) {
+    treemap.padding = function (x) {
       if (!arguments.length) return padding;
 
       function padFunction(node) {
@@ -1858,20 +1887,20 @@
       return treemap;
     };
 
-    treemap.round = function(x) {
+    treemap.round = function (x) {
       if (!arguments.length) return round != Number;
       round = x ? Math.round : Number;
       return treemap;
     };
 
-    treemap.sticky = function(x) {
+    treemap.sticky = function (x) {
       if (!arguments.length) return sticky;
       sticky = x;
       stickies = null;
       return treemap;
     };
 
-    treemap.ratio = function(x) {
+    treemap.ratio = function (x) {
       if (!arguments.length) return ratio;
       ratio = x;
       return treemap;
@@ -1889,8 +1918,14 @@
       y = node.y + padding[0],
       dx = node.dx - padding[1] - padding[3],
       dy = node.dy - padding[0] - padding[2];
-    if (dx < 0) { x += dx / 2; dx = 0; }
-    if (dy < 0) { y += dy / 2; dy = 0; }
+    if (dx < 0) {
+      x += dx / 2;
+      dx = 0;
+    }
+    if (dy < 0) {
+      y += dy / 2;
+      dy = 0;
+    }
     return {x: x, y: y, dx: dx, dy: dy};
   }
 })();

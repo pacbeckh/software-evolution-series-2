@@ -14,22 +14,22 @@ angular
       .state('app.files', {
         url: "files?path",
         templateUrl: "views/files.html",
-        reloadOnSearch : false,
-        skipContainer : true
+        reloadOnSearch: false,
+        skipContainer: true
       })
       .state('app.clones', {
         url: "clones/{weight}/{fragments}",
         templateUrl: "views/scatterplot.html",
-        reloadOnSearch : false
+        reloadOnSearch: false
       })
       .state('app.problems', {
         url: "problems",
         templateUrl: "views/problems.html"
       })
       .state('app.graphs', {
-        url : 'graphs',
-        abstract : true,
-        template : '<div ui-view></div>'
+        url: 'graphs',
+        abstract: true,
+        template: '<div ui-view></div>'
       })
       .state('app.graphs.file-tree', {
         url: "/file-tree",
@@ -39,11 +39,11 @@ angular
         url: "/type-packing/:cloneId",
         templateUrl: "views/type-packing.html"
       })
-       .state('app.graphs.donut', {
+      .state('app.graphs.donut', {
         url: "/donut",
         templateUrl: "views/donut.html",
-        skipContainer : true
-       })
+        skipContainer: true
+      })
       .state('app.graphs.treemap',
       {
         url: "/treemap",

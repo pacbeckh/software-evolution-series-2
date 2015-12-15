@@ -20,12 +20,14 @@ angular.module('CloneDetection').controller('MainCtrl', function ($scope, $state
 
   var calculateFileRefs = function (files) {
     var answer = [];
+
     function doWork(list) {
       list.forEach(function (item) {
         answer.push(item);
         doWork(item.children);
       });
     }
+
     doWork(files);
     return answer;
   };

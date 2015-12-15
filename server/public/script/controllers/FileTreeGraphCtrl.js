@@ -4,8 +4,8 @@ angular.module('CloneDetection').controller('FileTreeGraphCtrl', function ($scop
     if (cloneData) {
       stop();
 
-      FileTreeService.render(angular.copy(cloneData.files), function(d) {
-        $scope.$apply(function() {
+      FileTreeService.render(angular.copy(cloneData.files), function (d) {
+        $scope.$apply(function () {
           $state.go('app.files', {path: d.path});
         })
       });

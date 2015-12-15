@@ -3,6 +3,8 @@ module transformation::PairCreator
 import lang::java::jdt::m3::AST;
 import List;
 import Map;
+import ListRelation;
+import Set;
 
 import Domain;
 import Config;
@@ -10,16 +12,9 @@ import logic::PairEvolver;
 import util::Logging;
 
 public list[LinkPair] getAllLinkPairs(list[AnonymousLink] links) {
-	map[list[Statement],list[AnonymousLink]] linkIndex = ();
+	lrel[list[Statement],AnonymousLink] indexLinkRel = [<collectAnonymousKey(link), link> | link <- links, link@maxWeight >= CONFIG_STATEMENT_WEIGHT_THRESHOLD];
 	
-	for(link <- links, link@maxWeight >= CONFIG_STATEMENT_WEIGHT_THRESHOLD) {
-		list[Statement] key = collectAnonymousKey(link);
-		if (linkIndex[key]?) {
-			linkIndex[key] += link;
-		} else {
-			linkIndex[key] = [link];
-		}
-	}
+	map[list[Statement],list[AnonymousLink]] linkIndex = toMap(indexLinkRel);
 	
 	logDebug(" \> Link index size <size(linkIndex)>");
 	

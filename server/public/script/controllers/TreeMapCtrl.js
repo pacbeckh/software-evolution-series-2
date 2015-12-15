@@ -87,15 +87,15 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
             events: {
               click: function (e) {
                 if (e.shiftKey && e.point.id.endsWith("java")) {
-                  $scope.$apply(function() {
-                    $scope.$state.go('app.files', {path:e.point.id});
+                  $scope.$apply(function () {
+                    $scope.$state.go('app.files', {path: e.point.id});
                   });
                 }
               }
             },
             tooltip: {
-              useHTML : true,
-              pointFormatter : function() {
+              useHTML: true,
+              pointFormatter: function () {
                 if (this.name.match(/\.java$/)) {
                   return this.name + "<br>"
                     + $scope.cloneData.maintenanceFiles[this.id].target.containingFragments + " fragment(s)" + "<br>"

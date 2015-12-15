@@ -3,11 +3,11 @@ angular.module('CloneDetection').directive('fileSnippetLoader', function (FileSe
   var promises = {};
 
   return {
-    templateUrl : './templates/file-snippet-loader.html',
-    scope : {
+    templateUrl: './templates/file-snippet-loader.html',
+    scope: {
       location: '='
     },
-    controller : function($scope) {
+    controller: function ($scope) {
       $scope.loading = true;
       $scope.counter = 0;
       var promise;
@@ -18,12 +18,12 @@ angular.module('CloneDetection').directive('fileSnippetLoader', function (FileSe
         promises[$scope.location.file] = promise;
       }
 
-      promise.then(function(content) {
+      promise.then(function (content) {
         var rows = content.split("\n").slice(($scope.location.start.line - 1), $scope.location.end.line);
         $scope.previewContent = rows.join("\n");
-        $timeout(function() {
+        $timeout(function () {
           $scope.loading = false;
-          $timeout(function() {
+          $timeout(function () {
             $scope.counter += 1;
           }, 50);
         }, 50);

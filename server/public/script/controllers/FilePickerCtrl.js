@@ -19,7 +19,7 @@ angular.module('CloneDetection').controller('FilePickerCtrl', function ($scope, 
           return item.name.match(exp);
         }
       };
-    } catch(e) {
+    } catch (e) {
       return {
         valid: false, filter: function () {
           return false;

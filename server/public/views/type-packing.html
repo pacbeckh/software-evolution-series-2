@@ -1,7 +1,7 @@
 <style type="text/css">
 
     #help ul {
-    padding-left: 20px;
+        padding-left: 20px;
     }
 
 </style>
@@ -9,6 +9,7 @@
 <div ng-controller="TypePackingCtrl">
     <div data-ng-show="$state.params.cloneId">
         <h1>Clone Type Packing</h1>
+
         <div class="row">
             <div class="col-xs-2">
                 <div id="help" class="panel panel-default">
@@ -31,7 +32,8 @@
             <tr data-ng-repeat="cloneClass in ::cloneData.clones">
                 <td>
                     <a data-ui-sref="app.graphs.type-packing({cloneId : cloneClass.uid})">
-                        Clone Class {{cloneClass.uid}} <small>(Weight: {{cloneClass.weight}}, Size: {{cloneClass.fragments.length }})</small>
+                        Clone Class {{cloneClass.uid}}
+                        <small>(Weight: {{cloneClass.weight}}, Size: {{cloneClass.fragments.length }})</small>
                     </a>
                 </td>
             </tr>

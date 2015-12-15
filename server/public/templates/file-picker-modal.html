@@ -4,14 +4,21 @@
 <div class="modal-body">
     <form class="form" ng-class="{error : !validRegex }">
         <div class="form-group" ng-class="{'has-error' : !validRegex }">
-            <input type="text" autofocus ng-model="searchQuery" ng-change="updateResults()" placeholder="Search..." class="form-control"/>
+            <input type="text" autofocus ng-model="searchQuery" ng-change="updateResults()" placeholder="Search..."
+                   class="form-control"/>
         </div>
     </form>
 
-    <p>Result count: {{resultCount}} <small style="color:#888">Only showing first 10 results</small></p>
+    <p>Result count: {{resultCount}}
+        <small style="color:#888">Only showing first 10 results</small>
+    </p>
     <table class="table-rounded table-bordered table">
         <tr ng-repeat="item in results">
-            <td><button class="btn btn-link" ng-click="openFile(item)">{{item.name}} <small style="color:#888">{{item.path}}</small></button></td>
+            <td>
+                <button class="btn btn-link" ng-click="openFile(item)">{{item.name}}
+                    <small style="color:#888">{{item.path}}</small>
+                </button>
+            </td>
         </tr>
     </table>
 </div>

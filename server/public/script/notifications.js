@@ -1,4 +1,4 @@
-angular.module('CloneDetection').config(function(NotificationProvider) {
+angular.module('CloneDetection').config(function (NotificationProvider) {
   NotificationProvider.setOptions({
     delay: 2000,
     startTop: 20,

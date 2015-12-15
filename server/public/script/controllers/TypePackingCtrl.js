@@ -25,18 +25,18 @@ angular.module('CloneDetection').controller('TypePackingCtrl', function ($scope,
     });
 
     var segment = 0;
-    var typeOneGroups = Object.keys(result).map(function(k) {
+    var typeOneGroups = Object.keys(result).map(function (k) {
 
-      result[k].forEach(function() {
+      result[k].forEach(function () {
 
       });
 
       return {
-        name : "Segment " + (++segment),
-        children : result[k].map(function(fragment) {
+        name: "Segment " + (++segment),
+        children: result[k].map(function (fragment) {
           return {
-            name : fragment.fileName,
-            size : 1000
+            name: fragment.fileName,
+            size: 1000
           }
         })
       }
@@ -59,7 +59,7 @@ angular.module('CloneDetection').controller('TypePackingCtrl', function ($scope,
         fragment.end.line >= line.number;
     });
 
-    var contents = lines.map(function(l) {
+    var contents = lines.map(function (l) {
       return l.content.trim();
     });
     return contents.join('\n');

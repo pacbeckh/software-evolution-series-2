@@ -33,7 +33,7 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
     return answer;
   };
 
-  var cloneFragmentClickCallback = function(fragments, lineStart) {
+  var cloneFragmentClickCallback = function (fragments, lineStart) {
     return function () {
       $uibModal.open({
         templateUrl: './templates/clone-classes-modal.html',
@@ -73,32 +73,32 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
 
     function addHighlightsWhenLineVisible() {
       var refs = $(".CodeMirror-linenumber[style]");
-      var allPresent = _.all(groupedHighLights, function(fragments, lineStart) {
+      var allPresent = _.all(groupedHighLights, function (fragments, lineStart) {
         return refs.eq(lineStart - 1).length > 0;
       });
 
       if (allPresent) {
         addHighlights(refs);
       } else {
-        $timeout(function() {
+        $timeout(function () {
           addHighlightsWhenLineVisible();
         }, 200);
       }
     }
 
     function addHighlights(refs) {
-        _.each(groupedHighLights, function (fragments, lineStart) {
-          refs.eq(lineStart - 1).on('click', function () {
-            $scope.$apply(cloneFragmentClickCallback(fragments, lineStart));
-          });
+      _.each(groupedHighLights, function (fragments, lineStart) {
+        refs.eq(lineStart - 1).on('click', function () {
+          $scope.$apply(cloneFragmentClickCallback(fragments, lineStart));
+        });
 
 
-          refs.eq(lineStart - 1)
-            .css('background', '#BB5252')
-            .css('color', '#fff')
-            .css('z-index', lineStart)
-            .css('cursor', 'pointer')
-        })
+        refs.eq(lineStart - 1)
+          .css('background', '#BB5252')
+          .css('color', '#fff')
+          .css('z-index', lineStart)
+          .css('cursor', 'pointer')
+      })
     }
 
     FileService.getFile(path).then(function (data) {
@@ -142,17 +142,17 @@ angular.module('CloneDetection').controller('FilesCtrl', function ($scope, $http
         controller: 'FilePickerCtrl',
         resolve: {
           allFileRefs: function () {
-            return $scope.cloneData.allFileRefs.filter(function(item) {
+            return $scope.cloneData.allFileRefs.filter(function (item) {
               return !item.isDir;
             });
           }
         }
       });
 
-      modal.result.then(function(item) {
+      modal.result.then(function (item) {
         $scope.showSelected(item, {open: true});
         modal = null;
-      }, function() {
+      }, function () {
         modal = null;
       })
 

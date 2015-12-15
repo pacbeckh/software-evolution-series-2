@@ -24,8 +24,8 @@ import transformation::PairCreator;
 import util::Logging;
 
 //public loc projectLoc = |project://hello-world-java/|;
-//public loc projectLoc = |project://smallsql0.21_src|;
-public loc projectLoc = |project://hsqldb-2.3.1|;
+public loc projectLoc = |project://smallsql0.21_src|;
+//public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 loadModel() = createM3FromEclipseProject(projectLoc);
 

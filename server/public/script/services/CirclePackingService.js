@@ -9,7 +9,7 @@ angular.module('CloneDetection').service('CirclePackingService', function () {
     var margin = 20,
       diameter = 800;
 
-    var color = function(i) {
+    var color = function (i) {
       return ["black", "#ccc"][i];
     };
 
@@ -63,7 +63,7 @@ angular.module('CloneDetection').service('CirclePackingService', function () {
       .text(function (d) {
         return d.name;
       })
-      .on('click', function() {
+      .on('click', function () {
         debugger;
       });
 

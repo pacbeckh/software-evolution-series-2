@@ -1,10 +1,10 @@
 angular.module('CloneDetection').service('FileService', function ($http, $q) {
 
   return {
-    getFile : function(path) {
+    getFile: function (path) {
       var deferred = $q.defer();
       $http({method: 'GET', url: '/data/files/' + path})
-        .success(function(data) {
+        .success(function (data) {
           if (typeof(data) === "string") {
             deferred.resolve(data);
           } else {

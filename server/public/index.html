@@ -73,12 +73,14 @@
             <ul class="nav navbar-nav">
                 <li ng-class="{ 'active' : $state.includes('app.files') }"><a data-ui-sref="app.files">Files</a></li>
                 <li ng-class="{ 'active' : $state.includes('app.clones') }"><a data-ui-sref="app.clones">Clones</a></li>
-                <li ng-class="{ 'active' : $state.includes('app.problems') }"><a data-ui-sref="app.problems">Problems</a></li>
+                <li ng-class="{ 'active' : $state.includes('app.problems') }"><a
+                        data-ui-sref="app.problems">Problems</a></li>
 
                 <li class="dropdown" ng-class="{ 'active' : $state.includes('app.graphs') }">
-                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true">Graphs <span class="caret"></span></a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="true">Graphs <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a data-ui-sref="app.graphs.file-tree">File Tree</a></li>
+                        <!--<li><a data-ui-sref="app.graphs.file-tree">File Tree</a></li>-->
                         <li><a data-ui-sref="app.graphs.type-packing({cloneId: null})">Clone Type Packing</a></li>
                         <li><a data-ui-sref="app.graphs.donut">Clone dependencies</a></li>
                         <li><a data-ui-sref="app.graphs.treemap">Package view</a></li>

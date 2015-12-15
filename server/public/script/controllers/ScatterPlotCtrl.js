@@ -74,7 +74,7 @@ angular.module('CloneDetection').controller('ScatterPlotCtrl', function ($scope,
         }
       },
       title: {
-        text : ''
+        text: ''
       },
       xAxis: {
         allowDecimals: false,
