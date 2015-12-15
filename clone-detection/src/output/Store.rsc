@@ -17,4 +17,6 @@ public void storeInServer(loc l, map[int, set[CloneClass]] cloneClasses, Mainten
 	copyDirectory(l, |project://clone-detection/output/files|);
 	writeFile(|project://clone-detection/output/clones.json|, json);
 	writeFile(|project://clone-detection/output/maintenance.json|, mainDups);
+	
+	remove(|project://clone-detection/output/files/bin|);
 }
