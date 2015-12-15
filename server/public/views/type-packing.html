@@ -1,12 +1,29 @@
+<style type="text/css">
+
+    #help ul {
+    padding-left: 20px;
+    }
+
+</style>
+
 <div ng-controller="TypePackingCtrl">
     <div data-ng-show="$state.params.cloneId">
         <h1>Clone Type Packing</h1>
-        <ul>
-            <li>The black circle indicates the whole clone class</li>
-            <li>The gray circles indicate the type 1 clones in this type 2 clone class.</li>
-            <li>The white circles indicate each clone fragment.</li>
-        </ul>
-        <div id="circle-pack-graph"></div>
+        <div class="row">
+            <div class="col-xs-2">
+                <div id="help" class="panel panel-default">
+                    <div class="panel-heading">Info</div>
+                    <div class="panel-body">
+                        <ul>
+                            <li>The black circle indicates the whole clone class</li>
+                            <li>The gray circles indicate the type 1 clones in this type 2 clone class.</li>
+                            <li>The white circles indicate each clone fragment.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-10" id="circle-pack-graph"></div>
+        </div>
     </div>
     <div data-ng-if="!$state.params.cloneId">
         <table class="table">

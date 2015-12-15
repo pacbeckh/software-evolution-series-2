@@ -1,5 +1,28 @@
+<style type="text/css">
+
+    #treemap-help ul {
+    padding-left: 20px;
+    }
+
+</style>
+
 <div ng-controller="TreeMapCtrl">
-    <div class="row" data-ng-if="!loading">
-        <highchart style="height:600px" id="treemap" config="treeMapConfig"></highchart>
+    <div class="row">
+        <div class="col-xs-2">
+            <div id="treemap-help" class="panel panel-default">
+                <div class="panel-heading">Package view</div>
+                <div class="panel-body">
+                    <p>The following graph shows where the points of attention are located</p>
+                    <ul>
+                        <li>Click on a folder to drill down.</li>
+                        <li>The color of a file indicates the percentage of duplication.</li>
+                        <li> <kbd><kbd>shift</kbd> + <kbd>click</kbd></kbd> on a file to show its contents.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-10" data-ng-if="!loading">
+            <highchart style="height:600px" id="treemap" config="treeMapConfig"></highchart>
+        </div>
     </div>
 </div>

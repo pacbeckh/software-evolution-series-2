@@ -86,7 +86,7 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
           treemap: {
             events: {
               click: function (e) {
-                if (e.shiftKey) {
+                if (e.shiftKey && e.point.id.endsWith("java")) {
                   $scope.$apply(function() {
                     $scope.$state.go('app.files', {path:e.point.id});
                   });
@@ -127,7 +127,7 @@ angular.module('CloneDetection').controller('TreeMapCtrl', function ($scope, $ti
         data: points
       }],
       title: {
-        text: 'Clone distribution'
+        text: ''
       }
     }
   }

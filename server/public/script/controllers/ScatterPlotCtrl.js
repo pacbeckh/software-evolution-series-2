@@ -82,7 +82,7 @@ angular.module('CloneDetection').controller('ScatterPlotCtrl', function ($scope,
           enabled: true,
           text: 'Weight'
         },
-        startOnTick: true,
+        startOnTick: false,
         endOnTick: false,
         showLastLabel: true
       },
