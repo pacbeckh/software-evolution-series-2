@@ -23,9 +23,9 @@ import transformation::CloneClassCreator;
 import transformation::PairCreator;
 import util::Logging;
 
-public loc projectLoc = |project://hello-world-java/|;
+//public loc projectLoc = |project://hello-world-java/|;
 //public loc projectLoc = |project://smallsql0.21_src|;
-//public loc projectLoc = |project://hsqldb-2.3.1|;
+public loc projectLoc = |project://hsqldb-2.3.1|;
 
 public M3 loadModel() = createM3FromEclipseProject(projectLoc);
 
@@ -91,8 +91,7 @@ public map[int, set[CloneClass]]  purgeCloneClasses(map[int, set[CloneClass]] cl
 
 public lrel[loc,Declaration] collectDeclarations(M3 model) = [
 	<cu,createAstFromFile(cu, true, javaVersion="1.7")> | 
-		cu <- files(model@containment), 
-			cu.file == "DuplicationInStructuralTraversal.java",
+		cu <- files(model@containment),
 			cu.file != "ValidatingResourceBundle.java"
 ];
 		
