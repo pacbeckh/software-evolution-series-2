@@ -1,4 +1,4 @@
-<style type="text/css">
+<!--<style type="text/css">
 
     .chart {
     display: block;
@@ -104,20 +104,23 @@
     color: #999;
     }
 
-</style>
+</style>-->
 
 
 <div ng-controller="TreeMapCtrl">
-    <div id="body">
-    </div>
+    <!--<div id="body">
+    </div>-->
 
+    <div class="row">
+        <highchart id="treemap" config="treemapConfig"></highchart>
+    </div>
 </div>
 
 <!--Turn this into a nice panel..-->
-<div id="footer">
+<!--<div id="footer">
     <div class="hint">click or option-click to descend or ascend</div>
     <div><select>
         <option value="size">Size</option>
         <option value="count">Count</option>
     </select></div>
-</div>
+</div>-->
