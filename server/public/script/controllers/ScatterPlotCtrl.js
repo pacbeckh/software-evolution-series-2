@@ -157,7 +157,7 @@ angular.module('CloneDetection').controller('ScatterPlotCtrl', function ($scope,
       }
       var keysToTake = sortedKeys.slice(taken, (taken + take));
       var serie = {
-        name: _.first(keysToTake) + " - " + _.last(keysToTake),
+        name: _.first(keysToTake) === _.last(keysToTake) ? _.first(keysToTake) :  _.first(keysToTake) + " - " + _.last(keysToTake),
         data: []
       };
 
