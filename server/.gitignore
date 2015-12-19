@@ -1,3 +1,13 @@
+# project file
+.idea
+
+# bower/node
 public/components
+node_modules
+
+# active data
 data/files/*
 data/*.json
+
+# backups of data
+data_*
